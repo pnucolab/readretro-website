@@ -10,10 +10,12 @@
 	let beam_size = { value: 49, label: 50 };
 	let on = true;
 	let off = false;
-	let target_molecule = { value: 'rr', label: 'rr' };
+	let username = 'ecolab';
+	let password = 'ecolab';
+	let target_molecule = { label: '', value: '' };
 
 	// @ts-ignore
-	async function load() {
+	export async function load() {
 		console.log('adsf');
 		let retrieval = on ? true : false;
 		const res = await fetch(
@@ -26,11 +28,10 @@
 				'&beam_size=' +
 				beam_size.label +
 				'&retrieval=' +
-				on,
+				retrieval,
 			{
-				method: 'GET'
-
-				//headers: { Authorization: 'Basic ' + base64.encode(username + ':' + password) }
+				method: 'GET',
+				headers: { Authorization: 'Basic ' + (username + ':' + password) }
 			}
 		);
 		console.log(res);
@@ -75,7 +76,7 @@
 			name="first"
 			placeholder="SMILES"
 			required
-			value={target_molecule.label}
+			bind:value={target_molecule.value}
 		/>
 	</div>
 
@@ -101,7 +102,6 @@
 					})}
 					bind:value={iterations}
 				/>
-				<p>{iterations.label}</p>
 			</div>
 			<div class="flex p-5">
 				<p class="w-4/12">beam size</p>
@@ -111,7 +111,6 @@
 					})}
 					bind:value={beam_size}
 				/>
-				<p>{beam_size.label}</p>
 			</div>
 
 			<div class="flex p-5">
@@ -122,8 +121,10 @@
 							? 'bg-blue-500 text-blue-700 font-semibold text-white py-2 px-4 border border-blue-500 border-transparent rounded mr-5'
 							: 'bg-transparent hover:bg-blue-500 text-blue-700 font-semibold hover:text-white py-2 px-4 border border-blue-500 hover:border-transparent rounded mr-5'}
 						on:click={() => {
-							on = !on;
-							off = !off;
+							if (!on) {
+								on = !on;
+								off = !off;
+							}
 						}}
 					>
 						On
@@ -133,11 +134,24 @@
 							? 'bg-blue-500 text-blue-700 font-semibold text-white py-2 px-4 border border-blue-500 border-transparent rounded mr-5'
 							: 'bg-transparent hover:bg-blue-500 text-blue-700 font-semibold hover:text-white py-2 px-4 border border-blue-500 hover:border-transparent rounded mr-5'}
 						on:click={() => {
-							on = !on;
-							off = !off;
+							if (!off) {
+								on = !on;
+								off = !off;
+							}
 						}}
 					>
 						Off
+					</button>
+
+					<button
+						class={off
+							? 'bg-blue-500 text-blue-700 font-semibold text-white py-2 px-4 border border-blue-500 border-transparent rounded mr-5'
+							: 'bg-transparent hover:bg-blue-500 text-blue-700 font-semibold hover:text-white py-2 px-4 border border-blue-500 hover:border-transparent rounded mr-5'}
+						on:click={() => {
+							load();
+						}}
+					>
+						load
 					</button>
 				</div>
 			</div>
