@@ -38,7 +38,7 @@
 			Retrieval DB
 		</button>
 	</div>
-	<div class="w-11/12 h-full m-4 mt-0  border-2">
+	<div class="w-11/12 h-full justify-center m-4 mt-0  border-2">
 		{#if argu}
 			<Arguments />
 		{/if}
@@ -49,8 +49,4 @@
 			<RetrievalDb />
 		{/if}
 	</div>
-
-	<button class="text-5xl bg-blue-500 hover:bg-blue-700 text-white font-bold w-1/3 h-20 m-5">
-		Run
-	</button>
 </div>

@@ -1,6 +1,8 @@
 <script>
 	import Select from 'svelte-select';
-	import { onMount } from 'svelte';
+
+	import { load } from './fetch';
+	import Result from './Result.svelte';
 
 	/**
 	 * @type {any}
@@ -10,63 +12,26 @@
 	let beam_size = { value: 49, label: 50 };
 	let on = true;
 	let off = false;
-	let username = 'ecolab';
-	let password = 'ecolab';
 	let target_molecule = { label: '', value: '' };
-
-	// @ts-ignore
-	export async function load() {
-		console.log('adsf');
-		let retrieval = on ? true : false;
-		const res = await fetch(
-			'https://retro.pnucolab.com/run?product=' +
-				target_molecule.value +
-				'&route_topk=' +
-				pathway.label +
-				'&iterations=' +
-				iterations.label +
-				'&beam_size=' +
-				beam_size.label +
-				'&retrieval=' +
-				retrieval,
-			{
-				method: 'GET',
-				headers: { Authorization: 'Basic ' + (username + ':' + password) }
-			}
-		);
-		console.log(res);
-		const articles = await res.json();
-		console.log(articles);
-	}
-
-	{
-		/*async function flowerCheck(img, threshold) {
-		const response = await fetch(img.uri);
-		const blob = await response.blob();
-		if (!blob) return;
-		const sotrageRef = ref(firebaseInit.storage, 'checkingFile/check.png');
-		await uploadBytesResumable(sotrageRef, blob);
-		const res = await axios.post(
-			'http://34.64.231.30:8000/flowerChecking?threshold=' + threshold.toString()
-		);
-		if (res.data.flower_name == 'unknown') return null;
-		const flowerName = res.data.flower_name;
-		for (const info of plant) {
-			if (info.name == flowerName) {
-				return info.name;
-			}
-		}
-		return null;
-	}*/
-	}
-
-	onMount(() => {
-		console.log('mounted');
-		load();
-	});
+	let retrieval = on ? true : false;
+	let url =
+		'https://retro.pnucolab.com/run?product=' +
+		target_molecule.value +
+		'&route_topk=' +
+		pathway.label +
+		'&iterations=' +
+		iterations.label +
+		'&beam_size=' +
+		beam_size.label +
+		'&retrieval=' +
+		retrieval;
+	/**
+	 * @type {string | null}
+	 */
+	let t = null;
 </script>
 
-<div class="h-full w-10/12 bg-white flex flex-col justify-items-start px-24 p-3">
+<div class="h-full w-full bg-white flex flex-col justify-center px-24 p-3">
 	<div class="w-full flex my-10">
 		<p class="w-3/12 text-xl font-bold mr-4">Target molecule</p>
 		<input
@@ -142,19 +107,26 @@
 					>
 						Off
 					</button>
-
-					<button
-						class={off
-							? 'bg-blue-500 text-blue-700 font-semibold text-white py-2 px-4 border border-blue-500 border-transparent rounded mr-5'
-							: 'bg-transparent hover:bg-blue-500 text-blue-700 font-semibold hover:text-white py-2 px-4 border border-blue-500 hover:border-transparent rounded mr-5'}
-						on:click={() => {
-							load();
-						}}
-					>
-						load
-					</button>
 				</div>
 			</div>
 		</div>
 	</div>
+	<button
+		class={'bg-transparent hover:bg-blue-500 text-blue-700 font-semibold hover:text-white py-2 px-4 border border-blue-500 hover:border-transparent rounded m-6'}
+		on:click={() => {
+			load(url).then((result) => {
+				t = result.ticket;
+				console.log(t);
+				let url2 = 'https://retro.pnucolab.com/result?ticket=' + t;
+				console.log(url2);
+				load(url2).then((result) => {
+					console.log(result);
+				});
+				console.log(t);
+			});
+			console.log(t);
+		}}
+	>
+		load
+	</button>
 </div>
