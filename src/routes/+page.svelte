@@ -2,6 +2,7 @@
 	import Arguments from './Arguments.svelte';
 	import BuildingBlocks from './Building_Blocks.svelte';
 	import RetrievalDb from './Retrieval_DB.svelte';
+	import Result from './Result.svelte'
 	import { Navbar, NavBrand, NavLi, NavUl, NavHamburger } from 'flowbite-svelte';
 	import { Heading, P, A, Mark, Secondary, Button } from 'flowbite-svelte';
 	import { Tabs, TabItem } from 'flowbite-svelte';
@@ -9,7 +10,7 @@
 	/**
 	 * @type {any}
 	 */
-	 let pathway = { value: 9, label: 10 };
+	let pathway = { value: 9, label: 10 };
 	let iterations = { value: 99, label: 100 };
 	let beam_size = { value: 49, label: 50 };
 	let on = true;
@@ -31,6 +32,40 @@
 	 * @type {string | null}
 	 */
 	let t = null;
+	function submit() {
+		/*load(url).then((result) => {
+			t = result.ticket;
+			console.log(t);
+			let url2 = 'https://retro.pnucolab.com/result?ticket=' + t;
+			console.log(url2);
+			load(url2).then((result) => {
+				console.log(result);
+			});
+			console.log(t);
+		});*/
+		result = {
+			"success": true,
+			"status": 2		};
+		result = {
+  "success": true,
+  "pathway": [
+    "O=C1C=C2C=CC(O)CC2O1>0.0991>C=C(O[C@@H]1C=C(C(=O)O)C=C[C@H]1O)C(=O)O",
+    "O=C1C=C2C=CC(O)CC2O1>0.0992>O=C(O)/C=C\\C1=CC=CC(O)C1|O=C(O)/C=C\\C1=CC=CC(O)C1>0.1482>O=C(O)/C=C/c1cccc(O)c1|O=C(O)/C=C/c1cccc(O)c1>1.0000>O=C(O)/C=C/c1ccccc1|O=C(O)/C=C/c1ccccc1>1.0000>N[C@@H](Cc1ccccc1)C(=O)O",
+    "O=C1C=C2C=CC(O)CC2O1>0.0992>O=C(O)/C=C\\C1=CC=CC(O)C1|O=C(O)/C=C\\C1=CC=CC(O)C1>0.1482>O=C(O)/C=C/c1cccc(O)c1|O=C(O)/C=C/c1cccc(O)c1>1.0000>O=C(O)/C=C/c1ccccc1|O=C(O)/C=C/c1ccccc1>1.0000>*C(=O)/C=C/c1ccccc1.O=C(O)[C@H](O)Cc1ccccc1|*C(=O)/C=C/c1ccccc1>1.0000>*C(=O)/C=C/c1ccc(O)cc1|O=C(O)[C@H](O)Cc1ccccc1>1.0000>O=C(O)C(=O)Cc1ccccc1|*C(=O)/C=C/c1ccc(O)cc1>1.0000>O=C(O)/C=C/c1ccc(O)cc1|O=C(O)C(=O)Cc1ccccc1>1.0000>N[C@@H](Cc1ccccc1)C(=O)O",
+    "O=C1C=C2C=CC(O)CC2O1>0.0992>O=C(O)/C=C\\C1=CC=CC(O)C1|O=C(O)/C=C\\C1=CC=CC(O)C1>0.1482>O=C(O)/C=C/c1cccc(O)c1|O=C(O)/C=C/c1cccc(O)c1>1.0000>O=C(O)/C=C/c1ccccc1|O=C(O)/C=C/c1ccccc1>1.0000>N[C@H](Cc1ccccc1)C(=O)O|N[C@H](Cc1ccccc1)C(=O)O>1.0000>N[C@@H](Cc1ccccc1)C(=O)O",
+    "O=C1C=C2C=CC(O)CC2O1>0.0992>O=C(O)/C=C\\C1=CC=CC(O)C1|O=C(O)/C=C\\C1=CC=CC(O)C1>0.1482>O=C(O)/C=C/c1cccc(O)c1|O=C(O)/C=C/c1cccc(O)c1>1.0000>O=C(O)/C=C/c1ccccc1|O=C(O)/C=C/c1ccccc1>1.0000>CC(=O)O.O=C(O)c1ccccc1|CC(=O)O>1.0000>O=C1O[C@H]([C@@H](O)CO)C(O)=C1O|O=C(O)c1ccccc1>1.0000>Nc1ccc(C(=O)O)cc1|Nc1ccc(C(=O)O)cc1>1.0000>C=C(O[C@@H]1C=C(C(=O)O)C=C[C@H]1N)C(=O)O|C=C(O[C@@H]1C=C(C(=O)O)C=C[C@H]1N)C(=O)O>1.0000>C=C(O[C@@H]1C=C(C(=O)O)C=C[C@H]1O)C(=O)O",
+    "O=C1C=C2C=CC(O)CC2O1>0.0992>O=C(O)/C=C\\C1=CC=CC(O)C1|O=C(O)/C=C\\C1=CC=CC(O)C1>0.1482>O=C(O)/C=C/c1cccc(O)c1|O=C(O)/C=C/c1cccc(O)c1>1.0000>O=C(O)/C=C/c1ccccc1|O=C(O)/C=C/c1ccccc1>1.0000>N[C@H](Cc1ccccc1)C(=O)O|N[C@H](Cc1ccccc1)C(=O)O>1.0000>O=C(O)C(=O)Cc1ccccc1|O=C(O)C(=O)Cc1ccccc1>1.0000>N[C@@H](Cc1ccccc1)C(=O)O",
+    "O=C1C=C2C=CC(O)CC2O1>0.0992>O=C(O)/C=C\\C1=CC=CC(O)C1|O=C(O)/C=C\\C1=CC=CC(O)C1>0.1482>O=C(O)/C=C/c1cccc(O)c1|O=C(O)/C=C/c1cccc(O)c1>1.0000>O=C(O)/C=C/c1ccccc1|O=C(O)/C=C/c1ccccc1>1.0000>CC(=O)O.O=C(O)c1ccccc1|CC(=O)O>1.0000>O=C1O[C@H]([C@@H](O)CO)C(O)=C1O|O=C(O)c1ccccc1>1.0000>O=C(O)c1ccc(O)cc1|O=C1O[C@H]([C@@H](O)CO)C(O)=C1O>1.0000>NC[C@H](O)c1ccc(O)cc1|O=C(O)c1ccc(O)cc1>1.0000>O=Cc1ccc(O)cc1|O=Cc1ccc(O)cc1>1.0000>O=C(O)/C=C/c1ccc(O)cc1",
+    "O=C1C=C2C=CC(O)CC2O1>0.0992>O=C(O)/C=C\\C1=CC=CC(O)C1|O=C(O)/C=C\\C1=CC=CC(O)C1>0.1482>O=C(O)/C=C/c1cccc(O)c1|O=C(O)/C=C/c1cccc(O)c1>1.0000>O=C(O)/C=C/c1ccccc1|O=C(O)/C=C/c1ccccc1>1.0000>CC(=O)O.O=C(O)c1ccccc1|CC(=O)O>1.0000>O=C1O[C@H]([C@@H](O)CO)C(O)=C1O|O=C(O)c1ccccc1>1.0000>O=C(O)c1ccc(O)cc1|O=C1O[C@H]([C@@H](O)CO)C(O)=C1O>1.0000>NC[C@H](O)c1ccc(O)cc1|O=C(O)c1ccc(O)cc1>1.0000>Oc1ccccc1|Oc1ccccc1>1.0000>N[C@@H](Cc1ccc(O)cc1)C(=O)O",
+    "O=C1C=C2C=CC(O)CC2O1>0.0992>O=C(O)/C=C\\C1=CC=CC(O)C1|O=C(O)/C=C\\C1=CC=CC(O)C1>0.1482>O=C(O)/C=C/c1cccc(O)c1|O=C(O)/C=C/c1cccc(O)c1>1.0000>O=C(O)/C=C/c1ccccc1|O=C(O)/C=C/c1ccccc1>1.0000>CC(=O)O.O=C(O)c1ccccc1|CC(=O)O>1.0000>O=C1O[C@H]([C@@H](O)CO)C(O)=C1O|O=C(O)c1ccccc1>1.0000>Nc1ccc(C(=O)O)cc1|Nc1ccc(C(=O)O)cc1>1.0000>Nc1ccccc1|Nc1ccccc1>1.0000>Nc1ccccc1C(=O)O",
+    "O=C1C=C2C=CC(O)CC2O1>0.0992>O=C(O)/C=C\\C1=CC=CC(O)C1|O=C(O)/C=C\\C1=CC=CC(O)C1>0.1482>O=C(O)/C=C/c1cccc(O)c1|O=C(O)/C=C/c1cccc(O)c1>1.0000>O=C(O)/C=C/c1ccccc1|O=C(O)/C=C/c1ccccc1>1.0000>*C(=O)/C=C/c1ccccc1.O=C(O)[C@H](O)Cc1ccccc1|*C(=O)/C=C/c1ccccc1>1.0000>*C(=O)/C=C/c1ccc(O)cc1|O=C(O)[C@H](O)Cc1ccccc1>1.0000>O=C(O)C(=O)Cc1ccccc1|*C(=O)/C=C/c1ccc(O)cc1>1.0000>O=C(/C=C/c1ccc(O)cc1)c1ccc(O)cc1O"
+  ],
+  "status": 0
+};
+		
+	}
+	let result = {};
+	submit()
 </script>
 
 <Navbar let:hidden let:toggle>
@@ -63,6 +98,9 @@
 			posuere, vitae laoreet orci venenatis. Morbi gravida bibendum consectetur. Praesent
 			sollicitudin sagittis neque, ut tempor lectus feugiat quis.
 		</P>
+		{#if Object.keys(result).length > 0}
+			<Result bind:result={result} />
+		{:else}
 		<Tabs style="underline" contentClass="p-8 rounded-lg border mt-4">
 			<TabItem open>
 				<div slot="title" class="flex items-center gap-2">
@@ -125,21 +163,10 @@
 		<div class="mt-8 text-center">
 			<Button
 				size="xl"
-				on:click={() => {
-					load(url).then((result) => {
-						t = result.ticket;
-						console.log(t);
-						let url2 = 'https://retro.pnucolab.com/result?ticket=' + t;
-						console.log(url2);
-						load(url2).then((result) => {
-							console.log(result);
-						});
-						console.log(t);
-					});
-					console.log(t);
-				}}
+				on:click={() => submit()}	
 				type="submit">Submit</Button
 			>
 		</div>
+		{/if}
 	</div>
 </div>
