@@ -5,10 +5,8 @@
 	let blocks = {};
 	let mounted = false;
 	let checked = [];
-	function toggleChecked(i) {
-		checked[i] = !checked[i];
-		console.log(i);
-	}
+	export let smiles = [];
+	$: smiles = checked.map((c, i) => Object.keys(blocks)[i]).filter((c, i) => checked[i]);
 	onMount(async () => {
 		const rtn = await load('https://retro.pnucolab.com/building-blocks');
 		if (rtn.success) {
@@ -25,7 +23,7 @@
 		{#each Object.keys(blocks) as block, i}
 			<Card
 				color="light"
-				class="mb-5 mx-3"
+				class="mb-5 mx-3 w-48"
 				size="xs"
 				img={'data:image/png;base64,' + blocks[block]}
 			>

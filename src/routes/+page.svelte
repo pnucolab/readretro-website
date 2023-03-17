@@ -17,6 +17,7 @@
 	let target_molecule = { label: 'O=C1C=C2C=CC(O)CC2O1', value: 'O=C1C=C2C=CC(O)CC2O1' };
 	let result = {};
 	let ticket;
+	let building_blocks = [];
 
 	async function run(url) {
 		const response = await load(url);
@@ -213,7 +214,7 @@
 						</svg>
 						Building Blocks
 					</div>
-					<BuildingBlocks />
+					<BuildingBlocks bind:smiles={building_blocks} />
 				</TabItem>
 				<TabItem>
 					<div slot="title" class="flex items-center gap-2">
@@ -243,6 +244,8 @@
 						run(
 							'https://retro.pnucolab.com/run?product=' +
 								target_molecule.value +
+								'&building_blocks=' +
+								building_blocks.join(',') +
 								'&route_topk=' +
 								pathway.label +
 								'&iterations=' +
