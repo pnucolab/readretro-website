@@ -7,7 +7,6 @@
 	import { Heading, P, A, Mark, Secondary, Button } from 'flowbite-svelte';
 	import { Tabs, TabItem } from 'flowbite-svelte';
 	import { load } from './fetch';
-	import { tick } from 'svelte';
 	/**
 	 * @type {any}
 	 */
@@ -22,19 +21,122 @@
 	async function run(url) {
 		const response = await load(url);
 		console.log(url);
-		console.log(response.ticket);
-		ticket = response.ticket;
+		//ticket = response.ticket;
+		ticket = 'test';
 		get_result(ticket);
 	}
 
 	async function get_result(ticket) {
-		const data = await load('https://retro.pnucolab.com/result?ticket=' + ticket);
-		result = data;
+		//const data = await load('https://retro.pnucolab.com/result?ticket=' + ticket);
+		//result = data;
+		result = {
+			success: true,
+			task_id: 'd1df6c91-d219-4e58-8655-bab84b0b04c4',
+			created_at: '2023-03-17T07:50:25.310798',
+			product: 'O=C1C=C2C=CC(O)CC2O1',
+			pathway: [
+				['O=C1C=C2C=CC(O)CC2O1', 'C=C(O[C@@H]1C=C(C(=O)O)C=C[C@H]1O)C(=O)O'],
+				[
+					'O=C1C=C2C=CC(O)CC2O1',
+					'O=C(O)/C=C\\C1=CC=CC(O)C1',
+					'O=C(O)/C=C/c1cccc(O)c1',
+					'O=C(O)/C=C/c1ccccc1',
+					'N[C@@H](Cc1ccccc1)C(=O)O'
+				],
+				[
+					'O=C1C=C2C=CC(O)CC2O1',
+					'O=C(O)/C=C\\C1=CC=CC(O)C1',
+					'O=C(O)/C=C/c1cccc(O)c1',
+					'O=C(O)/C=C/c1ccccc1',
+					'O=C(O)[C@H](O)Cc1ccccc1',
+					'*C(=O)/C=C/c1ccccc1',
+					'O=C(O)C(=O)Cc1ccccc1',
+					'*C(=O)/C=C/c1ccc(O)cc1',
+					'O=C(O)/C=C/c1ccc(O)cc1'
+				],
+				[
+					'O=C1C=C2C=CC(O)CC2O1',
+					'O=C(O)/C=C\\C1=CC=CC(O)C1',
+					'O=C(O)/C=C/c1cccc(O)c1',
+					'O=C(O)/C=C/c1ccccc1',
+					'N[C@H](Cc1ccccc1)C(=O)O',
+					'N[C@@H](Cc1ccccc1)C(=O)O'
+				],
+				[
+					'O=C1C=C2C=CC(O)CC2O1',
+					'O=C(O)/C=C\\C1=CC=CC(O)C1',
+					'O=C(O)/C=C/c1cccc(O)c1',
+					'O=C(O)/C=C/c1ccccc1',
+					'CC(=O)O',
+					'O=C(O)c1ccccc1',
+					'Nc1ccc(C(=O)O)cc1',
+					'C=C(O[C@@H]1C=C(C(=O)O)C=C[C@H]1N)C(=O)O',
+					'C=C(O[C@@H]1C=C(C(=O)O)C=C[C@H]1O)C(=O)O'
+				],
+				[
+					'O=C1C=C2C=CC(O)CC2O1',
+					'O=C(O)/C=C\\C1=CC=CC(O)C1',
+					'O=C(O)/C=C/c1cccc(O)c1',
+					'O=C(O)/C=C/c1ccccc1',
+					'N[C@H](Cc1ccccc1)C(=O)O',
+					'O=C(O)C(=O)Cc1ccccc1',
+					'N[C@@H](Cc1ccccc1)C(=O)O'
+				],
+				[
+					'O=C1C=C2C=CC(O)CC2O1',
+					'O=C(O)/C=C\\C1=CC=CC(O)C1',
+					'O=C(O)/C=C/c1cccc(O)c1',
+					'O=C(O)/C=C/c1ccccc1',
+					'CC(=O)O',
+					'O=C(O)c1ccccc1',
+					'O=C1O[C@H]([C@@H](O)CO)C(O)=C1O',
+					'O=C(O)c1ccc(O)cc1',
+					'O=Cc1ccc(O)cc1',
+					'O=C(O)/C=C/c1ccc(O)cc1'
+				],
+				[
+					'O=C1C=C2C=CC(O)CC2O1',
+					'O=C(O)/C=C\\C1=CC=CC(O)C1',
+					'O=C(O)/C=C/c1cccc(O)c1',
+					'O=C(O)/C=C/c1ccccc1',
+					'CC(=O)O',
+					'O=C(O)c1ccccc1',
+					'O=C1O[C@H]([C@@H](O)CO)C(O)=C1O',
+					'O=C(O)c1ccc(O)cc1',
+					'Oc1ccccc1',
+					'N[C@@H](Cc1ccc(O)cc1)C(=O)O'
+				],
+				[
+					'O=C1C=C2C=CC(O)CC2O1',
+					'O=C(O)/C=C\\C1=CC=CC(O)C1',
+					'O=C(O)/C=C/c1cccc(O)c1',
+					'O=C(O)/C=C/c1ccccc1',
+					'CC(=O)O',
+					'O=C(O)c1ccccc1',
+					'Nc1ccc(C(=O)O)cc1',
+					'Nc1ccccc1',
+					'Nc1ccccc1C(=O)O'
+				],
+				[
+					'O=C1C=C2C=CC(O)CC2O1',
+					'O=C(O)/C=C\\C1=CC=CC(O)C1',
+					'O=C(O)/C=C/c1cccc(O)c1',
+					'O=C(O)/C=C/c1ccccc1',
+					'O=C(O)[C@H](O)Cc1ccccc1',
+					'*C(=O)/C=C/c1ccccc1',
+					'O=C(O)C(=O)Cc1ccccc1',
+					'*C(=O)/C=C/c1ccc(O)cc1',
+					'O=C(/C=C/c1ccc(O)cc1)c1ccc(O)cc1O'
+				]
+			],
+			end_at: '2023-03-17T07:55:13.510061',
+			status: 0
+		};
 		console.log(result);
 		if (result.success) {
-			if (result.status == 2) {
+			if (result.status > 0) {
 				setTimeout(() => get_result(ticket), 1000);
-			} else if (result.status == 1) {
+			} else if (result.status == -1) {
 				console.log('canceled');
 			} else {
 				console.log('finished');
