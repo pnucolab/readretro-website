@@ -1,5 +1,5 @@
 <script>
-	import { Card, Button, Toggle, P, Checkbox, Label } from 'flowbite-svelte';
+	import { Card, Checkbox, Label } from 'flowbite-svelte';
 	import { onMount } from 'svelte';
 	import { load } from './fetch';
 	let blocks = {};

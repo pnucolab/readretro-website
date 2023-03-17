@@ -2,7 +2,7 @@
 	import { Spinner } from 'flowbite-svelte';
 	import { load } from './fetch';
 	import Top from '../lib/Top.svelte';
-	import { Card, Button, Toggle, P, Checkbox, Label } from 'flowbite-svelte';
+	import { Card, P } from 'flowbite-svelte';
 	import { Heading } from 'flowbite-svelte';
 	export let ticket;
 	import {
@@ -56,9 +56,9 @@
 		</TableHead>
 		<TableBody>
 			<TableBodyRow>
-				<TableBodyCell>{result.task_id}</TableBodyCell>
-				<TableBodyCell>{result.product}</TableBodyCell>
-				<TableBodyCell>{result.created_at}</TableBodyCell>
+				<TableBodyCell>{#if result.success}{result.task_id}{/if}</TableBodyCell>
+				<TableBodyCell>{#if result.success}{result.product}{/if}</TableBodyCell>
+				<TableBodyCell>{#if result.success}{result.created_at}{/if}</TableBodyCell>
 				{#if result.status == 0}
 					<TableBodyCell>{result.end_at}</TableBodyCell>
 				{:else}
@@ -69,8 +69,9 @@
 						{#if result.status == 0} Finished {/if}
 						{#if result.status == 1} Running <Spinner size={4} />{/if}
 						{#if result.status == 2} Waiting for a slot <Spinner size={4} />{/if}
+						{#if result.status == -1} Cancelled {/if}
 					{:else}
-						Failed (server error)
+						No such job ID
 					{/if}
 				</TableBodyCell>
 			</TableBodyRow>

@@ -2,14 +2,11 @@
 	import Arguments from '../lib/Arguments.svelte';
 	import BuildingBlocks from '../lib/Building_Blocks.svelte';
 	import RetrievalDb from '../lib/Retrieval_DB.svelte';
-	import Result from '../lib/Result.svelte';
 	import Top from '../lib/Top.svelte';
-	import { Heading, P, A, Mark, Secondary, Button } from 'flowbite-svelte';
+	import { Button } from 'flowbite-svelte';
 	import { Tabs, TabItem } from 'flowbite-svelte';
 	import { load } from '../lib/fetch';
-	/**
-	 * @type {any}
-	 */
+
 	let pathway = { value: 9, label: 10 };
 	let iterations = { value: 99, label: 100 };
 	let beam_size = { value: 49, label: 50 };
@@ -17,7 +14,6 @@
 	let target_molecule = { label: 'O=C1C=C2C=CC(O)CC2O1', value: 'O=C1C=C2C=CC(O)CC2O1' };
 	let ticket;
 	let building_blocks = [];
-	let running = false;
 
 	async function run(url) {
 		const response = await load(url);

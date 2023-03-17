@@ -1,12 +1,10 @@
 <script>
 	import { Dropzone } from 'flowbite-svelte';
 	import { Button } from 'flowbite-svelte';
-
-	let db_url = '/static/train_canonicalized.txt';
 </script>
 
 <div class="h-full w-full bg-white flex flex-col items-center">
-	<Button class="mb-10" href={db_url}>Click to download retrieval DB</Button>
+	<Button class="mb-10" href="/train_canonicalized.txt">Click to download retrieval DB</Button>
 	<Dropzone id="dropzone">
 		<svg
 			aria-hidden="true"

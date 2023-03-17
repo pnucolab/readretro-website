@@ -1,6 +1,5 @@
 <script>
 	import { Navbar, NavBrand, NavLi, NavUl, NavHamburger } from 'flowbite-svelte';
-	import { Heading, P } from 'flowbite-svelte';
 
 	import './styles.css';
 </script>
