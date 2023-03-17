@@ -7,6 +7,7 @@
 	import { Heading, P, A, Mark, Secondary, Button } from 'flowbite-svelte';
 	import { Tabs, TabItem } from 'flowbite-svelte';
 	import { load } from './fetch';
+	import { tick } from 'svelte';
 	/**
 	 * @type {any}
 	 */
@@ -16,23 +17,29 @@
 	let on = true;
 	let target_molecule = { label: 'O=C1C=C2C=CC(O)CC2O1', value: 'O=C1C=C2C=CC(O)CC2O1' };
 	let result = {};
-
-	function submit(url) {
-		load(url).then((result) => {
-			load('https://retro.pnucolab.com/result?ticket=' + result.ticket).then((result) => {
-				console.log(result);
-			});
-		});
-	}
+	let ticket;
 
 	async function run(url) {
 		const response = await load(url);
 		console.log(url);
 		console.log(response.ticket);
-		const data = await load('https://retro.pnucolab.com/result?ticket=' + response.ticket);
+		ticket = response.ticket;
+		get_result(ticket);
+	}
+
+	async function get_result(ticket) {
+		const data = await load('https://retro.pnucolab.com/result?ticket=' + ticket);
 		result = data;
 		console.log(result);
-		console.log(data);
+		if (result.success) {
+			if (result.status == 2) {
+				setTimeout(() => get_result(ticket), 1000);
+			} else if (result.status == 1) {
+				console.log('canceled');
+			} else {
+				console.log('finished');
+			}
+		}
 	}
 </script>
 
@@ -131,7 +138,7 @@
 				<Button
 					size="xl"
 					on:click={() =>
-						submit(
+						run(
 							'https://retro.pnucolab.com/run?product=' +
 								target_molecule.value +
 								'&route_topk=' +
