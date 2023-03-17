@@ -3,58 +3,68 @@
 
 	import { load } from './fetch';
 	import Result from './Result.svelte';
-	import { Input, Label, Helper, Checkbox,Button, A, Heading } from 'flowbite-svelte';
+	import { Input, Label, Helper, Checkbox, Button, A, Heading, Toggle } from 'flowbite-svelte';
 
 	/**
 	 * @type {any}
 	 */
-	let pathway = { value: 9, label: 10 };
-	let iterations = { value: 99, label: 100 };
-	let beam_size = { value: 49, label: 50 };
-	let on = true;
-	let off = false;
-	let target_molecule = { label: '', value: '' };
-	let retrieval = on ? true : false;
-	let url =
-		'https://retro.pnucolab.com/run?product=' +
-		target_molecule.value +
-		'&route_topk=' +
-		pathway.label +
-		'&iterations=' +
-		iterations.label +
-		'&beam_size=' +
-		beam_size.label +
-		'&retrieval=' +
-		retrieval;
+	export let pathway;
+	export let iterations;
+	export let beam_size;
+	export let on;
+	export let target_molecule;
+
 	/**
 	 * @type {string | null}
 	 */
-	let t = null;
 </script>
+
 <form>
 	<Heading tag="h4" class="mb-4">Target molecule</Heading>
 	<div class="px-5">
-	<div class="mb-6">
-	  <Label for="target" class="mb-2">Target molecule (in SMILES)</Label>
-	  <Input type="text" id="target" placeholder="O=C1C=C2C=CC(O)CC2O1" required />
+		<div class="mb-6">
+			<Label for="target" class="mb-2">Target molecule (in SMILES)</Label>
+			<Input
+				bind:value={target_molecule.label}
+				type="text"
+				id="target"
+				placeholder="O=C1C=C2C=CC(O)CC2O1"
+				required
+			/>
+		</div>
 	</div>
-</div>
 	<Heading tag="h4" class="mb-4">Options</Heading>
 	<div class="px-5">
-	<div class="mb-6">
-	  <Label for="pathway" class="mb-2">Number of pathway generation</Label>
-	  <Input type="number" id="pathway" placeholder="10" />
-	</div>
+		<div class="mb-6">
+			<Label for="pathway" class="mb-2">Number of pathway generation</Label>
+			<Input bind:value={pathway.label} type="number" id="pathway" placeholder="10" />
+		</div>
 
-	<div class="mb-6">
-	  <Label for="iteration" class="mb-2">Number of iterations</Label>
-	  <Input type="number" id="iteration" placeholder="100" required />
-	</div>
-	
-	<div class="mb-6">
-		<Label for="beam" class="mb-2">Beam size</Label>
-		<Input type="number" id="beam" placeholder="50" required />
-	  </div>
-	</div>
-  </form>
+		<div class="mb-6">
+			<Label for="iteration" class="mb-2">Number of iterations</Label>
+			<Input
+				bind:value={iterations.label}
+				type="number"
+				id="iteration"
+				placeholder="100"
+				required
+			/>
+		</div>
 
+		<div class="mb-6">
+			<Label for="beam" class="mb-2">Beam size</Label>
+			<Input bind:value={beam_size.label} type="number" id="beam" placeholder="50" required />
+		</div>
+
+		<div class="mb-6">
+			<Label for="beam" class="mb-2">retriever usage</Label>
+			<Toggle bind:checked={on} class="mt-4 italic dark:text-gray-500">
+				{#if on}
+					"on"
+				{:else}
+					"off"
+				{/if}</Toggle
+			>
+		</div>
+	</div>
+</form>
