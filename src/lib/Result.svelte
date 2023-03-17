@@ -1,6 +1,7 @@
 <script>
 	import { Spinner } from 'flowbite-svelte';
 	import { load } from './fetch';
+	import Top from '../lib/Top.svelte';
 	import { Card, Button, Toggle, P, Checkbox, Label } from 'flowbite-svelte';
 	import { Heading } from 'flowbite-svelte';
 	export let ticket;
@@ -18,12 +19,12 @@
 	let loaded = false;
 
 	async function mol2image(mol) {
-		const result = await load('https://retro.pnucolab.com/mol2image?mol=' + mol);
+		const result = await load('mol2image?mol=' + mol);
 		return result.image;
 	}
 
 	async function get_result(ticket) {
-		const data = await load('https://retro.pnucolab.com/result?ticket=' + ticket);
+		const data = await load('result?ticket=' + ticket);
 		result = data;
 		if (result.success) {
 			if (result.status > 0) {
@@ -40,6 +41,8 @@
 	import arrow_image from '$lib/images/right-arrow.svg';
 	import { onMount } from 'svelte';
 </script>
+
+<Top />
 
 {#if loaded}
 	<Heading class="mb-5" tag="h4">Job Info</Heading>

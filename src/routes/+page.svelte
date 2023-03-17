@@ -3,6 +3,7 @@
 	import BuildingBlocks from '../lib/Building_Blocks.svelte';
 	import RetrievalDb from '../lib/Retrieval_DB.svelte';
 	import Result from '../lib/Result.svelte';
+	import Top from '../lib/Top.svelte';
 	import { Heading, P, A, Mark, Secondary, Button } from 'flowbite-svelte';
 	import { Tabs, TabItem } from 'flowbite-svelte';
 	import { load } from '../lib/fetch';
@@ -24,6 +25,8 @@
 		location.href = `/result/${ticket}`;
 	}
 </script>
+
+<Top />
 
 <Tabs style="underline" contentClass="p-8 rounded-lg border mt-4">
 	<TabItem open>
@@ -88,7 +91,7 @@
 		size="xl"
 		on:click={() =>
 			run(
-				'https://retro.pnucolab.com/run?product=' +
+				'run?product=' +
 					target_molecule.value +
 					'&building_blocks=' +
 					building_blocks.join(',') +

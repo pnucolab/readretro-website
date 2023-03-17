@@ -8,7 +8,7 @@
 	export let smiles = [];
 	$: smiles = checked.map((c, i) => Object.keys(blocks)[i]).filter((c, i) => checked[i]);
 	onMount(async () => {
-		const rtn = await load('https://retro.pnucolab.com/building-blocks');
+		const rtn = await load('building-blocks');
 		if (rtn.success) {
 			blocks = rtn.building_blocks;
 			checked = new Array(Object.keys(blocks).length).fill(true);
