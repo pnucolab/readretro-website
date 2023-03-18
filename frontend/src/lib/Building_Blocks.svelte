@@ -17,13 +17,12 @@
 	});
 </script>
 
-<div class="grid grid-cols-6">
+<div class="grid gap-5 grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6">
 	{#if mounted}
 		{#each Object.keys(blocks) as block, i}
 			<Card
 				color="light"
-				class="mb-5 mx-3 w-48"
-				size="xs"
+				class="w-full"
 				img={'data:image/png;base64,' + blocks[block]}
 			>
 				<div class="flex flex-row text-center">

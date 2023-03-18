@@ -17,6 +17,8 @@
 	</NavUl>
 </Navbar>
 
-<div class="mx-auto flex mb-20 flex-col container">
-	<slot />
+<div class="px-2 sm:px-4">
+	<div class="mx-auto flex mb-20 flex-col container">
+		<slot />
+	</div>
 </div>
