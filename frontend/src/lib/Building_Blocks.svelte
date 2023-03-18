@@ -13,7 +13,6 @@
 			blocks = rtn.building_blocks;
 			checked = new Array(Object.keys(blocks).length).fill(true);
 		}
-		console.log(blocks);
 		mounted = true;
 	});
 </script>

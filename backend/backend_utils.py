@@ -1,6 +1,6 @@
 import pandas as pd
 
-FILENAME_STARTING_MOLECULES = 'data/building_block.csv'
+FILENAME_STARTING_MOLECULES = 'DualRetro_release/data/building_block.csv'
 starting_mols_full = list(pd.read_csv(FILENAME_STARTING_MOLECULES)['mol'])
 
 def _mol2image(mol, width=0, height=0):

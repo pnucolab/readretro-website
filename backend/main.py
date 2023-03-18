@@ -10,7 +10,7 @@ from db.models import Base, Task
 from db.database import engine
 Base.metadata.create_all(bind=engine)
 
-from backend_utils import starting_mols_full, all_building_blocks, _mol2image
+from backend_utils import FILENAME_STARTING_MOLECULES, all_building_blocks, _mol2image
 
 app = FastAPI()
 
@@ -20,7 +20,7 @@ with db_context() as s:
         t.status = -1
     s.commit()
 
-@app.get("/run")
+@app.post("/run")
 async def run(product: str = Query(default="O=C1C=C2C=CC(O)CC2O1", title="Product SMILES"),
               building_blocks: str = Query(default="", title="Building blocks SMILES, comma seperated"),
               iterations: int = Query(ge=1, le=120, default=20, title="Number of iterations"),
@@ -28,17 +28,16 @@ async def run(product: str = Query(default="O=C1C=C2C=CC(O)CC2O1", title="Produc
               route_topk: int = Query(ge=1, le=10, default=10, title="Number of pathway generations"),
               beam_size: int = Query(ge=1, le=10, default=10, title="Beam size"),
               retrieval: bool = Query(default=True, title="Retriever usage"),
-              retrieval_db: UploadFile = File(description="Retrieval database")):
+              retrieval_db: UploadFile | None = None):
     try:
-        if building_blocks == "":
-            starting_mols = starting_mols_full
-        else:
-            starting_mols = set(building_blocks.split(','))
         task_id = uuid4().hex
-        with db_context() as s:
+        if retrieval_db:
             rdb_path = f"/tmp/{task_id}_retrieval_db.txt"
             with open(rdb_path, "wb") as f:
                 f.write(retrieval_db.file.read())
+        else:
+            rdb_path = ""
+        with db_context() as s:
             task = Task(
                 task_id=task_id,
                 product=product,
@@ -54,7 +53,7 @@ async def run(product: str = Query(default="O=C1C=C2C=CC(O)CC2O1", title="Produc
             )
             s.add(task)
             s.commit()
-        rtn = run_inference.apply_async(task_id=task_id)
+        rtn = run_inference.apply_async([product, building_blocks, iterations, exp_topk, route_topk, beam_size, retrieval, rdb_path], task_id=task_id)
         return {"success": True, "ticket": task_id}
     except Exception as e:
         return {"success": False, "error": repr(e)}

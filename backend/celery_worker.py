@@ -13,33 +13,31 @@ def r2r(raw_reaction):
     return molecules
 
 @celery_task.task
-def run_inference():
+def run_inference(product: str, building_blocks: str, iterations: int, exp_topk: int, route_topk: int, beam_size: int, retrieval: bool, retrieval_db: str):
+    task_id = run_inference.request.id
     with db_context() as s:
-        task = s.query(Task).filter(Task.task_id == run_inference.request.id).first()
+        task = s.query(Task).filter(Task.task_id == task_id).first()
         task.status = 1
         s.commit()
-    rtn = subprocess.run(f"python run.py --product {task.product}" + 
-                                      f" --route_topk {task.route_topk}"
-                                      f" --exp_topk {task.exp_topk}"
-                                      f" --iterations {task.iterations}"
-                                      f" --beam_size {task.beam_size}"
-                                      f" --retrieval {task.retrieval}"
-                                      f" --starting_mols {task.starting_mols}"
-                                      f" --retrieving_db {task.retrieval_db}", capture_output=True, shell=True)
-
-    """
-    planner = RSPlanner(
-        cuda=True,
-        iterations=iterations,
-        expansion_topk=expansion_topk,
-        route_topk=route_topk,
-        beam_size=beam_size,
-        retrieval=retrieval,
-        starting_mols=starting_mols,
-        retrieving_db = 'data/train_canonicalized.txt'
-    )
-    raw_reactions = planner.plan(MolToSmiles(MolFromSmiles(product)))
-    """
+    cmd = f"cd DualRetro_release && python run.py \"{product}\"" \
+            + f" --route_topk {route_topk}" \
+            + f" --exp_topk {exp_topk}" \
+            + f" --iterations {iterations}" \
+            + f" --beam_size {beam_size}" \
+            + f" --retrieval {str(retrieval).lower()}"
+    if retrieval_db != "":
+        cmd += f" --db_path {retrieval_db}"
+    if building_blocks != "":
+        blocks = f"/tmp/{task_id}_blocks.txt"
+        with open(blocks, "w") as f:
+            f.write(building_blocks.replace(',', '\n'))
+        cmd += f" --blocks {blocks}"
+    print(cmd)
+    rtn = subprocess.run(cmd, capture_output=True, shell=True).stdout.decode("utf-8").strip()
+    if rtn == "None":
+        raw_reactions = []
+    else:
+        raw_reactions = [r.split()[-1] for r in rtn.split("\n")[:-1]]
     result = [r2r(r) for r in raw_reactions]
 
     with db_context() as s:

@@ -9,4 +9,4 @@ networkx==2.5
 OpenNMT-py==2.3.0
 SQLAlchemy==2.0.6
 psycopg2==2.9.5
-gevent==22.10.2
+python-multipart==0.0.6

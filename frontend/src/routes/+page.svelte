@@ -7,16 +7,37 @@
 	import { Tabs, TabItem } from 'flowbite-svelte';
 	import { load } from '../lib/fetch';
 
-	let pathway = { value: 9, label: 10 };
-	let iterations = { value: 99, label: 100 };
-	let beam_size = { value: 49, label: 50 };
+	let pathway;
+	let iterations;
+	let beam_size;
+	let expansions;
 	let on = true;
-	let target_molecule = { label: 'O=C1C=C2C=CC(O)CC2O1', value: 'O=C1C=C2C=CC(O)CC2O1' };
+	let target_molecule;
 	let ticket;
+	let file;
 	let building_blocks = [];
 
-	async function run(url) {
-		const response = await load(url);
+	async function run() {
+		let url = 'run?product=' +
+					(target_molecule?target_molecule:'O=C1C=C2C=CC(O)CC2O1') +
+					'&building_blocks=' +
+					building_blocks.join(',') +
+					'&route_topk=' +
+					(pathway?pathway:10) +
+					'&iterations=' +
+					(iterations?iterations:20) +
+					'&beam_size=' +
+					(beam_size?beam_size:10) +
+					'&exp_topk=' +
+					(expansions?expansions:10) +
+					'&retrieval=' +
+					on;
+		let response;
+		if (file) {
+			response = await load(url, "POST", file);
+		} else {
+			response = await load(url, "POST");
+		}
 		ticket = response.ticket;
 		location.href = `/result/${ticket}`;
 	}
@@ -39,7 +60,7 @@
 			>
 			Arguments
 		</div>
-		<Arguments bind:pathway bind:iterations bind:beam_size bind:on bind:target_molecule />
+		<Arguments bind:pathway bind:iterations bind:beam_size bind:on bind:target_molecule bind:expansions />
 	</TabItem>
 	<TabItem>
 		<div slot="title" class="flex items-center gap-2">
@@ -79,27 +100,13 @@
 			</svg>
 			Retrieval DB
 		</div>
-		<RetrievalDb />
+		<RetrievalDb bind:file={file} />
 	</TabItem>
 </Tabs>
 <div class="mt-8 text-center">
 	<Button
 		size="xl"
-		on:click={() =>
-			run(
-				'run?product=' +
-					target_molecule.value +
-					'&building_blocks=' +
-					building_blocks.join(',') +
-					'&route_topk=' +
-					pathway.label +
-					'&iterations=' +
-					iterations.label +
-					'&beam_size=' +
-					beam_size.label +
-					'&retrieval=' +
-					on
-			)}
+		on:click={() => run()}
 		type="submit">Submit</Button
 	>
 </div>
