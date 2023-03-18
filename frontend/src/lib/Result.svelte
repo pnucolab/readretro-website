@@ -19,7 +19,7 @@
 	let loaded = false;
 
 	async function mol2image(mol) {
-		const result = await load('mol2image?mol=' + mol);
+		const result = await load('mol2image?mol=' + encodeURIComponent(mol));
 		return result.image;
 	}
 
