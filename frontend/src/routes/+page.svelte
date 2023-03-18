@@ -14,7 +14,7 @@
 	let on = true;
 	let target_molecule;
 	let ticket;
-	let file;
+	let files;
 	let building_blocks = [];
 
 	async function run() {
@@ -33,8 +33,8 @@
 					'&retrieval=' +
 					on;
 		let response;
-		if (file) {
-			response = await load(url, "POST", file);
+		if (files && files.length == 1) {
+			response = await load(url, "POST", files[0]);
 		} else {
 			response = await load(url, "POST");
 		}
@@ -100,7 +100,7 @@
 			</svg>
 			Retrieval DB
 		</div>
-		<RetrievalDb bind:file={file} />
+		<RetrievalDb bind:files={files} />
 	</TabItem>
 </Tabs>
 <div class="mt-8 text-center">

@@ -28,13 +28,13 @@ async def run(product: str = Query(default="O=C1C=C2C=CC(O)CC2O1", title="Produc
               route_topk: int = Query(ge=1, le=10, default=10, title="Number of pathway generations"),
               beam_size: int = Query(ge=1, le=10, default=10, title="Beam size"),
               retrieval: bool = Query(default=True, title="Retriever usage"),
-              retrieval_db: UploadFile | None = None):
+              file: UploadFile | None = None):
     try:
         task_id = uuid4().hex
-        if retrieval_db:
+        if file:
             rdb_path = f"/tmp/{task_id}_retrieval_db.txt"
             with open(rdb_path, "wb") as f:
-                f.write(retrieval_db.file.read())
+                f.write(file.file.read())
         else:
             rdb_path = ""
         with db_context() as s:

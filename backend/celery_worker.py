@@ -28,8 +28,9 @@ def run_inference(product: str, building_blocks: str, iterations: int, exp_topk:
     if retrieval_db != "":
         cmd += f" --db_path {retrieval_db}"
     if building_blocks != "":
-        blocks = f"/tmp/{task_id}_blocks.txt"
+        blocks = f"/tmp/{task_id}_blocks.csv"
         with open(blocks, "w") as f:
+            f.write("mol\n")
             f.write(building_blocks.replace(',', '\n'))
         cmd += f" --blocks {blocks}"
     print(cmd)
