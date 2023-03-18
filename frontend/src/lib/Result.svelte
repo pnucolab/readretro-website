@@ -49,6 +49,7 @@
 	<Table class="border">
 		<TableHead>
 			<TableHeadCell>Job ID</TableHeadCell>
+			<TableHeadCell>Title</TableHeadCell>
 			<TableHeadCell>Product</TableHeadCell>
 			<TableHeadCell>Submit Date</TableHeadCell>
 			<TableHeadCell>End Date</TableHeadCell>
@@ -57,10 +58,11 @@
 		<TableBody>
 			<TableBodyRow>
 				<TableBodyCell>{#if result.success}{result.task_id}{/if}</TableBodyCell>
+				<TableBodyCell>{#if result.success}{result.title}{/if}</TableBodyCell>
 				<TableBodyCell>{#if result.success}{result.product}{/if}</TableBodyCell>
-				<TableBodyCell>{#if result.success}{result.created_at}{/if}</TableBodyCell>
+				<TableBodyCell>{#if result.success}{(new Date(result.created_at)).toLocaleString()}{/if}</TableBodyCell>
 				{#if result.status == 0}
-					<TableBodyCell>{result.end_at}</TableBodyCell>
+					<TableBodyCell>{(new Date(result.end_at)).toLocaleString()}</TableBodyCell>
 				{:else}
 					<TableBodyCell>.</TableBodyCell>
 				{/if}

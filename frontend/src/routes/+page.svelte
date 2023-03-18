@@ -7,6 +7,7 @@
 	import { Tabs, TabItem } from 'flowbite-svelte';
 	import { load } from '../lib/fetch';
 
+	let title;
 	let pathway;
 	let iterations;
 	let beam_size;
@@ -18,7 +19,7 @@
 	let building_blocks = [];
 
 	async function run() {
-		let url = 'run?product=' +
+		let url = 'run?title=' + (title?title:'Untitled') + '&product=' +
 					(target_molecule?target_molecule:'O=C1C=C2C=CC(O)CC2O1') +
 					'&building_blocks=' +
 					building_blocks.join(',') +
@@ -60,7 +61,7 @@
 			>
 			Arguments
 		</div>
-		<Arguments bind:pathway bind:iterations bind:beam_size bind:on bind:target_molecule bind:expansions />
+		<Arguments bind:title bind:pathway bind:iterations bind:beam_size bind:on bind:target_molecule bind:expansions />
 	</TabItem>
 	<TabItem>
 		<div slot="title" class="flex items-center gap-2">

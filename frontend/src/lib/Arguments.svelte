@@ -1,6 +1,7 @@
 <script>
 	import { Input, Label, Heading, Toggle } from 'flowbite-svelte';
 
+	export let title;
 	export let pathway;
 	export let iterations;
 	export let beam_size;
@@ -9,8 +10,12 @@
 	export let target_molecule;
 </script>
 
-<Heading tag="h4" class="mb-4">Target molecule</Heading>
+<Heading tag="h4" class="mb-4">Experiment Information</Heading>
 <div class="px-5">
+	<div class="mb-6">
+		<Label for="title" class="mb-2">Title</Label>
+		<Input bind:value={title} type="text" id="title" placeholder="Untitled" />
+	</div>
 	<div class="mb-6">
 		<Label for="target" class="mb-2">Target molecule (in SMILES)</Label>
 		<Input

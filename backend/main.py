@@ -21,7 +21,8 @@ with db_context() as s:
     s.commit()
 
 @app.post("/run")
-async def run(product: str = Query(default="O=C1C=C2C=CC(O)CC2O1", title="Product SMILES"),
+async def run(title: str = Query(default="Untitled", title="Experiment title"),
+              product: str = Query(default="O=C1C=C2C=CC(O)CC2O1", title="Product SMILES"),
               building_blocks: str = Query(default="", title="Building blocks SMILES, comma seperated"),
               iterations: int = Query(ge=1, le=120, default=20, title="Number of iterations"),
               exp_topk: int = Query(ge=1, le=10, default=10, title="Number of expansions"),
@@ -39,6 +40,7 @@ async def run(product: str = Query(default="O=C1C=C2C=CC(O)CC2O1", title="Produc
             rdb_path = ""
         with db_context() as s:
             task = Task(
+                title=title,
                 task_id=task_id,
                 product=product,
                 building_blocks=building_blocks,
@@ -65,9 +67,9 @@ async def result(ticket: str):
         with db_context() as s:
             task = s.query(Task).filter(Task.task_id == ticket).first()
             if task.status == 0:
-                return {"success": True, "task_id": task.task_id, "created_at": task.created_at, "product": task.product, "pathway": json.loads(task.result), "end_at": task.end_at, "status": task.status}
+                return {"success": True, "task_id": task.task_id, "title": task.title, "created_at": task.created_at, "product": task.product, "pathway": json.loads(task.result), "end_at": task.end_at, "status": task.status}
             else:
-                return {"success": True, "task_id": task.task_id, "created_at": task.created_at, "product": task.product, "status": task.status}
+                return {"success": True, "task_id": task.task_id, "title": task.title, "created_at": task.created_at, "product": task.product, "status": task.status}
     except Exception as e:
         return {"success": False, "error": repr(e)}
 
@@ -96,6 +98,7 @@ async def mol_to_image(mol: str,
                        width: int = Query(default=0, title="Image width in pixels"),
                        height: int = Query(default=0, title="Image height in pixels")):
     try:
+        print(mol)
         return {"success": True, "image": _mol2image(mol, width, height)}
     except Exception as e:
         return {"success": False, "error": repr(e)}
