@@ -1,0 +1,12 @@
+celery==5.2.7
+easydict==1.10
+fastapi==0.89.1
+pandas==1.5.3
+redis==4.4.2
+uvicorn==0.20.0
+rdkit==2022.9.4
+networkx==2.5
+OpenNMT-py==2.3.0
+SQLAlchemy==2.0.6
+psycopg2==2.9.5
+gevent==22.10.2

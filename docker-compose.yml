@@ -1,0 +1,41 @@
+version: "2"
+services:
+  frontend:
+    container_name: ecolab-frontend
+    build: frontend
+    command: node build/index.js
+    ports:
+      - "8100:3000"
+  backend:
+    container_name: ecolab-backend
+    depends_on:
+      - redis
+      - database
+    build: backend
+    command: bash runserver.sh
+    environment:
+      POSTGRES_DB: "db"
+      POSTGRES_USER: "db"
+      POSTGRES_PASSWORD: "${POSTGRES_PASSWORD}"
+      POSTGRES_HOST: "database"
+      REDIS_HOST: "redis"
+    ports:
+      - "8101:8000"
+    deploy:
+      resources:
+        reservations:
+          devices:
+          - driver: nvidia
+            count: 2
+            capabilities: [gpu]
+  redis:
+    image: redis:alpine
+    container_name: ecolab-redis
+  database:
+    image: postgres:latest
+    environment:
+      POSTGRES_DB: "db"
+      POSTGRES_USER: "db"
+      POSTGRES_PASSWORD: "${POSTGRES_PASSWORD}"
+    volumes:
+      - "./postgres:/var/lib/postgresql/data:rw"
