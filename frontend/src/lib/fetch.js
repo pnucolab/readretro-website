@@ -5,7 +5,7 @@ let site_root = "https://retro.pnucolab.com/api/v1/";
 export async function load(uri, method="GET", file=null) {
 	let resp;
 	if (method == "GET") {
-		resp = await fetch(site_root + uri);
+		resp = await fetch(encodeURI(site_root + uri));
 	} else if (method == "POST") {
 		let data = null;
 		if (file) {
