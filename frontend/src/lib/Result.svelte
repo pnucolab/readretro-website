@@ -4,6 +4,8 @@
 	import Top from '../lib/Top.svelte';
 	import { Card, P } from 'flowbite-svelte';
 	import { Heading } from 'flowbite-svelte';
+	
+
 	export let ticket;
 	import {
 		Table,
@@ -20,6 +22,7 @@
 
 	async function mol2image(mol) {
 		const result = await load('mol2image?mol=' + encodeURIComponent(mol));
+		console.log(result)
 		return result.image;
 	}
 
@@ -33,6 +36,16 @@
 		}
 	}
 
+	let hovering = false
+
+	
+	async function pop_up(mol) {
+		const mnx = await load('mnxsearch?query=' + mol);
+		console.log(mnx)
+		return mnx.mnx_id
+	}
+
+	
 	onMount(async () => {
 		await get_result(ticket);
 		loaded = true;
@@ -40,6 +53,7 @@
 
 	import arrow_image from '$lib/images/right-arrow.svg';
 	import { onMount } from 'svelte';
+
 </script>
 
 <Top />
@@ -93,21 +107,35 @@
 						<TableBodyCell>
 							<div class="flex flex-row items-center">
 								{#each p as m, i}
-									<div class="flex-col">
+									<div class="flex-col" >
 										{#await mol2image(m)}
 											<Spinner size={4} />
 										{:then img}
+										<div
+										on:mouseenter={() => (hovering = true)}
+										on:mouseleave={() => (hovering = false)}
+									>
 											<Card
 												color="light"
 												class="mb-5 mx-3 w-32"
 												size="xs"
-												img={'data:image/png;base64,' + img}
+												img={'data:image/png;base64,' + img}			
 											>
 												<P class="flex flex-row justify-center text-center text-xs break-all">
 													{m}
 												</P></Card
-											>
+											></div>
+											
 										{/await}
+										{#if hovering}
+												<div class="absolute z-10 bg-white shadow-lg rounded-lg p-4">
+													{#await pop_up(m)}
+														<Spinner size={4} />
+													{:then mnx}
+														{mnx}
+													{/await}
+												</div>
+											{/if}
 									</div>
 									{#if !last(p, i)}
 										<div class="flex-col w-12 mx-2">
@@ -125,3 +153,6 @@
 		<Spinner class="mt-20" />
 	</div>
 {/if}
+
+
+
