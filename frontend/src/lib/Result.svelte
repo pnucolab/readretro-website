@@ -1,10 +1,12 @@
 <script>
-	import { Spinner } from 'flowbite-svelte';
+	import { Label, Span, Spinner } from 'flowbite-svelte';
 	import { load } from './fetch';
 	import Top from '../lib/Top.svelte';
-	import { Card, P } from 'flowbite-svelte';
+	import { Card, P, A } from 'flowbite-svelte';
 	import { Heading } from 'flowbite-svelte';
-	
+	import { Popover, Button, Toggle } from 'flowbite-svelte';
+	import download from 'downloadjs';
+	import { page } from '$app/stores';
 
 	export let ticket;
 	import {
@@ -19,16 +21,17 @@
 	let last = (a, i) => i == a.length - 1;
 	let result = {};
 	let loaded = false;
+	let pathways = [];
 
 	async function mol2image(mol) {
 		const result = await load('mol2image?mol=' + encodeURIComponent(mol));
-		console.log(result)
 		return result.image;
 	}
 
 	async function get_result(ticket) {
 		const data = await load('result?ticket=' + ticket);
 		result = data;
+		pathways = [...data.pathway];
 		if (result.success) {
 			if (result.status > 0) {
 				setTimeout(() => get_result(ticket), 1000);
@@ -36,29 +39,73 @@
 		}
 	}
 
-	let hovering = false
-
-	
-	async function pop_up(mol) {
-		const mnx = await load('mnxsearch?query=' + mol);
-		console.log(mnx)
-		return mnx.mnx_id
+	async function rdb(mol1, mol2) {
+		const rdb = await load(
+			'rdbsearch?mol1=' + encodeURIComponent(mol1) + '&mol2=' + encodeURIComponent(mol2)
+		);
+		console.log(rdb.existence);
+		return rdb.existence;
 	}
 
-	
+	async function pop_up(mol) {
+		const mnx = await load('mnxsearch?query=' + encodeURIComponent(mol));
+		return mnx;
+	}
+
+	async function download_result() {
+		let final_result = '';
+		final_result += '#title: ' + result.title + '\n';
+		final_result += '#task ID: ' + result.task_id + '\n';
+		for (let i = 0; i < result.pathway.length; i++) {
+			final_result += result.pathway[i].join('>>') + '\n';
+		}
+		download(final_result, 'result.txt', 'text/plain');
+	}
+
 	onMount(async () => {
 		await get_result(ticket);
+		let mols = [];
+		for (let i = 0; i < result.pathway.length; i++) {
+			for (let j = 0; j < result.pathway[i].length; j++) {
+				mols.push(result.pathway[i][j]);
+			}
+		}
+		mols = [...new Set(mols)];
+		filters = mols.map((m) => {
+			return { name: m, value: m };
+		});
+		console.log(filters);
 		loaded = true;
 	});
 
 	import arrow_image from '$lib/images/right-arrow.svg';
+	import arrow_image_red from '$lib/images/right-arrow-red.svg';
 	import { onMount } from 'svelte';
 
+	let reverse = true;
+	let filters = [];
+
+	import { Select } from 'flowbite-svelte';
+	let selected;
+
+	$: {
+		if (selected) {
+			pathways = result.pathway.filter((p) => p.includes(selected));
+			pathways = pathways.concat(result.pathway.filter((p) => !p.includes(selected)));
+		} else {
+			pathways = result.pathway;
+		}
+	}
 </script>
 
 <Top />
 
 {#if loaded}
+	<p class="mb-5 text-center font-bold">
+		You can access this page again using this link: <A href="/result/{result.task_id}"
+			>{$page.url}</A
+		>
+	</p>
 	<Heading class="mb-5" tag="h4">Job Info</Heading>
 	<Table class="border">
 		<TableHead>
@@ -71,12 +118,20 @@
 		</TableHead>
 		<TableBody>
 			<TableBodyRow>
-				<TableBodyCell>{#if result.success}{result.task_id}{/if}</TableBodyCell>
-				<TableBodyCell>{#if result.success}{result.title}{/if}</TableBodyCell>
-				<TableBodyCell>{#if result.success}{result.product}{/if}</TableBodyCell>
-				<TableBodyCell>{#if result.success}{(new Date(result.created_at)).toLocaleString()}{/if}</TableBodyCell>
+				<TableBodyCell
+					>{#if result.success} {result.task_id}{/if}
+				</TableBodyCell>
+				<TableBodyCell
+					>{#if result.success}{result.title}{/if}</TableBodyCell
+				>
+				<TableBodyCell
+					>{#if result.success}{result.product}{/if}</TableBodyCell
+				>
+				<TableBodyCell
+					>{#if result.success}{new Date(result.created_at).toLocaleString()}{/if}</TableBodyCell
+				>
 				{#if result.status == 0}
-					<TableBodyCell>{(new Date(result.end_at)).toLocaleString()}</TableBodyCell>
+					<TableBodyCell>{new Date(result.end_at).toLocaleString()}</TableBodyCell>
 				{:else}
 					<TableBodyCell>.</TableBodyCell>
 				{/if}
@@ -95,64 +150,131 @@
 	</Table>
 
 	{#if result.status == 0}
+		<div class="mt-8 text-center">
+			<Button size="xl" on:click={() => download_result()}>Download result</Button>
+		</div>
 		<Heading class="mt-10 mb-5" tag="h4">Pathways</Heading>
 
-		<Table class="border">
-			<TableHead>
-				<TableHeadCell>Pathway</TableHeadCell>
-			</TableHead>
-			<TableBody>
-				{#each result.pathway as p}
-					<TableBodyRow>
-						<TableBodyCell>
-							<div class="flex flex-row items-center">
-								{#each p as m, i}
-									<div class="flex-col" >
-										{#await mol2image(m)}
-											<Spinner size={4} />
-										{:then img}
-										<div
-										on:mouseenter={() => (hovering = true)}
-										on:mouseleave={() => (hovering = false)}
+		<div class="flex justify-between mb-5 border p-5 rounded-xl shadow">
+			<Label
+				>Filter pathways by molecule
+				<Select class="mt-2" items={filters} bind:value={selected} />
+			</Label>
+			<div class="content-center">
+				<Label for="direction">Directions</Label>
+				<Toggle bind:checked={reverse} id="direction" class="mt-4 italic dark:text-gray-500">
+					{#if reverse}
+						reverse
+					{:else}
+						forward
+					{/if}</Toggle
+				>
+			</div>
+			<div>
+				<Label>Explanation</Label>
+				<P class="flex ">
+					<img class="w-5" src={arrow_image_red} alt="example" />
+					: exists in the retrieval DB</P
+				>
+				<P class="flex">
+					<img class="w-5" src={arrow_image} alt="example" />
+					: does not exist in the retrieval DB</P
+				>
+			</div>
+		</div>
+
+		<div class="border-t border-l border-r">
+			{#each pathways as p, n}
+				<div class="flex flex-row items-center border-b pt-5">
+					{#if reverse}
+						{#each p as m, i}
+							<div class="flex-col">
+								{#await mol2image(m)}
+									<Spinner size={4} />
+								{:then img}
+									<Card
+										color={selected && m === selected ? 'yellow' : 'light'}
+										class="mb-5 mx-3 w-32"
+										size="xs"
+										img={'data:image/png;base64,' + img}
+										id="b{n}-{i}"
 									>
-											<Card
-												color="light"
-												class="mb-5 mx-3 w-32"
-												size="xs"
-												img={'data:image/png;base64,' + img}			
-											>
-												<P class="flex flex-row justify-center text-center text-xs break-all">
-													{m}
-												</P></Card
-											></div>
-											
+										<P class="flex flex-row justify-center text-center text-xs break-all">
+											{m}
+										</P></Card
+									>
+									<Popover class="w-64 text-sm font-light" triggeredBy="#b{n}-{i}">
+										{#await pop_up(m)}
+											<Spinner size={4} />
+										{:then mnx}
+											{#if mnx.mnx_id == null}
+												<P>MNX ID is not found</P>
+											{:else}
+												<P>MNX ID:{mnx.mnx_id}</P>
+												<P>molecule_name:{mnx.molecule_name}</P>{/if}
 										{/await}
-										{#if hovering}
-												<div class="absolute z-10 bg-white shadow-lg rounded-lg p-4">
-													{#await pop_up(m)}
-														<Spinner size={4} />
-													{:then mnx}
-														{mnx}
-													{/await}
-												</div>
-											{/if}
-									</div>
-									{#if !last(p, i)}
-										<div class="flex-col w-12 mx-2">
+									</Popover>
+								{/await}
+							</div>
+							{#if !last(p, i)}
+								{#await rdb(m, p[i + 1])}
+									<Spinner size={4} />
+								{:then exist}
+									<div class="flex-col w-12 mx-2">
+										{#if exist}
+											<img src={arrow_image_red} alt={m + ' to ' + p[i + 1]} />
+										{:else}
 											<img src={arrow_image} alt={m + ' to ' + p[i + 1]} />
-										</div>{/if}{/each}
-							</div></TableBodyCell
-						>
-					</TableBodyRow>
-				{/each}
-			</TableBody>
-		</Table>
+										{/if}
+									</div>{/await}{/if}{/each}
+					{:else}
+						{#each p.reverse() as m, i}
+							<div class="flex-col">
+								{#await mol2image(m)}
+									<Spinner size={4} />
+								{:then img}
+									<Card
+										color="light"
+										class="mb-5 mx-3 w-32"
+										size="xs"
+										img={'data:image/png;base64,' + img}
+										id="b{n}-{i}"
+									>
+										<P class="flex flex-row justify-center text-center text-xs break-all">
+											{m}
+										</P></Card
+									>
+									<Popover class="w-64 text-sm font-light" triggeredBy="#b{n}-{i}">
+										{#await pop_up(m)}
+											<Spinner size={4} />
+										{:then mnx}
+											{#if mnx.mnx_id == null}
+												<P>MNX ID is not found</P>
+											{:else}
+												<P>MNX ID:{mnx.mnx_id}</P>
+												<P>molecule_name:{mnx.molecule_name}</P>{/if}
+										{/await}
+									</Popover>
+								{/await}
+							</div>
+							{#if !last(p, i)}
+								{#await rdb(m, p[i + 1])}
+									<Spinner size={4} />
+								{:then exist}
+									<div class="flex-col w-12 mx-2">
+										{#if exist}
+											<img src={arrow_image_red} alt={m + ' to ' + p[i + 1]} />
+										{:else}
+											<img src={arrow_image} alt={m + ' to ' + p[i + 1]} />
+										{/if}
+									</div>{/await}{/if}{/each}
+					{/if}
+				</div>
+			{/each}
+		</div>
 	{/if}
 {:else}
 	<div class="w-full text-center">
 		<Spinner class="mt-20" />
 	</div>
 {/if}
-
-
-

@@ -19,25 +19,28 @@
 	let building_blocks = [];
 
 	async function run() {
-		let url = 'run?title=' + (title?title:'Untitled') + '&product=' +
-					(target_molecule?target_molecule:'O=C1C=C2C=CC(O)CC2O1') +
-					'&building_blocks=' +
-					building_blocks.join(',') +
-					'&route_topk=' +
-					(pathway?pathway:10) +
-					'&iterations=' +
-					(iterations?iterations:20) +
-					'&beam_size=' +
-					(beam_size?beam_size:10) +
-					'&exp_topk=' +
-					(expansions?expansions:10) +
-					'&retrieval=' +
-					on;
+		let url =
+			'run?title=' +
+			encodeURIComponent(title ? title : 'Untitled') +
+			'&product=' +
+			encodeURIComponent(target_molecule ? target_molecule : 'O=C1C=C2C=CC(O)CC2O1') +
+			'&building_blocks=' +
+			encodeURIComponent(building_blocks.join(',')) +
+			'&route_topk=' +
+			(pathway ? pathway : 10) +
+			'&iterations=' +
+			(iterations ? iterations : 20) +
+			'&beam_size=' +
+			(beam_size ? beam_size : 10) +
+			'&exp_topk=' +
+			(expansions ? expansions : 10) +
+			'&retrieval=' +
+			on;
 		let response;
 		if (files && files.length == 1) {
-			response = await load(url, "POST", files[0]);
+			response = await load(url, 'POST', files[0]);
 		} else {
-			response = await load(url, "POST");
+			response = await load(url, 'POST');
 		}
 		ticket = response.ticket;
 		location.href = `/result/${ticket}`;
@@ -61,7 +64,15 @@
 			>
 			Arguments
 		</div>
-		<Arguments bind:title bind:pathway bind:iterations bind:beam_size bind:on bind:target_molecule bind:expansions />
+		<Arguments
+			bind:title
+			bind:pathway
+			bind:iterations
+			bind:beam_size
+			bind:on
+			bind:target_molecule
+			bind:expansions
+		/>
 	</TabItem>
 	<TabItem>
 		<div slot="title" class="flex items-center gap-2">
@@ -101,13 +112,9 @@
 			</svg>
 			Retrieval DB
 		</div>
-		<RetrievalDb bind:files={files} />
+		<RetrievalDb bind:files />
 	</TabItem>
 </Tabs>
 <div class="mt-8 text-center">
-	<Button
-		size="xl"
-		on:click={() => run()}
-		type="submit">Submit</Button
-	>
+	<Button size="xl" on:click={() => run()} type="submit">Submit</Button>
 </div>
