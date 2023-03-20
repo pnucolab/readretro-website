@@ -19,4 +19,43 @@ def _mol2image(mol, width=0, height=0):
     img.save(img_bytes, format="PNG")
     return b64encode(img_bytes.getvalue()).decode("utf-8")
 
-all_building_blocks = { mol: _mol2image(mol) for mol in starting_mols_full }
+bb_df = pd.read_csv("buildingblock.csv")
+all_building_blocks = []
+for c, sdf in bb_df.groupby("CLASS", sort=False):
+    cl = {
+        "class": c,
+        "molecules": []
+    }
+    for mol in starting_mols_full:
+        entry = sdf[sdf.SMILES == mol]
+        if len(entry):
+            cl["molecules"].append({
+                "smiles": mol,
+                "name": entry["NAME"].values[0],
+                "image": _mol2image(mol)
+            })
+    all_building_blocks.append(cl)
+
+mnx_df = pd.read_csv("DualRetro_release/utils/files/cano_smi_mnxid.tsv", sep="\t")
+
+def _canonicalize(smi):
+    from rdkit.Chem import MolFromSmiles, MolToSmiles
+    mol = MolFromSmiles(smi)
+    return MolToSmiles(mol, canonical=True, isomericSmiles=False)
+
+def _mnx_search(smi):
+    extract = mnx_df[mnx_df['SMILES'] == _canonicalize(smi)]
+    if not len(extract):
+        return None, None
+    else:
+        mnx_id, name = extract["ID"].values[0], extract["name"].values[0]
+        return mnx_id, name
+
+rdb_df = pd.read_csv("DualRetro_release/utils/files/train_canonicalized.txt", sep=">>", header=None, names=["reactant", "product"])
+
+def _rdb_search(mol1, mol2):
+    extract = rdb_df[(rdb_df['reactant'] == _canonicalize(mol1)) & (rdb_df['product'] == _canonicalize(mol2))]
+    if len(extract):
+        return True
+    else:
+        return False

@@ -1,0 +1,41 @@
+﻿SMILES,NAME,CLASS
+C[C@H](N)C(=O)O,L-Alanine,Amino Acids
+NC(=N)NCCC[C@H](N)C(=O)O,L-Arginine,Amino Acids
+NC(=O)C[C@H](N)C(=O)O,L-Asparagine,Amino Acids
+N[C@@H](CC(=O)O)C(=O)O,L-Aspartate,Amino Acids
+N[C@@H](CS)C(=O)O,L-Cystein,Amino Acids
+NC(=O)CC[C@H](N)C(=O)O,L-Glutamine,Amino Acids
+N[C@@H](CCC(=O)O)C(=O)O,L-Glutarate,Amino Acids
+NCC(=O)O,L-Glycine,Amino Acids
+N[C@@H](Cc1c[nH]cn1)C(=O)O,L-Histidine,Amino Acids
+CC[C@H](C)[C@H](N)C(=O)O,L-Isoleucine,Amino Acids
+CC(C)C[C@H](N)C(=O)O,L-Leucine,Amino Acids
+NCCCC[C@H](N)C(=O)O,L-Lysine,Amino Acids
+CSCC[C@H](N)C(=O)O,L-Methionine,Amino Acids
+N[C@@H](Cc1ccccc1)C(=O)O,L-Phenylalanine,Amino Acids
+O=C(O)[C@@H]1CCCN1,L-Proline,Amino Acids
+N[C@@H](CO)C(=O)O,L-Serine,Amino Acids
+C[C@@H](O)[C@H](N)C(=O)O,L-Threonine,Amino Acids
+N[C@@H](Cc1c[nH]c2ccccc12)C(=O)O,L-Tryptophan,Amino Acids
+N[C@@H](Cc1ccc(O)cc1)C(=O)O,L-Tyrosine,Amino Acids
+CC(C)[C@H](N)C(=O)O,L-Valine,Amino Acids
+C[C@@](O)(CCO)CC(=O)O,Mevalonic Acid,Organic Acids
+CC(=O)C(=O)O,Pyruvic Acid,Organic Acids
+Nc1ccccc1C(=O)O,O-Aminobenzoic Acid,Organic Acids
+O=C(O)C1=C[C@@H](O)[C@@H](O)[C@H](O)C1,Shikimic Acid,Organic Acids
+O=C(O)CC(=O)O,Malonic Acid,Organic Acids
+O=C(O)/C=C/c1ccc(O)cc1,Coumaric Acid,Organic Acids
+C=C(O[C@@H]1C=C(C(=O)O)C=C[C@H]1O)C(=O)O,Chorismic Acid,Organic Acids
+O=CC(=O)O,Oxoacetic Acid,Organic Acids
+O=C(O)CC(=O)C(=O)O,Oxaloacetic Acid,Organic Acids
+O=C(O)CCC(=O)O,Succinic Acid,Organic Acids
+C=C(C)CCOP(=O)(O)OP(=O)(O)O,IPP,Isoprenyl Precursors
+CC(C)=CCOP(=O)(O)OP(=O)(O)O,DMAPP,Isoprenyl Precursors
+CC(C)=CCC/C(C)=C/CC/C(C)=C/COP(=O)(O)OP(=O)(O)O,FPP,Isoprenyl Precursors
+CC(C)=CCC/C(C)=C/COP(=O)(O)OP(=O)(O)O,GPP,Isoprenyl Precursors
+CC(C)=CCC/C(C)=C/CC/C(C)=C/CC/C(C)=C/COP(=O)(O)OP(=O)(O)O,GGPP,Isoprenyl Precursors
+*C(=O)C,Acetyl CoA,Others
+*C(=O)CC(=O)O,Maloniyl CoA,Others
+O=C(/C=C/c1ccc(O)cc1)c1c(O)cc(O)cc1O,Narinegenine Chalcone,Others
+O=C(/C=C/c1ccc(O)cc1)c1ccc(O)cc1O,Isoliquiritigenin,Others
+CC(C)=CCC/C(C)=C/CC/C(C)=C/CC/C=C(\C)CC/C=C(\C)CCC=C(C)C,Squalene,Others

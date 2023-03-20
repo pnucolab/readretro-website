@@ -10,7 +10,7 @@ from db.models import Base, Task
 from db.database import engine
 Base.metadata.create_all(bind=engine)
 
-from backend_utils import FILENAME_STARTING_MOLECULES, all_building_blocks, _mol2image
+from backend_utils import FILENAME_STARTING_MOLECULES, all_building_blocks, _mol2image, _mnx_search, _rdb_search
 
 app = FastAPI()
 
@@ -100,5 +100,21 @@ async def mol_to_image(mol: str,
     try:
         print(mol)
         return {"success": True, "image": _mol2image(mol, width, height)}
+    except Exception as e:
+        return {"success": False, "error": repr(e)}
+
+
+@app.get("/mnxsearch")
+async def mnxsearch(query: str):
+    try:
+        mnx_id, mol_name = _mnx_search(query)
+        return {"success": True, "mnx_id": mnx_id, "molecule_name": mol_name}
+    except Exception as e:
+        return {"success": False, "error": repr(e)}
+
+@app.get("/rdbsearch")
+async def rdbsearch(mol1: str, mol2: str):
+    try:
+        return {"success": True, "existence": _rdb_search(mol1, mol2)}
     except Exception as e:
         return {"success": False, "error": repr(e)}
