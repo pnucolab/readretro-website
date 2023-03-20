@@ -8,7 +8,11 @@
 	import download from 'downloadjs';
 	import { page } from '$app/stores';
 
-	export let ticket;
+	import arrow_image from '$lib/images/right-arrow.svg';
+	import arrow_image_red from '$lib/images/right-arrow-red.svg';
+	import { onMount } from 'svelte';
+	import { Select } from 'flowbite-svelte';
+
 	import {
 		Table,
 		TableBody,
@@ -18,10 +22,15 @@
 		TableHeadCell
 	} from 'flowbite-svelte';
 
+	export let ticket;
+
 	let last = (a, i) => i == a.length - 1;
 	let result = {};
 	let loaded = false;
 	let pathways = [];
+	let reverse = true;
+	let filters = [];
+	let selected;
 
 	async function mol2image(mol) {
 		const result = await load('mol2image?mol=' + encodeURIComponent(mol));
@@ -30,24 +39,30 @@
 
 	async function get_result(ticket) {
 		const data = await load('result?ticket=' + ticket);
-		result = data;
-		if (result.success) {
-			if (result.status == 0) {
+		if (data.success) {
+			if (data.status == 0) {
 				pathways = [...data.pathway];
 				let mols = [];
-				for (let i = 0; i < result.pathway.length; i++) {
-					for (let j = 0; j < result.pathway[i].length; j++) {
-						mols.push(result.pathway[i][j]);
+				for (let i = 0; i < data.pathway.length; i++) {
+					for (let j = 0; j < data.pathway[i].molecules.length; j++) {
+						let found_duplicate = false;
+						for (let k = 0; k < mols.length; k++) {
+							if (mols[k].smiles == data.pathway[i].molecules[j].smiles) {
+								found_duplicate = true;
+								break;
+							}
+						}
+						if (!found_duplicate) mols.push(data.pathway[i].molecules[j]);
 					}
 				}
-				mols = [...new Set(mols)];
 				filters = mols.map((m) => {
-					return { name: m, value: m };
+					return { name: (m.mnx_info[1]?m.mnx_info[1]:"N/A") + ': ' + m.smiles, value: m.smiles };
 				});
-			} else if (result.status > 0) {
+			} else if (data.status > 0) {
 				setTimeout(() => get_result(ticket), 1000);
 			}
 		}
+		result = data;
 	}
 
 	async function rdb(mol1, mol2) {
@@ -58,7 +73,7 @@
 		return rdb.existence;
 	}
 
-	async function pop_up(mol) {
+	async function get_mnx_info(mol) {
 		const mnx = await load('mnxsearch?query=' + encodeURIComponent(mol));
 		return mnx;
 	}
@@ -78,20 +93,10 @@
 		loaded = true;
 	});
 
-	import arrow_image from '$lib/images/right-arrow.svg';
-	import arrow_image_red from '$lib/images/right-arrow-red.svg';
-	import { onMount } from 'svelte';
-
-	let reverse = true;
-	let filters = [];
-
-	import { Select } from 'flowbite-svelte';
-	let selected;
-
 	$: {
 		if (selected) {
-			pathways = result.pathway.filter((p) => p.includes(selected));
-			pathways = pathways.concat(result.pathway.filter((p) => !p.includes(selected)));
+			pathways = result.pathway.filter((p) => p.molecules.includes(selected));
+			pathways = pathways.concat(result.pathway.filter((p) => !p.molecules.includes(selected)));
 		} else {
 			pathways = result.pathway;
 		}
@@ -156,21 +161,21 @@
 		<Heading class="mt-10 mb-5" tag="h4">Pathways</Heading>
 
 		<div class="flex justify-between mb-5 border p-5 rounded-xl shadow">
-			<Label
-				>Filter pathways by molecule
+			<Label class="w-1/4">
+				Filter pathways by molecule
 				<Select class="mt-2" items={filters} bind:value={selected} />
 			</Label>
-			<div class="content-center">
+			<div class="content-center w-1/4">
 				<Label for="direction">Directions</Label>
 				<Toggle bind:checked={reverse} id="direction" class="mt-4 italic dark:text-gray-500">
 					{#if reverse}
 						reverse
 					{:else}
 						forward
-					{/if}</Toggle
-				>
+					{/if}
+				</Toggle>
 			</div>
-			<div>
+			<div class="w-1/4">
 				<Label>Explanation</Label>
 				<P class="flex ">
 					<img class="w-5" src={arrow_image_red} alt="example" />
@@ -185,90 +190,36 @@
 
 		<div class="border-t border-l border-r">
 			{#each pathways as p, n}
-				<div class="flex flex-row items-center border-b pt-5 overflow-x-scroll">
-					{#if reverse}
-						{#each p as m, i}
-							<div class="flex-col">
-								{#await mol2image(m)}
-									<Spinner size={4} />
-								{:then img}
-									<Card
-										color={selected && m === selected ? 'yellow' : 'light'}
-										class="mb-5 mx-3 w-32"
-										size="xs"
-										img={'data:image/png;base64,' + img}
-										id="b{n}-{i}"
-									>
-										<P class="flex flex-row justify-center text-center text-xs break-all">
-											{m}
-										</P></Card
-									>
-									<Popover class="w-64 font-light break-all" triggeredBy="#b{n}-{i}">
-										{#await pop_up(m)}
-											<Spinner size={4} />
-										{:then mnx}
-											{#if mnx.mnx_id == null}
-												<P class="text-sm">Cannot find corresponding MNX ID for this molecule.</P>
-											{:else}
-												<P class="text-sm"><span class="font-bold">MNX ID:</span> <a href="https://metanetx.org/chem_info/{mnx.mnx_id}" target="_blank">{mnx.mnx_id}</a></P>
-												<P class="text-sm"><span class="font-bold">Molecule name:</span> {mnx.molecule_name}</P>{/if}
-										{/await}
-									</Popover>
-								{/await}
+				<div class="flex items-center border-b pt-5 overflow-x-scroll {reverse?'flex-row':'flex-row-reverse'}">	
+					{#each p.molecules as m, i}
+						<div class="flex-col">
+							<Card color={selected && m.smiles === selected ? 'yellow' : (m.mnx_info[0]?'light':'red')} class="mb-5 mx-3 w-44" size="xs" img={'data:image/png;base64,' + m.image} id="b{n}-{i}">
+								<P class="break-all text-center mb-2">
+									{#if m.mnx_info[0]}
+										<span class="font-bold text-xs">
+											{m.mnx_info[1]}<br/>(<a href="https://metanetx.org/chem_info/{m.mnx_info[0]}" target="_blank">{m.mnx_info[0]})</a>
+										</span>
+									{:else}
+										<span class="font-bold text-xs">
+											N/A
+										</span>
+									{/if}
+								</P>
+								<P class="flex flex-row justify-center text-center break-all">
+									<span class="text-xs">{m.smiles}</span>
+								</P>
+							</Card>
+						</div>
+						{#if !last(p.molecules, i)}
+							<div class="flex-col w-12 mx-2 shrink-0">
+								{#if parseInt(p.scores[i]) === 1}
+									<img src={arrow_image_red} alt={m + ' to ' + p[i + 1]} />
+								{:else}
+									<img src={arrow_image} alt={m + ' to ' + p[i + 1]} />
+								{/if}
 							</div>
-							{#if !last(p, i)}
-								{#await rdb(m, p[i + 1])}
-									<Spinner size={4} />
-								{:then exist}
-									<div class="flex-col w-12 mx-2 shrink-0">
-										{#if exist}
-											<img src={arrow_image_red} alt={m + ' to ' + p[i + 1]} />
-										{:else}
-											<img src={arrow_image} alt={m + ' to ' + p[i + 1]} />
-										{/if}
-									</div>{/await}{/if}{/each}
-					{:else}
-						{#each p.reverse() as m, i}
-							<div class="flex-col">
-								{#await mol2image(m)}
-									<Spinner size={4} />
-								{:then img}
-									<Card
-										color={selected && m === selected ? 'yellow' : 'light'}
-										class="mb-5 mx-3 w-32"
-										size="xs"
-										img={'data:image/png;base64,' + img}
-										id="b{n}-{i}"
-									>
-										<P class="flex flex-row justify-center text-center text-xs break-all">
-											{m}
-										</P></Card
-									>
-									<Popover class="w-64 text-sm font-light" triggeredBy="#b{n}-{i}">
-										{#await pop_up(m)}
-											<Spinner size={4} />
-										{:then mnx}
-											{#if mnx.mnx_id == null}
-												<P>MNX ID is not found</P>
-											{:else}
-												<P>MNX ID:{mnx.mnx_id}</P>
-												<P>molecule_name:{mnx.molecule_name}</P>{/if}
-										{/await}
-									</Popover>
-								{/await}
-							</div>
-							{#if !last(p, i)}
-								{#await rdb(m, p[i + 1])}
-									<Spinner size={4} />
-								{:then exist}
-									<div class="flex-col w-12 mx-2 shrink-0">
-										{#if exist}
-											<img src={arrow_image_red} alt={m + ' to ' + p[i + 1]} />
-										{:else}
-											<img src={arrow_image} alt={m + ' to ' + p[i + 1]} />
-										{/if}
-									</div>{/await}{/if}{/each}
-					{/if}
+						{/if}
+					{/each}
 				</div>
 			{/each}
 		</div>

@@ -6,11 +6,14 @@ from db.models import Task
 from db.database import db_context
 import json
 from datetime import datetime
+from backend_utils import _mnx_search, _mol2image
 
 def r2r(raw_reaction):
     reactions = [r.split('>') for r in raw_reaction.split('|')]
     molecules = [r[0] for r in reactions] + [reactions[-1][-1]]
-    return molecules
+    molecules = [{"smiles": m, "image": _mol2image(m), "mnx_info": _mnx_search(m)} for m in molecules]
+    scores = [r[1] for r in reactions]
+    return {"molecules": molecules, "scores": scores}
 
 @celery_task.task
 def run_inference(product: str, building_blocks: str, iterations: int, exp_topk: int, route_topk: int, beam_size: int, retrieval: bool, retrieval_db: str):
