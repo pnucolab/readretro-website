@@ -203,15 +203,15 @@
 											{m}
 										</P></Card
 									>
-									<Popover class="w-64 text-sm font-light" triggeredBy="#b{n}-{i}">
+									<Popover class="w-64 font-light break-all" triggeredBy="#b{n}-{i}">
 										{#await pop_up(m)}
 											<Spinner size={4} />
 										{:then mnx}
 											{#if mnx.mnx_id == null}
-												<P>MNX ID is not found</P>
+												<P class="text-sm">Cannot find corresponding MNX ID for this molecule.</P>
 											{:else}
-												<P>MNX ID:{mnx.mnx_id}</P>
-												<P>molecule_name:{mnx.molecule_name}</P>{/if}
+												<P class="text-sm"><span class="font-bold">MNX ID:</span> <a href="https://metanetx.org/chem_info/{mnx.mnx_id}" target="_blank">{mnx.mnx_id}</a></P>
+												<P class="text-sm"><span class="font-bold">Molecule name:</span> {mnx.molecule_name}</P>{/if}
 										{/await}
 									</Popover>
 								{/await}
