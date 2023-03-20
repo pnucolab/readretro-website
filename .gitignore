@@ -1,2 +1,3 @@
 /postgres
 .env
+backend/neutralize_cano_smi_mnxid.tsv

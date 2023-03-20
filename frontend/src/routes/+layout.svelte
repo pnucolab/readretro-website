@@ -1,6 +1,6 @@
 <script>
+	import Bottom from '$lib/Bottom.svelte';
 	import { Navbar, NavBrand, NavLi, NavUl, NavHamburger } from 'flowbite-svelte';
-
 	import './styles.css';
 </script>
 
@@ -22,3 +22,5 @@
 		<slot />
 	</div>
 </div>
+
+<Bottom />
