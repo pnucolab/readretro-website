@@ -31,9 +31,20 @@
 	async function get_result(ticket) {
 		const data = await load('result?ticket=' + ticket);
 		result = data;
-		pathways = [...data.pathway];
 		if (result.success) {
-			if (result.status > 0) {
+			if (result.status == 0) {
+				pathways = [...data.pathway];
+				let mols = [];
+				for (let i = 0; i < result.pathway.length; i++) {
+					for (let j = 0; j < result.pathway[i].length; j++) {
+						mols.push(result.pathway[i][j]);
+					}
+				}
+				mols = [...new Set(mols)];
+				filters = mols.map((m) => {
+					return { name: m, value: m };
+				});
+			} else if (result.status > 0) {
 				setTimeout(() => get_result(ticket), 1000);
 			}
 		}
@@ -64,17 +75,6 @@
 
 	onMount(async () => {
 		await get_result(ticket);
-		let mols = [];
-		for (let i = 0; i < result.pathway.length; i++) {
-			for (let j = 0; j < result.pathway[i].length; j++) {
-				mols.push(result.pathway[i][j]);
-			}
-		}
-		mols = [...new Set(mols)];
-		filters = mols.map((m) => {
-			return { name: m, value: m };
-		});
-		console.log(filters);
 		loaded = true;
 	});
 
@@ -185,7 +185,7 @@
 
 		<div class="border-t border-l border-r">
 			{#each pathways as p, n}
-				<div class="flex flex-row items-center border-b pt-5">
+				<div class="flex flex-row items-center border-b pt-5 overflow-x-scroll">
 					{#if reverse}
 						{#each p as m, i}
 							<div class="flex-col">
@@ -220,7 +220,7 @@
 								{#await rdb(m, p[i + 1])}
 									<Spinner size={4} />
 								{:then exist}
-									<div class="flex-col w-12 mx-2">
+									<div class="flex-col w-12 mx-2 shrink-0">
 										{#if exist}
 											<img src={arrow_image_red} alt={m + ' to ' + p[i + 1]} />
 										{:else}
@@ -234,7 +234,7 @@
 									<Spinner size={4} />
 								{:then img}
 									<Card
-										color="light"
+										color={selected && m === selected ? 'yellow' : 'light'}
 										class="mb-5 mx-3 w-32"
 										size="xs"
 										img={'data:image/png;base64,' + img}
@@ -261,7 +261,7 @@
 								{#await rdb(m, p[i + 1])}
 									<Spinner size={4} />
 								{:then exist}
-									<div class="flex-col w-12 mx-2">
+									<div class="flex-col w-12 mx-2 shrink-0">
 										{#if exist}
 											<img src={arrow_image_red} alt={m + ' to ' + p[i + 1]} />
 										{:else}

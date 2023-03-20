@@ -36,15 +36,29 @@ for c, sdf in bb_df.groupby("CLASS", sort=False):
             })
     all_building_blocks.append(cl)
 
-mnx_df = pd.read_csv("DualRetro_release/utils/files/cano_smi_mnxid.tsv", sep="\t")
+mnx_df = pd.read_csv("neutralize_cano_smi_mnxid.tsv", sep="\t")
 
-def _canonicalize(smi):
-    from rdkit.Chem import MolFromSmiles, MolToSmiles
-    mol = MolFromSmiles(smi)
-    return MolToSmiles(mol, canonical=True, isomericSmiles=False)
+def _neutralize_atoms(smi):
+    from rdkit.Chem import MolFromSmiles, MolFromSmarts, MolToSmiles
+    try:
+        mol = MolFromSmiles(smi)
+        pattern = MolFromSmarts("[+1!h0!$([*]~[-1,-2,-3,-4]),-1!$([*]~[+1,+2,+3,+4])]")
+        at_matches = mol.GetSubstructMatches(pattern)
+        at_matches_list = [y[0] for y in at_matches]
+        if len(at_matches_list) > 0:
+            for at_idx in at_matches_list:
+                atom = mol.GetAtomWithIdx(at_idx)
+                chg = atom.GetFormalCharge()
+                hcount = atom.GetTotalNumHs()
+                atom.SetFormalCharge(0)
+                atom.SetNumExplicitHs(hcount - chg)
+                atom.UpdatePropertyCache()
+        return MolToSmiles(mol,isomericSmiles=False)
+    except:
+        return smi
 
 def _mnx_search(smi):
-    extract = mnx_df[mnx_df['SMILES'] == _canonicalize(smi)]
+    extract = mnx_df[mnx_df['SMILES'] == _neutralize_atoms(smi)]
     if not len(extract):
         return None, None
     else:
@@ -54,7 +68,7 @@ def _mnx_search(smi):
 rdb_df = pd.read_csv("DualRetro_release/utils/files/train_canonicalized.txt", sep=">>", header=None, names=["reactant", "product"])
 
 def _rdb_search(mol1, mol2):
-    extract = rdb_df[(rdb_df['reactant'] == _canonicalize(mol1)) & (rdb_df['product'] == _canonicalize(mol2))]
+    extract = rdb_df[(rdb_df['reactant'] == _neutralize_atoms(mol1)) & (rdb_df['product'] == _neutralize_atoms(mol2))]
     if len(extract):
         return True
     else:
