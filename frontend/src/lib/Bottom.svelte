@@ -2,7 +2,7 @@
     import { A, P } from 'flowbite-svelte';
 </script>
 
-<footer class="bg-gray-200 py-10">
+<footer class="py-10 border-t border-gray-200">
     <div class="px-2 sm:px-4">
         <div class="mx-auto flex flex-col container">
             <div class="flex flex-row gap-14 mb-10 justify-center">
@@ -15,7 +15,7 @@
                     <A href="https://pnucolab.com" target="_blank"><img class="w-72" src="/pnucolab.png" alt="Computational Omics Laboratory at Pusan National University" /></A>
                 </div>
             </div>
-            <P class="text-center"><span class="text-sm">© 2023 <A href="https://sites.google.com/view/kimlab" target="_blank">Laboratory for Ecology</A> and <A href="https://pnucolab.com" target="_blank">Computational Omics Laboratory</A>, all rights reserved.</span></P>
+            <P class="text-center">© 2023 <A href="https://sites.google.com/view/kimlab" target="_blank">Laboratory for Ecology</A> and <A href="https://pnucolab.com" target="_blank">Computational Omics Laboratory</A>, all rights reserved.</P>
         </div>
     </div>
 </footer>
