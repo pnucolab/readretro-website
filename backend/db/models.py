@@ -5,6 +5,7 @@ class Task(Base):
     __tablename__ = "task"
 
     id = Column(Integer, primary_key=True, autoincrement=True)
+    gpu_id = Column(Integer, nullable=True)
     task_id = Column(String, nullable=False)
     title = Column(String, nullable=True)
     product = Column(String, nullable=False)

@@ -7,6 +7,10 @@ from db.database import db_context
 import json
 from datetime import datetime
 from backend_utils import _mnx_search, _mol2image
+import time
+import torch
+
+NUMBER_OF_GPUS = torch.cuda.device_count()
 
 def r2r(raw_reaction):
     reactions = [r.split('>') for r in raw_reaction.split('|')]
@@ -18,11 +22,20 @@ def r2r(raw_reaction):
 @celery_task.task
 def run_inference(product: str, building_blocks: str, iterations: int, exp_topk: int, route_topk: int, beam_size: int, retrieval: bool, retrieval_db: str):
     task_id = run_inference.request.id
-    with db_context() as s:
-        task = s.query(Task).filter(Task.task_id == task_id).first()
-        task.status = 1
-        s.commit()
-    cmd = f"cd DualRetro_release && python run.py \"{product}\"" \
+    gpu_id = -1
+    while True:
+        gpu_occupied = [False for _ in range(NUMBER_OF_GPUS)]
+        with db_context() as s:
+            task = s.query(Task).filter(Task.task_id == task_id).first()
+            for task_running in s.query(Task).filter(Task.status == 1).all():
+                gpu_occupied[task_running.gpu_id] = True
+            if not all(gpu_occupied):
+                task.gpu_id = gpu_id = gpu_occupied.index(False)
+                task.status = 1
+                s.commit()
+                break
+        time.sleep(1)
+    cmd = f"cd DualRetro_release && CUDA_VISIBLE_DEVICES={gpu_id} python run.py \"{product}\"" \
             + f" --route_topk {route_topk}" \
             + f" --exp_topk {exp_topk}" \
             + f" --iterations {iterations}" \
@@ -43,6 +56,8 @@ def run_inference(product: str, building_blocks: str, iterations: int, exp_topk:
     else:
         raw_reactions = [r.split()[-1] for r in rtn.split("\n")[:-1]]
     result = [r2r(r) for r in raw_reactions]
+
+    subprocess.run(f"rm -f /tmp/{task_id}*", capture_output=True, shell=True)
 
     with db_context() as s:
         task = s.query(Task).filter(Task.task_id == run_inference.request.id).first()
