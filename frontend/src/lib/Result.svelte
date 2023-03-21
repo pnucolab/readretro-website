@@ -131,10 +131,10 @@
 					>{#if result.success}{result.product}{/if}</TableBodyCell
 				>
 				<TableBodyCell
-					>{#if result.success}{new Date(result.created_at).toLocaleString()}{/if}</TableBodyCell
+					>{#if result.success}{new Date(result.created_at + "Z").toLocaleString()}{/if}</TableBodyCell
 				>
 				{#if result.status == 0}
-					<TableBodyCell>{new Date(result.end_at).toLocaleString()}</TableBodyCell>
+					<TableBodyCell>{new Date(result.end_at + "Z").toLocaleString()}</TableBodyCell>
 				{:else}
 					<TableBodyCell>.</TableBodyCell>
 				{/if}
