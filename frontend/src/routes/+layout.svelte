@@ -1,4 +1,5 @@
 <script>
+	import { page } from '$app/stores';
 	import Bottom from '$lib/Bottom.svelte';
 	import { Navbar, NavBrand, NavLi, NavUl, NavHamburger } from 'flowbite-svelte';
 	import './styles.css';
@@ -15,8 +16,8 @@
 	</NavBrand>
 	<NavHamburger on:click={toggle} />
 	<NavUl {hidden}>
-		<NavLi href="/" active={true}>Pathway Explorer</NavLi>
-		<NavLi href="/about">About</NavLi>
+		<NavLi href="/" active={$page.url.pathname === '/'}>Pathway Explorer</NavLi>
+		<NavLi href="/about" active={$page.url.pathname === '/about'}>About</NavLi>
 	</NavUl>
 </Navbar>
 
