@@ -5,7 +5,7 @@
 <footer class="py-10 border-t border-gray-200">
     <div class="px-2 sm:px-4">
         <div class="mx-auto flex flex-col container">
-            <div class="flex flex-row gap-14 mb-10 justify-center">
+            <div class="flex flex-row gap-14 mb-14 justify-center flex-wrap">
                 <div class="flex flex-col">
                     <P class="mb-3"><span class="font-bold text-sm">READRetro was brought to you by:</span></P>
                     <div class="flex flex-row gap-14 ml-3">

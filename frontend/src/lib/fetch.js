@@ -1,6 +1,6 @@
 // @ts-ignore
 
-let site_root = "https://retro.pnucolab.com/api/v1/";
+let site_root = "https://readretro.net/api/v1/";
 
 export async function load(uri, method="GET", file=null) {
 	let resp;
