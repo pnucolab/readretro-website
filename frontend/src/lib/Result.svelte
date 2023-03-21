@@ -144,6 +144,7 @@
 						{#if result.status == 1} Running <Spinner size={4} />{/if}
 						{#if result.status == 2} Waiting for a slot <Spinner size={4} />{/if}
 						{#if result.status == -1} Cancelled {/if}
+						{#if result.status == -2} Error {/if}
 					{:else}
 						No such job ID
 					{/if}

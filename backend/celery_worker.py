@@ -50,7 +50,17 @@ def run_inference(product: str, building_blocks: str, iterations: int, exp_topk:
             f.write(building_blocks.replace(',', '\n'))
         cmd += f" --blocks {blocks}"
     print(cmd)
-    rtn = subprocess.run(cmd, capture_output=True, shell=True).stdout.decode("utf-8").strip()
+    res = subprocess.run(cmd, capture_output=True, shell=True)
+    if res.returncode != 0:
+        print("Execution Error:")
+        print(res.stderr.decode("utf-8"))
+        with db_context() as s:
+            task = s.query(Task).filter(Task.task_id == run_inference.request.id).first()
+            task.end_at = datetime.now()
+            task.status = -2
+            s.commit()
+        return []
+    rtn = res.stdout.decode("utf-8").strip()
     if rtn == "None":
         raw_reactions = []
     else:
