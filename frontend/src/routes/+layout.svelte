@@ -7,7 +7,10 @@
 <Navbar let:hidden let:toggle>
 	<NavBrand href="/">
 		<span class="self-center whitespace-nowrap text-xl font-semibold dark:text-white">
-			READRetro
+			<div class="flex flex-row gap-3">
+				<img src="/favicon.png" class="w-10" alt="Logo" />
+				<span class="self-center">READRetro</span>
+			</div>
 		</span>
 	</NavBrand>
 	<NavHamburger on:click={toggle} />

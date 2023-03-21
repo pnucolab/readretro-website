@@ -3,7 +3,7 @@
 </script>
 
 <Heading tag="h2" class="mt-5 mb-2">Pathway Explorer</Heading>
-<Heading tag="h5" class="font-light mb-5">A webtool for retrosynthetic planning of natural prodcuts</Heading>
+<Heading tag="h5" class="font-light mb-5">A webtool for retrosynthetic planning of natural products</Heading>
 <P class="mb-5">
     READRetro is a web-based tool for finding feasible retrosynthetic pathways for target molecules (i.e. natural products).
     The SMILES representation of your target molecule can be found in web databases, such as <A href="https://pubchem.ncbi.nlm.nih.gov/">PubChem</A>.
