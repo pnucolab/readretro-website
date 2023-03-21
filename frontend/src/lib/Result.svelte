@@ -106,10 +106,8 @@
 <Top />
 
 {#if loaded}
-	<p class="mb-5 text-center font-bold">
-		You can access this page again using this link: <A href="/result/{result.task_id}"
-			>{$page.url}</A
-		>
+	<p class="mb-5 text-center font-bold break-all">
+		You can access this page again using this link: <A href="/result/{result.task_id}">{$page.url}</A>
 	</p>
 	<Heading class="mb-5" tag="h4">Job Info</Heading>
 	<Table class="border">
@@ -162,7 +160,7 @@
 
 		<div class="flex justify-between mb-5 border p-5 rounded-xl shadow">
 			<Label class="w-1/4">
-				Filter pathways by molecule
+				Highlight pathways by molecule
 				<Select class="mt-2" items={filters} bind:value={selected} />
 			</Label>
 			<div class="content-center w-1/4">
@@ -178,11 +176,11 @@
 			<div class="w-1/4">
 				<Label>Explanation</Label>
 				<P class="flex ">
-					<img class="w-5" src={arrow_image_red} alt="example" />
+					<img class="w-5" src={arrow_image} alt="example" />
 					: exists in the retrieval DB</P
 				>
 				<P class="flex">
-					<img class="w-5" src={arrow_image} alt="example" />
+					<img class="w-5" src={arrow_image_red} alt="example" />
 					: does not exist in the retrieval DB</P
 				>
 			</div>
@@ -193,7 +191,7 @@
 				<div class="flex items-center border-b pt-5 overflow-x-scroll {reverse?'flex-row':'flex-row-reverse'}">	
 					{#each p.molecules as m, i}
 						<div class="flex-col">
-							<Card color={selected && m.smiles === selected ? 'yellow' : (m.mnx_info[0]?'light':'red')} class="mb-5 mx-3 w-44" size="xs" img={'data:image/png;base64,' + m.image} id="b{n}-{i}">
+							<Card color={selected && m.smiles === selected ? 'yellow' : (m.mnx_info[0]?'blue':'red')} class="mb-5 mx-3 w-44" size="xs" img={'data:image/png;base64,' + m.image} id="b{n}-{i}">
 								<P class="break-all text-center mb-2">
 									{#if m.mnx_info[0]}
 										<span class="font-bold text-xs">
@@ -213,9 +211,9 @@
 						{#if !last(p.molecules, i)}
 							<div class="flex-col w-12 mx-2 shrink-0">
 								{#if parseInt(p.scores[i]) === 1}
-									<img src={arrow_image_red} alt={m + ' to ' + p[i + 1]} />
-								{:else}
 									<img src={arrow_image} alt={m + ' to ' + p[i + 1]} />
+								{:else}
+									<img src={arrow_image_red} alt={m + ' to ' + p[i + 1]} />
 								{/if}
 							</div>
 						{/if}
