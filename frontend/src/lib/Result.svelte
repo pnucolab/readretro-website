@@ -83,7 +83,7 @@
 		final_result += '#title: ' + result.title + '\n';
 		final_result += '#task ID: ' + result.task_id + '\n';
 		for (let i = 0; i < result.pathway.length; i++) {
-			final_result += result.pathway[i].join('>>') + '\n';
+			final_result += result.pathway[i].molecules.map(e => e.smiles).join('>>') + '\n';
 		}
 		download(final_result, 'result.txt', 'text/plain');
 	}
