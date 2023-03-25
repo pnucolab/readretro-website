@@ -58,11 +58,19 @@ def _neutralize_atoms(smi):
         return smi
 
 def _mnx_search(smi):
+    blk_found = False
+    for blk in all_building_blocks:
+        for mol in blk["molecules"]:
+            if mol["smiles"] == smi:
+                blk_found = True
+                name = mol["name"]
     extract = mnx_df[mnx_df['SMILES'] == _neutralize_atoms(smi)]
     if not len(extract):
         return None, None
     else:
-        mnx_id, name = extract["ID"].values[0], extract["name"].values[0]
+        mnx_id = extract["ID"].values[0]
+        if not blk_found:
+            name = extract["name"].values[0]
         return mnx_id, name
 
 rdb_df = pd.read_csv("DualRetro_release/utils/files/train_canonicalized.txt", sep=">>", header=None, names=["reactant", "product"])
