@@ -10,5 +10,5 @@
     More details of READRetro could be found in our manuscript. If you want to optimize or modify the model, please feel free to download it from GitHub.
 </P>
 <P class="mb-10">
-    Citation info: Lee and Kim et al., READRetro: Natural Product Biosynthesis Planning with Retrieval-Augmented Dual-View Retrosynthesis. bioRxiv, 2023
+    Citation info: <A href="https://doi.org/10.1101/2023.03.21.533616" target="_blank">Lee and Kim et al., READRetro: Natural Product Biosynthesis Planning with Retrieval-Augmented Dual-View Retrosynthesis. bioRxiv, 2023</A>
 </P>
