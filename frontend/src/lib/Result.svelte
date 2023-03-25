@@ -192,7 +192,7 @@
 				<div class="flex items-center justify-center border-b py-5">No pathways found.</div>
 			{:else}
 				{#each pathways as p, n}
-					<div class="flex items-center border-b pt-5 overflow-x-scroll {reverse?'flex-row':'flex-row-reverse'}">	
+					<div class="flex justify-left items-center border-b pt-5 overflow-x-scroll {reverse?'flex-row':'flex-row-reverse'}">	
 						{#each p.molecules as m, i}
 							<div class="flex-col">
 								<Card color={selected && m.smiles === selected ? 'yellow' : (m.mnx_info[0]?'blue':'red')} class="mb-5 mx-3 w-44" size="xs" img={'data:image/png;base64,' + m.image} id="b{n}-{i}">
