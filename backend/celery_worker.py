@@ -35,44 +35,55 @@ def run_inference(product: str, building_blocks: str, iterations: int, exp_topk:
                 s.commit()
                 break
         time.sleep(1)
-    cmd = f"cd DualRetro_release && CUDA_VISIBLE_DEVICES={gpu_id} python run.py \"{product}\"" \
-            + f" --route_topk {route_topk}" \
-            + f" --exp_topk {exp_topk}" \
-            + f" --iterations {iterations}" \
-            + f" --beam_size {beam_size}" \
-            + f" --retrieval {str(retrieval).lower()}"
-    if retrieval_db != "":
-        cmd += f" --db_path {retrieval_db}"
-    if building_blocks != "":
-        blocks = f"/tmp/{task_id}_blocks.csv"
-        with open(blocks, "w") as f:
-            f.write("mol\n")
-            f.write(building_blocks.replace(',', '\n'))
-        cmd += f" --blocks {blocks}"
-    print(cmd)
-    res = subprocess.run(cmd, capture_output=True, shell=True)
-    if res.returncode != 0:
-        print("Execution Error:")
-        print(res.stderr.decode("utf-8"))
+    try:
+        cmd = f"cd DualRetro_release && CUDA_VISIBLE_DEVICES={gpu_id} python run.py \"{product}\"" \
+                + f" --route_topk {route_topk}" \
+                + f" --exp_topk {exp_topk}" \
+                + f" --iterations {iterations}" \
+                + f" --beam_size {beam_size}" \
+                + f" --retrieval {str(retrieval).lower()}"
+        if retrieval_db != "":
+            cmd += f" --db_path {retrieval_db}"
+        if building_blocks != "":
+            blocks = f"/tmp/{task_id}_blocks.csv"
+            with open(blocks, "w") as f:
+                f.write("mol\n")
+                f.write(building_blocks.replace(',', '\n'))
+            cmd += f" --blocks {blocks}"
+        print(cmd)
+        res = subprocess.run(cmd, capture_output=True, shell=True)
+        if res.returncode != 0:
+            print("Execution Error:")
+            print(res.stderr.decode("utf-8"))
+            with db_context() as s:
+                task = s.query(Task).filter(Task.task_id == run_inference.request.id).first()
+                task.end_at = datetime.now()
+                task.status = -2
+                s.commit()
+            return []
+        lines = res.stdout.decode("utf-8").strip().split('\n')
+        if lines[0] == "None":
+            raw_reactions = []
+        else:
+            lines = list(set(lines))
+            raw_reactions = [r.split()[-1] for r in lines[:-1]]
+        result = [r2r(r) for r in raw_reactions]
+
+        subprocess.run(f"rm -f /tmp/{task_id}*", capture_output=True, shell=True)
+
+        with db_context() as s:
+            task = s.query(Task).filter(Task.task_id == run_inference.request.id).first()
+            task.result = json.dumps(result)
+            task.end_at = datetime.now()
+            task.status = 0
+            s.commit()
+    except Exception as e:
+        print("Python Error:")
+        print(e)
         with db_context() as s:
             task = s.query(Task).filter(Task.task_id == run_inference.request.id).first()
             task.end_at = datetime.now()
             task.status = -2
             s.commit()
         return []
-    rtn = res.stdout.decode("utf-8").strip()
-    if rtn == "None":
-        raw_reactions = []
-    else:
-        raw_reactions = [r.split()[-1] for r in rtn.split("\n")[:-1]]
-    result = [r2r(r) for r in raw_reactions]
-
-    subprocess.run(f"rm -f /tmp/{task_id}*", capture_output=True, shell=True)
-
-    with db_context() as s:
-        task = s.query(Task).filter(Task.task_id == run_inference.request.id).first()
-        task.result = json.dumps(result)
-        task.end_at = datetime.now()
-        task.status = 0
-        s.commit()
     return result
