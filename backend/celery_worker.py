@@ -61,12 +61,12 @@ def run_inference(product: str, building_blocks: str, iterations: int, exp_topk:
                 task.status = -2
                 s.commit()
             return []
-        lines = res.stdout.decode("utf-8").strip().split('\n')
+        lines = res.stdout.decode("utf-8").strip().split('\n')[:-1] # remove the last line (execution time)
         if lines[0] == "None":
             raw_reactions = []
         else:
             lines = list(set(lines))
-            raw_reactions = [r.split()[-1] for r in lines[:-1]]
+            raw_reactions = [r.split()[-1] for r in lines]
         result = [r2r(r) for r in raw_reactions]
 
         subprocess.run(f"rm -f /tmp/{task_id}*", capture_output=True, shell=True)
