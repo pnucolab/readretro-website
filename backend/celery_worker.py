@@ -65,8 +65,8 @@ def run_inference(product: str, building_blocks: str, iterations: int, exp_topk:
         if lines[0] == "None":
             raw_reactions = []
         else:
-            lines = sorted(set(lines))
             raw_reactions = [r.split()[-1] for r in lines]
+            raw_reactions = sorted(set(raw_reactions))
         result = [r2r(r) for r in raw_reactions]
 
         subprocess.run(f"rm -f /tmp/{task_id}*", capture_output=True, shell=True)
