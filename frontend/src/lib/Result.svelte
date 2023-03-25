@@ -188,39 +188,43 @@
 		</div>
 
 		<div class="border-t border-l border-r">
-			{#each pathways as p, n}
-				<div class="flex items-center border-b pt-5 overflow-x-scroll {reverse?'flex-row':'flex-row-reverse'}">	
-					{#each p.molecules as m, i}
-						<div class="flex-col">
-							<Card color={selected && m.smiles === selected ? 'yellow' : (m.mnx_info[0]?'blue':'red')} class="mb-5 mx-3 w-44" size="xs" img={'data:image/png;base64,' + m.image} id="b{n}-{i}">
-								<P class="break-all text-center mb-2">
-									{#if m.mnx_info[0]}
-										<span class="font-bold text-xs">
-											{m.mnx_info[1]}<br/>(<a href="https://metanetx.org/chem_info/{m.mnx_info[0]}" target="_blank">{m.mnx_info[0]})</a>
-										</span>
-									{:else}
-										<span class="font-bold text-xs">
-											N/A
-										</span>
-									{/if}
-								</P>
-								<P class="flex flex-row justify-center text-center break-all">
-									<span class="text-xs">{m.smiles}</span>
-								</P>
-							</Card>
-						</div>
-						{#if !last(p.molecules, i)}
-							<div class="flex-col w-12 mx-2 shrink-0">
-								{#if parseInt(p.scores[i]) === 1}
-									<img src={arrow_image} alt={m + ' to ' + p[i + 1]} />
-								{:else}
-									<img src={arrow_image_red} alt={m + ' to ' + p[i + 1]} />
-								{/if}
+			{#if pathways.length === 0}
+				<div class="flex items-center justify-center border-b py-5">No pathways found.</div>
+			{:else}
+				{#each pathways as p, n}
+					<div class="flex items-center border-b pt-5 overflow-x-scroll {reverse?'flex-row':'flex-row-reverse'}">	
+						{#each p.molecules as m, i}
+							<div class="flex-col">
+								<Card color={selected && m.smiles === selected ? 'yellow' : (m.mnx_info[0]?'blue':'red')} class="mb-5 mx-3 w-44" size="xs" img={'data:image/png;base64,' + m.image} id="b{n}-{i}">
+									<P class="break-all text-center mb-2">
+										{#if m.mnx_info[0]}
+											<span class="font-bold text-xs">
+												{m.mnx_info[1]}<br/>(<a href="https://metanetx.org/chem_info/{m.mnx_info[0]}" target="_blank">{m.mnx_info[0]})</a>
+											</span>
+										{:else}
+											<span class="font-bold text-xs">
+												N/A
+											</span>
+										{/if}
+									</P>
+									<P class="flex flex-row justify-center text-center break-all">
+										<span class="text-xs">{m.smiles}</span>
+									</P>
+								</Card>
 							</div>
-						{/if}
-					{/each}
-				</div>
-			{/each}
+							{#if !last(p.molecules, i)}
+								<div class="flex-col w-12 mx-2 shrink-0">
+									{#if parseInt(p.scores[i]) === 1}
+										<img src={arrow_image} alt={m + ' to ' + p[i + 1]} />
+									{:else}
+										<img src={arrow_image_red} alt={m + ' to ' + p[i + 1]} />
+									{/if}
+								</div>
+							{/if}
+						{/each}
+					</div>
+				{/each}
+			{/if}
 		</div>
 	{/if}
 {:else}
