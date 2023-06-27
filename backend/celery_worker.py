@@ -13,14 +13,18 @@ import torch
 NUMBER_OF_GPUS = torch.cuda.device_count()
 
 def r2r(raw_reaction):
+    keggpath = None
+    if "keggpath" in raw_reaction:
+        raw_reaction, keggpath = raw_reaction.split(">keggpath=")
     reactions = [r.split('>') for r in raw_reaction.split('|')]
+    kegg_reactions = [_kegg_reaction_search(r[0], r[-1]) for r in reactions]
     molecules = [r[0] for r in reactions] + [reactions[-1][-1]]
     molecules = [{"smiles": m, "image": _mol2image(m), "mnx_info": _mnx_search(m)} for m in molecules]
     scores = [r[1] for r in reactions]
-    return {"molecules": molecules, "scores": scores}
+    return {"molecules": molecules, "scores": scores, "kegg_reactions": kegg_reactions, "kegg_path": keggpath}
 
 @celery_task.task
-def run_inference(product: str, building_blocks: str, iterations: int, exp_topk: int, route_topk: int, beam_size: int, retrieval: bool, retrieval_db: str):
+def run_inference(product: str, building_blocks: str, iterations: int, exp_topk: int, route_topk: int, beam_size: int, retrieval: bool, retrieval_db: str, model_type: str):
     task_id = run_inference.request.id
     gpu_id = -1
     while True:
@@ -36,12 +40,15 @@ def run_inference(product: str, building_blocks: str, iterations: int, exp_topk:
                 break
         time.sleep(1)
     try:
-        cmd = f"cd DualRetro_release && CUDA_VISIBLE_DEVICES={gpu_id} python run.py \"{product}\"" \
+        if model_type == "retriever_only":
+            retrieval = True
+        cmd = f"cd READRetro && CUDA_VISIBLE_DEVICES={gpu_id} python run.py \"{product}\"" \
                 + f" --route_topk {route_topk}" \
                 + f" --exp_topk {exp_topk}" \
                 + f" --iterations {iterations}" \
                 + f" --beam_size {beam_size}" \
-                + f" --retrieval {str(retrieval).lower()}"
+                + f" --retrieval {str(retrieval).lower()}" \
+                + f" --model_type {model_type}"
         if retrieval_db != "":
             cmd += f" --db_path {retrieval_db}"
         if building_blocks != "":
@@ -50,6 +57,7 @@ def run_inference(product: str, building_blocks: str, iterations: int, exp_topk:
                 f.write("mol\n")
                 f.write(building_blocks.replace(',', '\n'))
             cmd += f" --blocks {blocks}"
+        print("Executing command:")
         print(cmd)
         res = subprocess.run(cmd, capture_output=True, shell=True)
         if res.returncode != 0:
