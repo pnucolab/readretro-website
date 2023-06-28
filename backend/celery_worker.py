@@ -6,7 +6,7 @@ from db.models import Task
 from db.database import db_context
 import json
 from datetime import datetime
-from backend_utils import _mnx_search, _mol2image
+from backend_utils import _mnx_search, _mol2image, _kegg_reaction_search
 import time
 import torch
 

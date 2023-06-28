@@ -88,8 +88,6 @@ reaction_df = pd.read_pickle(reaction_kegg_db)
 neutral_kegg_db = "READRetro/data/kegg_neutral_iso_smi.csv"
 kegg_df = pd.read_csv(neutral_kegg_db)
 
-rname, rlink = kegg_reaction_search(["OC1OC[C@H](O)[C@H](O)[C@H]1O"],["OCC1(O)OC[C@H](O)[C@@H]1O"], Reactions, kegg_db)
-
 def _kegg_search(smi: str) -> tuple:
     extract = kegg_df[kegg_df['SMILES'] == smi]
     if not len(extract):
