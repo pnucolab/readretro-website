@@ -1,20 +1,20 @@
 // @ts-ignore
 
-let site_root = "/api/v1/";
+let site_root = 'https://retro.pnucolab.com/api/v1/';
 
-export async function load(uri, method="GET", file=null) {
+export async function load(uri, method = 'GET', file = null) {
 	let resp;
-	if (method == "GET") {
+	if (method == 'GET') {
 		resp = await fetch(site_root + uri);
-	} else if (method == "POST") {
+	} else if (method == 'POST') {
 		let data = null;
 		if (file) {
 			data = new FormData();
-			data.append("file", file);
+			data.append('file', file);
 		}
 		resp = await fetch(site_root + uri, {
-			method: "POST",
-			body: data,
+			method: 'POST',
+			body: data
 		});
 	}
 	let rtn = await resp.json();

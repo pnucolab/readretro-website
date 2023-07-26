@@ -41,8 +41,11 @@ mnx_df = pd.read_csv("neutralize_cano_smi_mnxid.tsv", sep="\t")
 def _neutralize_atoms(smi):
     from rdkit.Chem import MolFromSmiles, MolFromSmarts, MolToSmiles
     try:
+        print(smi)
         mol = MolFromSmiles(smi)
+        print(mol)
         pattern = MolFromSmarts("[+1!h0!$([*]~[-1,-2,-3,-4]),-1!$([*]~[+1,+2,+3,+4])]")
+        print(pattern)
         at_matches = mol.GetSubstructMatches(pattern)
         at_matches_list = [y[0] for y in at_matches]
         if len(at_matches_list) > 0:
@@ -111,6 +114,7 @@ def _kegg_reaction_search(reactants: list, products: list) -> list:
     # Preprocess reactants and products
     reactants = [_neutralize_atoms(reactant) for reactant in reactants]
     products = [_neutralize_atoms(product) for product in products]
+
     # Get the KEGG IDs for reactants and products
     reactants_kegg_ids = []
     products_kegg_ids = []

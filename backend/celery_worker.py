@@ -17,9 +17,12 @@ def r2r(raw_reaction):
     if "keggpath" in raw_reaction:
         raw_reaction, keggpath = raw_reaction.split(">keggpath=")
     reactions = [r.split('>') for r in raw_reaction.split('|')]
+    print("reactions",reactions)
     kegg_reactions = [_kegg_reaction_search(r[0], r[-1]) for r in reactions]
+    print("kegg_reactions",kegg_reactions)
     molecules = [r[0] for r in reactions] + [reactions[-1][-1]]
     molecules = [{"smiles": m, "image": _mol2image(m), "mnx_info": _mnx_search(m)} for m in molecules]
+    print("molecules",molecules)
     scores = [r[1] for r in reactions]
     return {"molecules": molecules, "scores": scores, "kegg_reactions": kegg_reactions, "kegg_path": keggpath}
 
@@ -75,7 +78,11 @@ def run_inference(product: str, building_blocks: str, iterations: int, exp_topk:
         else:
             raw_reactions = [r.split()[-1] for r in lines]
             raw_reactions = sorted(set(raw_reactions))
+            print("1")
+            print("ss",raw_reactions)
+        print("2")  
         result = [r2r(r) for r in raw_reactions]
+        print(result)
 
         subprocess.run(f"rm -f /tmp/{task_id}*", capture_output=True, shell=True)
 
