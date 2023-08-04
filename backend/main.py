@@ -29,6 +29,7 @@ async def run(title: str = Query(default="Untitled", title="Experiment title"),
               route_topk: int = Query(ge=1, le=10, default=10, title="Number of pathway generations"),
               beam_size: int = Query(ge=1, le=10, default=10, title="Beam size"),
               retrieval: bool = Query(default=True, title="Retriever usage"),
+              path_retrieval: bool = Query(default=True, title="Pathway retriever usage"),
               model_type: str = Query(default="ensemble", title="Model type"),
               file: UploadFile | None = None):
     try:
@@ -50,13 +51,14 @@ async def run(title: str = Query(default="Untitled", title="Experiment title"),
                 iterations=iterations,
                 beam_size=beam_size,
                 retrieval=retrieval,
+                path_retrieval=path_retrieval,
                 retrieval_db=rdb_path,
                 created_at=datetime.now(),
                 status=2
             )
             s.add(task)
             s.commit()
-        rtn = run_inference.apply_async([product, building_blocks, iterations, exp_topk, route_topk, beam_size, retrieval, rdb_path, model_type], task_id=task_id)
+        rtn = run_inference.apply_async([product, building_blocks, iterations, exp_topk, route_topk, beam_size, retrieval,  path_retrieval, rdb_path, model_type], task_id=task_id)
         return {"success": True, "ticket": task_id}
     except Exception as e:
         return {"success": False, "error": repr(e)}

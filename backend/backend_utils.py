@@ -40,7 +40,7 @@ mnx_df = pd.read_csv("neutralize_cano_smi_mnxid.tsv", sep="\t")
 
 def _neutralize_atoms(smi):
     print("1smi",smi)
-    from rdkit.Chem import MolFromSmiles, MolFromSmarts, MolToSmiles
+    from rdkit.Chem import MolFromSmiles, MolFromSmarts, MolToSmiles    
     try:
         mol = MolFromSmiles(smi)
         print("mol",mol)
@@ -58,9 +58,8 @@ def _neutralize_atoms(smi):
                 atom.SetFormalCharge(0)
                 atom.SetNumExplicitHs(hcount - chg)
                 atom.UpdatePropertyCache()
-        return MolToSmiles(mol,isomericSmiles=False)
+        return MolToSmiles(mol, isomericSmiles=True)
     except:
-        print("smi2",smi)
         return smi
 
 def _mnx_search(smi):
@@ -95,7 +94,7 @@ neutral_kegg_db = "READRetro/data/kegg_neutral_iso_smi.csv"
 kegg_df = pd.read_csv(neutral_kegg_db)
 
 def _kegg_search(smi: str) -> tuple:
-    extract = kegg_df[kegg_df['SMILES'] == 'O=C(O)C=Cc1ccc(O)cc1']
+    extract = kegg_df[kegg_df['SMILES'] == smi]
     if not len(extract):
         return None, None
     else:
@@ -103,6 +102,8 @@ def _kegg_search(smi: str) -> tuple:
         return id, f"www.kegg.jp/entry/{id}"
     
 def _kegg_reaction_search(reactants: list, products: list) -> list:
+    print("reactants",reactants)
+    print("products",products)
     """
     Retrieve the Rname values from reaction_df based on given reactants and products.
 
@@ -116,24 +117,20 @@ def _kegg_reaction_search(reactants: list, products: list) -> list:
     """
     # Preprocess reactants and products
     reactants = [_neutralize_atoms(reactant) for reactant in reactants]
-    print("reactants",reactants)
     products = [_neutralize_atoms(product) for product in products]
-    print("products",products)
 
     # Get the KEGG IDs for reactants and products
     reactants_kegg_ids = []
     products_kegg_ids = []
     for compound in reactants:
-        print("compound",compound)
         kegg_id, _ = _kegg_search(compound)
-        print("kegg_id",kegg_id)
         reactants_kegg_ids.append(kegg_id)
+
     for compound in products:
-        print("compound",compound)
         kegg_id, _ = _kegg_search(compound)
-        print("kegg_id",kegg_id)
         products_kegg_ids.append(kegg_id)
-    #print(reactants_kegg_ids,products_kegg_ids)
+
+    print("id",reactants_kegg_ids,products_kegg_ids)
     # Create a boolean mask for filtering rows
     reactants_mask = reaction_df['Reactants'].apply(lambda x: all(item in x for item in reactants_kegg_ids))
     products_mask = reaction_df['Products'].apply(lambda x: all(item in x for item in products_kegg_ids))
@@ -146,4 +143,4 @@ def _kegg_reaction_search(reactants: list, products: list) -> list:
     ecs = [reaction_df['EC'][reaction_df['Rname']== rname].to_list()[0] for rname in rnames]
     links = [f"www.kegg.jp/entry/{rname}" for rname in rnames]
     
-    return {"rname": rnames[0], "ec": ecs[0], "link": links[0]}
+    return {"rname": rnames, "ec": ecs, "link": links}

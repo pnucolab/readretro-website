@@ -15,6 +15,7 @@ class Task(Base):
     route_topk = Column(Integer, nullable=False)
     beam_size = Column(Integer, nullable=False)
     retrieval = Column(BOOLEAN, nullable=False)
+    path_retrieval = Column(BOOLEAN, nullable=False)
     retrieval_db = Column(String, nullable=False)
     created_at = Column(DateTime, nullable=False)
     end_at = Column(DateTime, nullable=True)

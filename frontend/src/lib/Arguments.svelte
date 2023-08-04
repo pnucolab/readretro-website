@@ -1,6 +1,8 @@
 <script>
 	import { Input, Label, Heading, Toggle } from 'flowbite-svelte';
-
+	import { Button, Dropdown, DropdownItem, Chevron, Radio, P } from 'flowbite-svelte';
+	import { onMount } from 'svelte';
+	export let Model = 'Ensemble';
 	export let title;
 	export let pathway;
 	export let iterations;
@@ -8,6 +10,15 @@
 	export let expansions;
 	export let on;
 	export let target_molecule;
+
+	$: {
+		if (Model === 'Retriever only') {
+			on = true;
+		}
+		if (Model === 'Retriever only' && !on) {
+			on = true;
+		}
+	}
 </script>
 
 <Heading tag="h4" class="mb-4">Experiment Information</Heading>
@@ -31,13 +42,7 @@
 <div class="px-5">
 	<div class="mb-6">
 		<Label for="iteration" class="mb-2">Number of iterations</Label>
-		<Input
-			bind:value={iterations}
-			type="number"
-			id="iteration"
-			placeholder="100"
-			required
-		/>
+		<Input bind:value={iterations} type="number" id="iteration" placeholder="100" required />
 	</div>
 	<div class="mb-6">
 		<Label for="pathway" class="mb-2">Number of pathway generation</Label>
@@ -51,14 +56,34 @@
 		<Label for="beam" class="mb-2">Beam size</Label>
 		<Input bind:value={beam_size} type="number" id="beam" placeholder="10" required />
 	</div>
-	<div class="mb-6">
-		<Label for="retriever" class="mb-2">Retriever usage</Label>
-		<Toggle bind:checked={on} id="retriever" class="mt-4 italic dark:text-gray-500">
-			{#if on}
-				on
-			{:else}
-				off
-			{/if}</Toggle
-		>
+	<div class="mb-6 flex">
+		<div class="mr-10">
+			<Label for="retriever" class="mb-2">Retriever usage</Label>
+			<Toggle bind:checked={on} id="retriever" class="mt-4 italic dark:text-gray-500">
+				{#if on}
+					on
+				{:else}
+					off
+				{/if}</Toggle
+			>
+		</div>
+		<div>
+			<Label for="retriever" class="mb-2">Model type</Label>
+			<Button><Chevron>{Model}</Chevron></Button>
+			<Dropdown class="w-44 p-3 space-y-3 text-sm">
+				<li>
+					<Radio name="group1" bind:group={Model} value="Ensemble">Ensemble</Radio>
+				</li>
+				<li>
+					<Radio name="group1" bind:group={Model} value="Retroformer">Retroformer</Radio>
+				</li>
+				<li>
+					<Radio name="group1" bind:group={Model} value="Graph2SMILES">Graph2SMILES</Radio>
+				</li>
+				<li>
+					<Radio name="group1" bind:group={Model} value="Retriever only">Retriever only</Radio>
+				</li>
+			</Dropdown>
+		</div>
 	</div>
 </div>

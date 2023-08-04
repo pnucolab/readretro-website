@@ -29,7 +29,7 @@ def r2r(raw_reaction):
     return {"molecules": molecules, "scores": scores, "kegg_reactions": kegg_reactions, "kegg_path": keggpath}
 
 @celery_task.task
-def run_inference(product: str, building_blocks: str, iterations: int, exp_topk: int, route_topk: int, beam_size: int, retrieval: bool, retrieval_db: str, model_type: str):
+def run_inference(product: str, building_blocks: str, iterations: int, exp_topk: int, route_topk: int, beam_size: int, retrieval: bool,  path_retrieval: bool, retrieval_db: str, model_type: str):
     task_id = run_inference.request.id
     gpu_id = -1
     while True:
@@ -53,6 +53,7 @@ def run_inference(product: str, building_blocks: str, iterations: int, exp_topk:
                 + f" --iterations {iterations}" \
                 + f" --beam_size {beam_size}" \
                 + f" --retrieval {str(retrieval).lower()}" \
+                + f" --path_retrieval {str(path_retrieval).lower()}" \
                 + f" --model_type {model_type}"
         if retrieval_db != "":
             cmd += f" --db_path {retrieval_db}"
