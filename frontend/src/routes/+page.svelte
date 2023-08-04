@@ -18,6 +18,8 @@
 	let files;
 	let building_blocks = [];
 	let active_tab = 0;
+	let path_retrieval = true;
+	let model;
 	let tabs = ["Arguments", "Building Blocks", "Retrieval DB"];
 
 	async function run() {
@@ -28,16 +30,20 @@
 			encodeURIComponent(target_molecule ? target_molecule : 'CCC1=CC2CC3(C1N(C2)CCC4=C3NC5=CC=CC=C45)C(=O)OC') +
 			'&building_blocks=' +
 			encodeURIComponent(building_blocks.join(',')) +
-			'&route_topk=' +
-			(pathway ? pathway : 10) +
 			'&iterations=' +
-			(iterations ? iterations : 100) +
-			'&beam_size=' +
-			(beam_size ? beam_size : 10) +
+			(iterations ? iterations : 100)+
 			'&exp_topk=' +
 			(expansions ? expansions : 10) +
+			'&route_topk=' +
+			(pathway ? pathway : 10) +
+			'&beam_size=' +
+			(beam_size ? beam_size : 10) +
 			'&retrieval=' +
-			on;
+			on +
+			'&path_retrieval=' +
+			path_retrieval
+			+ '&model=' +
+			encodeURIComponent(model ? model : 'ensemble');
 		let response;
 		if (files && files.length == 1) {
 			response = await load(url, 'POST', files[0]);

@@ -2,7 +2,7 @@
 	import { Input, Label, Heading, Toggle } from 'flowbite-svelte';
 	import { Button, Dropdown, DropdownItem, Chevron, Radio, P } from 'flowbite-svelte';
 	import { onMount } from 'svelte';
-	export let Model = 'Ensemble';
+	export let model = 'Ensemble';
 	export let title;
 	export let pathway;
 	export let iterations;
@@ -10,12 +10,13 @@
 	export let expansions;
 	export let on;
 	export let target_molecule;
+	export let path_retrieval = true;
 
 	$: {
-		if (Model === 'Retriever only') {
+		if (model === 'Retriever only') {
 			on = true;
 		}
-		if (Model === 'Retriever only' && !on) {
+		if (model === 'Retriever only' && !on) {
 			on = true;
 		}
 	}
@@ -67,21 +68,31 @@
 				{/if}</Toggle
 			>
 		</div>
+		<div class="mr-10">
+			<Label for="Pathway_retriever" class="mb-2">Pathway Retriever</Label>
+			<Toggle bind:checked={path_retrieval} id="Pathway_retriever" class="mt-4 italic dark:text-gray-500">
+				{#if path_retrieval}
+					on
+				{:else}
+					off
+				{/if}</Toggle
+			>
+		</div>
 		<div>
 			<Label for="retriever" class="mb-2">Model type</Label>
-			<Button><Chevron>{Model}</Chevron></Button>
+			<Button><Chevron>{model}</Chevron></Button>
 			<Dropdown class="w-44 p-3 space-y-3 text-sm">
 				<li>
-					<Radio name="group1" bind:group={Model} value="Ensemble">Ensemble</Radio>
+					<Radio name="group1" bind:group={model} value="Ensemble">Ensemble</Radio>
 				</li>
 				<li>
-					<Radio name="group1" bind:group={Model} value="Retroformer">Retroformer</Radio>
+					<Radio name="group1" bind:group={model} value="Retroformer">Retroformer</Radio>
 				</li>
 				<li>
-					<Radio name="group1" bind:group={Model} value="Graph2SMILES">Graph2SMILES</Radio>
+					<Radio name="group1" bind:group={model} value="Graph2SMILES">Graph2SMILES</Radio>
 				</li>
 				<li>
-					<Radio name="group1" bind:group={Model} value="Retriever only">Retriever only</Radio>
+					<Radio name="group1" bind:group={model} value="Retriever only">Retriever only</Radio>
 				</li>
 			</Dropdown>
 		</div>
