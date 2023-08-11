@@ -16,10 +16,14 @@ def r2r(raw_reaction):
     keggpath = None
     if "keggpath" in raw_reaction:
         raw_reaction, keggpath = raw_reaction.split(">keggpath=")
+    print("d",raw_reaction, keggpath)
     reactions = [r.split('>') for r in raw_reaction.split('|')]
+    reactions = [r for r in reactions if len(r) > 2]
     print("reactions",reactions)
     reactants = [r[0] for r in reactions]
+    print("reactants",reactants)
     products = [r[-1] for r in reactions]
+    print("products",products)
     kegg_reactions = [_kegg_reaction_search(reactants, products)]
     print("kegg_reactions",kegg_reactions)
     molecules = [r[0] for r in reactions] + [reactions[-1][-1]]
@@ -81,6 +85,7 @@ def run_inference(product: str, building_blocks: str, iterations: int, exp_topk:
         else:
             raw_reactions = [r.split()[-1] for r in lines]
             raw_reactions = sorted(set(raw_reactions))
+        print("raw_reactions",raw_reactions)
         result = [r2r(r) for r in raw_reactions]
         print(result)
 

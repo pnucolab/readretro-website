@@ -51,6 +51,7 @@ def _neutralize_atoms(smi):
         at_matches_list = [y[0] for y in at_matches]
         print("at_matches_list",at_matches_list)
         if len(at_matches_list) > 0:
+            print("1")
             for at_idx in at_matches_list:
                 atom = mol.GetAtomWithIdx(at_idx)
                 chg = atom.GetFormalCharge()
@@ -58,8 +59,10 @@ def _neutralize_atoms(smi):
                 atom.SetFormalCharge(0)
                 atom.SetNumExplicitHs(hcount - chg)
                 atom.UpdatePropertyCache()
+        print("return MTS",MolToSmiles(mol, isomericSmiles=True))
         return MolToSmiles(mol, isomericSmiles=True)
     except:
+        print("return smi")
         return smi
 
 def _mnx_search(smi):
@@ -102,8 +105,6 @@ def _kegg_search(smi: str) -> tuple:
         return id, f"www.kegg.jp/entry/{id}"
     
 def _kegg_reaction_search(reactants: list, products: list) -> list:
-    print("reactants",reactants)
-    print("products",products)
     """
     Retrieve the Rname values from reaction_df based on given reactants and products.
 
@@ -116,8 +117,11 @@ def _kegg_reaction_search(reactants: list, products: list) -> list:
 
     """
     # Preprocess reactants and products
+    print("2")
     reactants = [_neutralize_atoms(reactant) for reactant in reactants]
+    print("reactants",reactants)
     products = [_neutralize_atoms(product) for product in products]
+    print("products",products)
 
     # Get the KEGG IDs for reactants and products
     reactants_kegg_ids = []
