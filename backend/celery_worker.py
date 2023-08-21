@@ -9,13 +9,19 @@ from datetime import datetime
 from backend_utils import _mnx_search, _mol2image, _kegg_reaction_search
 import time
 import torch
+import pandas as pd
 
 NUMBER_OF_GPUS = torch.cuda.device_count()
 
 def r2r(raw_reaction):
     keggpath = None
+    kegg = None
     if "keggpath" in raw_reaction:
         raw_reaction, keggpath = raw_reaction.split(">keggpath=")
+        kegg_n = keggpath.split("rn")[1].split("+")[0]
+        df = pd.read_csv('READRetro/data/map_title.csv')
+        extract = df[df['ID'] == int(kegg_n)]
+        kegg = extract["Name"].values[0]
     print("d",raw_reaction, keggpath)
     reactions = [r.split('>') for r in raw_reaction.split('|')]
     reactions = [r for r in reactions if len(r) > 2]
@@ -30,7 +36,7 @@ def r2r(raw_reaction):
     molecules = [{"smiles": m, "image": _mol2image(m), "mnx_info": _mnx_search(m)} for m in molecules]
     print("molecules",molecules)
     scores = [r[1] for r in reactions]
-    return {"molecules": molecules, "scores": scores, "kegg_reactions": kegg_reactions, "kegg_path": keggpath}
+    return {"molecules": molecules, "scores": scores, "kegg_reactions": kegg_reactions, "kegg_path": keggpath, "kegg": kegg}
 
 @celery_task.task
 def run_inference(product: str, building_blocks: str, iterations: int, exp_topk: int, route_topk: int, beam_size: int, retrieval: bool,  path_retrieval: bool, retrieval_db: str, model_type: str):
@@ -48,7 +54,9 @@ def run_inference(product: str, building_blocks: str, iterations: int, exp_topk:
                 s.commit()
                 break
         time.sleep(1)
+        print('asdfasdfasdf') 
     try:
+        print('asdfasdfasdf') 
         if model_type == "retriever_only":
             retrieval = True
         cmd = f"cd READRetro && CUDA_VISIBLE_DEVICES={gpu_id} python run.py \"{product}\"" \
@@ -67,6 +75,7 @@ def run_inference(product: str, building_blocks: str, iterations: int, exp_topk:
                 f.write("mol\n")
                 f.write(building_blocks.replace(',', '\n'))
             cmd += f" --blocks {blocks}"
+        
         print("Executing command:")
         print(cmd)
         res = subprocess.run(cmd, capture_output=True, shell=True)

@@ -70,7 +70,11 @@
 		</div>
 		<div class="mr-10">
 			<Label for="Pathway_retriever" class="mb-2">Pathway Retriever</Label>
-			<Toggle bind:checked={path_retrieval} id="Pathway_retriever" class="mt-4 italic dark:text-gray-500">
+			<Toggle
+				bind:checked={path_retrieval}
+				id="Pathway_retriever"
+				class="mt-4 italic dark:text-gray-500"
+			>
 				{#if path_retrieval}
 					on
 				{:else}
@@ -79,7 +83,7 @@
 			>
 		</div>
 		<div>
-			<Label for="retriever" class="mb-2">Model type</Label>
+			<Label for="retriever" class="mb-2">model type</Label>
 			<Button><Chevron>{model}</Chevron></Button>
 			<Dropdown class="w-44 p-3 space-y-3 text-sm">
 				<li>

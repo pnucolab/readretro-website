@@ -18,9 +18,23 @@
 	let building_blocks = [];
 	let active_tab = 0;
 	let path_retrieval = true;
-	let model;
+	let model_type;
 	let tabs = ['Arguments', 'Building Blocks', 'Retrieval DB'];
-
+	let model;
+	$: {
+		if (model === 'Retriever only') {
+			model_type = 'retriever_only'
+		}
+		if (model === 'Retroformer') {
+			model_type= 'retroformer'
+		}
+		if (model === 'Graph2SMILES') {
+			model_type = 'g2s'
+		}
+		if (model === 'Ensemble') {
+			model_type = 'ensemble'
+		}
+	}
 	async function run() {
 		let url =
 			'run?title=' +
@@ -43,8 +57,8 @@
 			on +
 			'&path_retrieval=' +
 			path_retrieval +
-			'&model=' +
-			encodeURIComponent(model ? model : 'ensemble');
+			'&model_type=' +
+			encodeURIComponent(model_type ? model_type : 'ensemble');
 		let response;
 		if (files && files.length == 1) {
 			response = await load(url, 'POST', files[0]);
@@ -130,6 +144,7 @@
 		bind:on
 		bind:target_molecule
 		bind:expansions
+		bind:model
 	/>
 </div>
 

@@ -42,6 +42,7 @@
 		if (data.success) {
 			if (data.status == 0) {
 				pathways = [...data.pathway];
+				console.log(pathways);
 				let mols = [];
 				for (let i = 0; i < data.pathway.length; i++) {
 					for (let j = 0; j < data.pathway[i].molecules.length; j++) {
@@ -192,7 +193,7 @@
 				<div class="flex items-center justify-center border-b py-5">No pathways found.</div>
 			{:else}
 				{#each pathways as p, n}
-					<div class="flex justify-left items-center border-b pt-5 overflow-x-scroll {reverse?'flex-row':'flex-row-reverse'}">	
+					<div class="flex justify-left items-center border-b pt-5 overflow-x-scroll {reverse?'flex-row':'flex-row-reverse'}">
 						{#each p.molecules as m, i}
 							<div class="flex-col">
 								<Card color={selected && m.smiles === selected ? 'yellow' : (m.mnx_info[0]?'blue':'red')} class="mb-5 mx-3 w-44" size="xs" img={'data:image/png;base64,' + m.image} id="b{n}-{i}">
@@ -222,6 +223,7 @@
 								</div>
 							{/if}
 						{/each}
+						<Card color='green' href="https://www.{p.kegg_path}" padding='sm' size='lg'><Heading tag='h3'>{p.kegg}</Heading></Card>
 					</div>
 				{/each}
 			{/if}
