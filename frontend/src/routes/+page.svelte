@@ -11,28 +11,28 @@
 	let iterations;
 	let beam_size;
 	let expansions;
-	let on = true;
+	let retrieval;
 	let target_molecule;
 	let ticket;
 	let files;
 	let building_blocks = [];
 	let active_tab = 0;
-	let path_retrieval = true;
+	let path_retrieval;
 	let model_type;
 	let tabs = ['Arguments', 'Building Blocks', 'Retrieval DB'];
 	let model;
 	$: {
 		if (model === 'Retriever only') {
-			model_type = 'retriever_only'
+			model_type = 'retriever_only';
 		}
 		if (model === 'Retroformer') {
-			model_type= 'retroformer'
+			model_type = 'retroformer';
 		}
 		if (model === 'Graph2SMILES') {
-			model_type = 'g2s'
+			model_type = 'g2s';
 		}
 		if (model === 'Ensemble') {
-			model_type = 'ensemble'
+			model_type = 'ensemble';
 		}
 	}
 	async function run() {
@@ -54,7 +54,7 @@
 			'&beam_size=' +
 			(beam_size ? beam_size : 10) +
 			'&retrieval=' +
-			on +
+			retrieval +
 			'&path_retrieval=' +
 			path_retrieval +
 			'&model_type=' +
@@ -141,10 +141,11 @@
 		bind:pathway
 		bind:iterations
 		bind:beam_size
-		bind:on
+		bind:retrieval
 		bind:target_molecule
 		bind:expansions
 		bind:model
+		bind:path_retrieval
 	/>
 </div>
 

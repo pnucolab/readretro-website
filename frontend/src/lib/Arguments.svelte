@@ -8,16 +8,16 @@
 	export let iterations;
 	export let beam_size;
 	export let expansions;
-	export let on;
+	export let retrieval;
 	export let target_molecule;
-	export let path_retrieval = true;
+	export let path_retrieval;
 
 	$: {
 		if (model === 'Retriever only') {
-			on = true;
+			retrieval = true;
 		}
-		if (model === 'Retriever only' && !on) {
-			on = true;
+		if (model === 'Retriever only' && !retrieval) {
+			retrieval = true;
 		}
 	}
 </script>
@@ -59,9 +59,9 @@
 	</div>
 	<div class="mb-6 flex">
 		<div class="mr-10">
-			<Label for="retriever" class="mb-2">Retriever usage</Label>
-			<Toggle bind:checked={on} id="retriever" class="mt-4 italic dark:text-gray-500">
-				{#if on}
+			<Label for="retriever" class="mb-2">Reaction Retriever</Label>
+			<Toggle bind:checked={retrieval} id="retriever" class="mt-4 italic dark:text-gray-500">
+				{#if retrieval}
 					on
 				{:else}
 					off

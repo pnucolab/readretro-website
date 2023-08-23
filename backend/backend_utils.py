@@ -1,4 +1,5 @@
 import pandas as pd
+import requests
 
 FILENAME_STARTING_MOLECULES = 'READRetro/data/building_block.csv'
 starting_mols_full = list(pd.read_csv(FILENAME_STARTING_MOLECULES)['mol'])
@@ -7,6 +8,9 @@ def _mol2image(mol, width=0, height=0):
     from rdkit.Chem import MolFromSmiles, Draw
     from io import BytesIO
     from base64 import b64encode
+    #if '.' in mol:
+        #mol =  mol.split('.')
+        #return [_mol2image(s) for s in mol]
     mol = MolFromSmiles(mol)
     img = Draw.MolToImage(mol)
     if width > 0 or height > 0:
@@ -17,7 +21,7 @@ def _mol2image(mol, width=0, height=0):
         img = img.resize((width, height))
     img_bytes = BytesIO()
     img.save(img_bytes, format="PNG")
-    return b64encode(img_bytes.getvalue()).decode("utf-8")
+    return [b64encode(img_bytes.getvalue()).decode("utf-8")]
 
 bb_df = pd.read_csv("buildingblock.csv")
 all_building_blocks = []
@@ -66,6 +70,9 @@ def _neutralize_atoms(smi):
         return smi
 
 def _mnx_search(smi):
+    #if '.' in smi:
+        #smi = smi.split('.')
+        #return [_mnx_search(s) for s in smi]
     blk_found = False
     for blk in all_building_blocks:
         for mol in blk["molecules"]:
@@ -93,6 +100,7 @@ def _rdb_search(mol1, mol2):
 reaction_kegg_db = "READRetro/data/kegg_reaction.pickle"
 reaction_df = pd.read_pickle(reaction_kegg_db)
 
+
 neutral_kegg_db = "READRetro/data/kegg_neutral_iso_smi.csv"
 kegg_df = pd.read_csv(neutral_kegg_db)
 
@@ -117,7 +125,6 @@ def _kegg_reaction_search(reactants: list, products: list) -> list:
 
     """
     # Preprocess reactants and products
-    print("2")
     reactants = [_neutralize_atoms(reactant) for reactant in reactants]
     print("reactants",reactants)
     products = [_neutralize_atoms(product) for product in products]
@@ -126,6 +133,8 @@ def _kegg_reaction_search(reactants: list, products: list) -> list:
     # Get the KEGG IDs for reactants and products
     reactants_kegg_ids = []
     products_kegg_ids = []
+    r_ecs = []
+    
     for compound in reactants:
         kegg_id, _ = _kegg_search(compound)
         reactants_kegg_ids.append(kegg_id)
@@ -134,7 +143,6 @@ def _kegg_reaction_search(reactants: list, products: list) -> list:
         kegg_id, _ = _kegg_search(compound)
         products_kegg_ids.append(kegg_id)
 
-    print("id",reactants_kegg_ids,products_kegg_ids)
     # Create a boolean mask for filtering rows
     reactants_mask = reaction_df['Reactants'].apply(lambda x: all(item in x for item in reactants_kegg_ids))
     products_mask = reaction_df['Products'].apply(lambda x: all(item in x for item in products_kegg_ids))
@@ -146,5 +154,13 @@ def _kegg_reaction_search(reactants: list, products: list) -> list:
     rnames = filtered_df['Rname'].tolist()
     ecs = [reaction_df['EC'][reaction_df['Rname']== rname].to_list()[0] for rname in rnames]
     links = [f"www.kegg.jp/entry/{rname}" for rname in rnames]
-    
+
     return {"rname": rnames, "ec": ecs, "link": links}
+
+
+def compare_elements(elem1, elem2):
+    # 두 원소 중 하나라도 값이 있는 경우 해당 값을 반환
+    if elem1 is not None:
+        return elem1
+    return elem2
+

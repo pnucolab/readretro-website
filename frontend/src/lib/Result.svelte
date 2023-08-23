@@ -10,6 +10,7 @@
 
 	import arrow_image from '$lib/images/right-arrow.svg';
 	import arrow_image_red from '$lib/images/right-arrow-red.svg';
+	import arrow_image_green from '$lib/images/right-arrow-green.svg';
 	import { onMount } from 'svelte';
 	import { Select } from 'flowbite-svelte';
 
@@ -57,7 +58,21 @@
 					}
 				}
 				filters = mols.map((m) => {
-					return { name: (m.mnx_info[1]?m.mnx_info[1]:"N/A") + ': ' + m.smiles, value: m.smiles };
+					if (Array.isArray(m)) {
+						return m.map((k) => {
+							const mnxInfo = k.mnx_info[0] ? k.mnx_info[0] : 'N/A';
+							return {
+								name: mnxInfo + ': ' + k.smiles,
+								value: k.smiles
+							};
+						});
+					} else {
+						const mnxInfo = m.mnx_info[0] ? m.mnx_info[0] : 'N/A';
+						return {
+							name: mnxInfo + ': ' + m.smiles,
+							value: m.smiles
+						};
+					}
 				});
 			} else if (data.status > 0) {
 				setTimeout(() => get_result(ticket), 1000);
@@ -84,7 +99,7 @@
 		final_result += '#title: ' + result.title + '\n';
 		final_result += '#task ID: ' + result.task_id + '\n';
 		for (let i = 0; i < result.pathway.length; i++) {
-			final_result += result.pathway[i].molecules.map(e => e.smiles).join('>>') + '\n';
+			final_result += result.pathway[i].molecules.map((e) => e.smiles).join('>>') + '\n';
 		}
 		download(final_result, 'result.txt', 'text/plain');
 	}
@@ -108,7 +123,9 @@
 
 {#if loaded}
 	<p class="mb-5 text-center font-bold break-all">
-		You can access this page again using this link: <A href="/result/{result.task_id}">{$page.url}</A>
+		You can access this page again using this link: <A href="/result/{result.task_id}"
+			>{$page.url}</A
+		>
 	</p>
 	<Heading class="mb-5" tag="h4">Job Info</Heading>
 	<Table class="border">
@@ -132,10 +149,12 @@
 					>{#if result.success}{result.product}{/if}</TableBodyCell
 				>
 				<TableBodyCell
-					>{#if result.success}{new Date(result.created_at + "Z").toLocaleString()}{/if}</TableBodyCell
+					>{#if result.success}{new Date(
+							result.created_at + 'Z'
+						).toLocaleString()}{/if}</TableBodyCell
 				>
 				{#if result.status == 0}
-					<TableBodyCell>{new Date(result.end_at + "Z").toLocaleString()}</TableBodyCell>
+					<TableBodyCell>{new Date(result.end_at + 'Z').toLocaleString()}</TableBodyCell>
 				{:else}
 					<TableBodyCell>.</TableBodyCell>
 				{/if}
@@ -185,6 +204,10 @@
 					<img class="w-5" src={arrow_image_red} alt="example" />
 					: does not exist in the retrieval DB</P
 				>
+				<P class="flex">
+					<img class="w-5" src={arrow_image_green} alt="example" />
+					: pathway retriever</P
+				>
 			</div>
 		</div>
 
@@ -193,37 +216,92 @@
 				<div class="flex items-center justify-center border-b py-5">No pathways found.</div>
 			{:else}
 				{#each pathways as p, n}
-					<div class="flex justify-left items-center border-b pt-5 overflow-x-scroll {reverse?'flex-row':'flex-row-reverse'}">
-						{#each p.molecules as m, i}
-							<div class="flex-col">
-								<Card color={selected && m.smiles === selected ? 'yellow' : (m.mnx_info[0]?'blue':'red')} class="mb-5 mx-3 w-44" size="xs" img={'data:image/png;base64,' + m.image} id="b{n}-{i}">
-									<P class="break-all text-center mb-2">
-										{#if m.mnx_info[0]}
-											<span class="font-bold text-xs">
-												{m.mnx_info[1]}<br/>(<a href="https://metanetx.org/chem_info/{m.mnx_info[0]}" target="_blank">{m.mnx_info[0]})</a>
-											</span>
-										{:else}
-											<span class="font-bold text-xs">
-												N/A
-											</span>
-										{/if}
-									</P>
-									<P class="flex flex-row justify-center text-center break-all">
-										<span class="text-xs">{m.smiles}</span>
-									</P>
-								</Card>
+					<div class="flex justify-left items-center border-b pt-5 overflow-x-scroll ">
+						<div
+							class=" flex justify-left items-center  {reverse ? 'flex-row' : 'flex-row-reverse'}"
+						>
+							{#each p.molecules as m, i}
+								{#if m.length > 1}
+									<div class="flex-col">
+										{#each m as k}
+											<div class="flex-col">
+												<Card
+													class="mb-5 mx-3 w-44"
+													size="xs"
+													img={'data:image/png;base64,' + k.image}
+													id="b{n}-{i}"
+												>
+													<P class="break-all text-center mb-2">
+														{#if k.mnx_info}
+															<span class="font-bold text-xs">
+																{k.mnx_info[1]}<br />(<a
+																	href="https://metanetx.org/chem_info/{k.mnx_info[0]}"
+																	target="_blank">{k.mnx_info[0]})</a
+																>
+															</span>
+														{:else}
+															<span class="font-bold text-xs"> N/A </span>
+														{/if}
+													</P>
+													<P class="flex flex-row justify-center text-center break-all">
+														<span class="text-xs">{k.smiles}</span>
+													</P>
+												</Card>
+											</div>
+										{/each}
+									</div>
+								{:else}
+									<div class="flex-col">
+										<Card
+											color={selected && m.smiles === selected
+												? 'yellow'
+												: m.mnx_info[0]
+												? 'blue'
+												: 'red'}
+											class="mb-5 mx-3 w-44"
+											size="xs"
+											img={'data:image/png;base64,' + m.image}
+											id="b{n}-{i}"
+										>
+											<P class="break-all text-center mb-2">
+												{#if m.mnx_info}
+													<span class="font-bold text-xs">
+														{m.mnx_info[1]}<br />(<a
+															href="https://metanetx.org/chem_info/{m.mnx_info[0]}"
+															target="_blank">{m.mnx_info[0]})</a
+														>
+													</span>
+												{:else}
+													<span class="font-bold text-xs"> N/A </span>
+												{/if}
+											</P>
+											<P class="flex flex-row justify-center text-center break-all">
+												<span class="text-xs">{m.smiles}</span>
+											</P>
+										</Card>
+									</div>
+									{#if !last(p.molecules, i)}
+										<div class="flex-col w-12 mx-2 shrink-0">
+											{#if parseInt(p.scores[i]) === 1}
+												<img src={arrow_image} alt={m + ' to ' + p[i + 1]} />
+											{:else}
+												<img src={arrow_image_red} alt={m + ' to ' + p[i + 1]} />
+											{/if}
+										</div>
+									{/if}{/if}
+							{/each}
+						</div>
+						{#if p.kegg_path}
+							<div class="flex-col w-12 mx-2 shrink-0">
+								<img src={arrow_image_green} alt="green" />
 							</div>
-							{#if !last(p.molecules, i)}
-								<div class="flex-col w-12 mx-2 shrink-0">
-									{#if parseInt(p.scores[i]) === 1}
-										<img src={arrow_image} alt={m + ' to ' + p[i + 1]} />
-									{:else}
-										<img src={arrow_image_red} alt={m + ' to ' + p[i + 1]} />
-									{/if}
-								</div>
-							{/if}
-						{/each}
-						<Card color='green' href="https://www.{p.kegg_path}" padding='sm' size='lg'><Heading tag='h3'>{p.kegg}</Heading></Card>
+							<Card
+								color="green"
+								href="https://www.{p.kegg_path}"
+								target="_blank"
+								padding="sm"
+								size="lg"><Heading tag="h3">{p.kegg}</Heading></Card
+							>{/if}
 					</div>
 				{/each}
 			{/if}
