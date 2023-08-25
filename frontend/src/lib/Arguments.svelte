@@ -8,9 +8,9 @@
 	export let iterations;
 	export let beam_size;
 	export let expansions;
-	export let retrieval;
+	export let retrieval = true;
 	export let target_molecule;
-	export let path_retrieval;
+	export let path_retrieval = true;
 
 	$: {
 		if (model === 'Retriever only') {

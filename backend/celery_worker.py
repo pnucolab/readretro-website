@@ -23,16 +23,11 @@ def r2r(raw_reaction):
         df = pd.read_csv('READRetro/data/map_title.csv')
         extract = df[df['ID'] == int(kegg_n)]
         kegg = extract["Name"].values[0]
-    print("d",raw_reaction, keggpath)
     reactions = [r.split('>') for r in raw_reaction.split('|')]
     reactions = [r for r in reactions if len(r) > 2]
-    print("reactions",reactions)
     reactants = [r[0] for r in reactions]
-    print("reactants",reactants)
     products = [r[-1] for r in reactions]
-    print("products",products)
     kegg_reactions = [_kegg_reaction_search(reactants, products)]
-    print("kegg_reactions",kegg_reactions)
     molecules = [r[0] for r in reactions] + [reactions[-1][-1]]
     mol = []
     for m in molecules:
@@ -40,7 +35,6 @@ def r2r(raw_reaction):
             mol.append([{"smiles": k, "image": _mol2image(k), "mnx_info": _mnx_search(k)} for k in m.split('.')])
         else:
             mol.append({"smiles": m, "image": _mol2image(m), "mnx_info": _mnx_search(m)}) 
-    print("molecules",mol)
     scores = [r[1] for r in reactions]
     return {"molecules": mol, "scores": scores, "kegg_reactions": kegg_reactions, "kegg_path": keggpath, "kegg": kegg}
 

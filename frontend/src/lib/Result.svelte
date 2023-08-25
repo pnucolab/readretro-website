@@ -33,6 +33,10 @@
 	let filters = [];
 	let selected;
 
+
+	const uniqueFilters = [];
+	const seenValues = new Set();
+
 	async function mol2image(mol) {
 		const result = await load('mol2image?mol=' + encodeURIComponent(mol));
 		return result.image;
@@ -73,13 +77,28 @@
 							value: m.smiles
 						};
 					}
-				});
+				}).flat();
+
+				const uniqueFilters = [];
+      const seenValues = new Set();
+
+      filters.forEach(filter => {
+        if (!seenValues.has(filter.value)) {
+          seenValues.add(filter.value);
+          uniqueFilters.push(filter);
+        }
+      });
+
+      filters = uniqueFilters;
+
 			} else if (data.status > 0) {
 				setTimeout(() => get_result(ticket), 1000);
 			}
 		}
 		result = data;
+		
 	}
+	
 
 	async function rdb(mol1, mol2) {
 		const rdb = await load(
@@ -226,13 +245,18 @@
 										{#each m as k}
 											<div class="flex-col">
 												<Card
+												color={selected && k.smiles === selected
+													? 'yellow'
+													: k.mnx_info[0]
+													? 'blue'
+													: 'red'}
 													class="mb-5 mx-3 w-44"
 													size="xs"
 													img={'data:image/png;base64,' + k.image}
 													id="b{n}-{i}"
 												>
 													<P class="break-all text-center mb-2">
-														{#if k.mnx_info}
+														{#if k.mnx_info[0]}
 															<span class="font-bold text-xs">
 																{k.mnx_info[1]}<br />(<a
 																	href="https://metanetx.org/chem_info/{k.mnx_info[0]}"
@@ -264,7 +288,7 @@
 											id="b{n}-{i}"
 										>
 											<P class="break-all text-center mb-2">
-												{#if m.mnx_info}
+												{#if m.mnx_info[0]}
 													<span class="font-bold text-xs">
 														{m.mnx_info[1]}<br />(<a
 															href="https://metanetx.org/chem_info/{m.mnx_info[0]}"
