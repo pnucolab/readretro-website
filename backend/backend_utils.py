@@ -147,10 +147,12 @@ def _kegg_reaction_search(reactants: list, products: list) -> list:
     rnames = filtered_df['Rname'].tolist()
     ecs = [reaction_df['EC'][reaction_df['Rname']== rname].to_list()[0] for rname in rnames]
 
-
     if len(ecs)==0:
+        print('f')
         if (len(reactants_kegg_ids)==1)&(len(products_kegg_ids)==1):
+            print('ff')
             if (reactants_kegg_ids[0] != None)&(products_kegg_ids[0] != None):
+                print('fff')
                 url = f"http://rest.genome.jp/ezyme/{reactants_kegg_ids[0]}/{products_kegg_ids[0]}/version=1"
                 response = requests.get(url)
                 if response.status_code != 200:
@@ -163,6 +165,7 @@ def _kegg_reaction_search(reactants: list, products: list) -> list:
                         print("No data found")
                         ecs = []
                     highest_score, highest_ec = max((float(line.split()[0]), line.split()[1]) for line in lines)
+                    print('ffffff')
                     ecs =  [highest_ec]
                     
     return {"rname": rnames, "ec": ecs}

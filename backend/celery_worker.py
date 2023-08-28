@@ -33,6 +33,7 @@ def r2r(raw_reaction):
         else:
             mol.append({"smiles": m, "image": _mol2image(m), "mnx_info": _mnx_search(m)}) 
     scores = [r[1] for r in reactions]
+    print({"molecules": mol, "scores": scores, "kegg_reactions": kegg_reactions, "kegg_path": keggpath, "kegg": kegg})
     return {"molecules": mol, "scores": scores, "kegg_reactions": kegg_reactions, "kegg_path": keggpath, "kegg": kegg}
 
 @celery_task.task
