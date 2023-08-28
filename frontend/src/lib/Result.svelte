@@ -305,14 +305,28 @@
 										</Card>
 									</div>
 									{#if !last(p.molecules, i)}
-										<div class="flex-col w-12 mx-2 shrink-0">
+									<div class="flex-col w-12 mx-2 shrink-0">
+										<div>									
+										{#if p.kegg_reactions}
+											  {#if parseInt(p.scores[i]) === 1}
+											  	<a href="www.kegg.jp/entry/{p.kegg_reactions[i].rname}">{p.kegg_reactions[i].rname}</a>
+												<img src={arrow_image} alt={m + ' to ' + p[i + 1]} />
+												{#if p.kegg_reactions[i].ec.length > 0}<P>EC: {p.kegg_reactions[i].ec}</P>{/if}
+											  {:else}
+											  	<P href="www.kegg.jp/entry/{p.kegg_reactions[i].rname}">{p.kegg_reactions[i].rname}</P>
+												<img src={arrow_image_red} alt={m + ' to ' + p[i + 1]} />
+												{#if p.kegg_reactions[i].ec.length > 0}<P>EC: {p.kegg_reactions[i].ec}</P>{/if}
+												{/if}
+										{:else}
 											{#if parseInt(p.scores[i]) === 1}
 												<img src={arrow_image} alt={m + ' to ' + p[i + 1]} />
-											{:else}
+											  {:else}
 												<img src={arrow_image_red} alt={m + ' to ' + p[i + 1]} />
-											{/if}
-										</div>
-									{/if}{/if}
+											  {/if}
+										{/if}										
+										</div></div>
+									{/if}
+									{/if}
 							{/each}
 						</div>
 						{#if p.kegg_path}

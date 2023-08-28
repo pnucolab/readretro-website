@@ -14,7 +14,6 @@ import pandas as pd
 NUMBER_OF_GPUS = torch.cuda.device_count()
 
 def r2r(raw_reaction):
-    print("raw_reaction",raw_reaction)
     keggpath = None
     kegg = None
     if "keggpath" in raw_reaction:
@@ -25,9 +24,7 @@ def r2r(raw_reaction):
         kegg = extract["Name"].values[0]
     reactions = [r.split('>') for r in raw_reaction.split('|')]
     reactions = [r for r in reactions if len(r) > 2]
-    reactants = [r[0] for r in reactions]
-    products = [r[-1] for r in reactions]
-    kegg_reactions = [_kegg_reaction_search(reactants, products)]
+    kegg_reactions = [_kegg_reaction_search(r[0].split('.'), r[-1].split('.')) for r in reactions]
     molecules = [r[0] for r in reactions] + [reactions[-1][-1]]
     mol = []
     for m in molecules:
@@ -54,9 +51,7 @@ def run_inference(product: str, building_blocks: str, iterations: int, exp_topk:
                 s.commit()
                 break
         time.sleep(1)
-        print('asdfasdfasdf') 
     try:
-        print('asdfasdfasdf') 
         if model_type == "retriever_only":
             retrieval = True
         cmd = f"cd READRetro && CUDA_VISIBLE_DEVICES={gpu_id} python run.py \"{product}\"" \
@@ -96,7 +91,6 @@ def run_inference(product: str, building_blocks: str, iterations: int, exp_topk:
             raw_reactions = sorted(set(raw_reactions))
         print("raw_reactions",raw_reactions)
         result = [r2r(r) for r in raw_reactions]
-        print(result)
 
 
         subprocess.run(f"rm -f /tmp/{task_id}*", capture_output=True, shell=True)

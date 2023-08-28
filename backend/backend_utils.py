@@ -43,19 +43,13 @@ for c, sdf in bb_df.groupby("CLASS", sort=False):
 mnx_df = pd.read_csv("neutralize_cano_smi_mnxid.tsv", sep="\t")
 
 def _neutralize_atoms(smi):
-    print("1smi",smi)
     from rdkit.Chem import MolFromSmiles, MolFromSmarts, MolToSmiles    
     try:
         mol = MolFromSmiles(smi)
-        print("mol",mol)
         pattern = MolFromSmarts("[+1!h0!$([*]~[-1,-2,-3,-4]),-1!$([*]~[+1,+2,+3,+4])]")
-        print("pattern",pattern)
         at_matches = mol.GetSubstructMatches(pattern)
-        print("at_matches",at_matches)
         at_matches_list = [y[0] for y in at_matches]
-        print("at_matches_list",at_matches_list)
         if len(at_matches_list) > 0:
-            print("1")
             for at_idx in at_matches_list:
                 atom = mol.GetAtomWithIdx(at_idx)
                 chg = atom.GetFormalCharge()
@@ -63,10 +57,8 @@ def _neutralize_atoms(smi):
                 atom.SetFormalCharge(0)
                 atom.SetNumExplicitHs(hcount - chg)
                 atom.UpdatePropertyCache()
-        print("return MTS",MolToSmiles(mol, isomericSmiles=True))
         return MolToSmiles(mol, isomericSmiles=True)
     except:
-        print("return smi")
         return smi
 
 def _mnx_search(smi):
@@ -124,43 +116,53 @@ def _kegg_reaction_search(reactants: list, products: list) -> list:
         List of Rname values.
 
     """
-    # Preprocess reactants and products
-    reactants = [_neutralize_atoms(reactant) for reactant in reactants]
-    print("reactants",reactants)
-    products = [_neutralize_atoms(product) for product in products]
-    print("products",products)
-
     # Get the KEGG IDs for reactants and products
     reactants_kegg_ids = []
     products_kegg_ids = []
-    r_ecs = []
+
     
-    for compound in reactants:
+    for compounds in reactants:
+        compound = _neutralize_atoms(compounds)
         kegg_id, _ = _kegg_search(compound)
         reactants_kegg_ids.append(kegg_id)
+    print('reactants', reactants_kegg_ids)
 
-    for compound in products:
+    for compounds in products:
+        compound = _neutralize_atoms(compounds)
         kegg_id, _ = _kegg_search(compound)
         products_kegg_ids.append(kegg_id)
+    print('products', products_kegg_ids)
 
     # Create a boolean mask for filtering rows
     reactants_mask = reaction_df['Reactants'].apply(lambda x: all(item in x for item in reactants_kegg_ids))
+    print('rm',reactants_mask)
     products_mask = reaction_df['Products'].apply(lambda x: all(item in x for item in products_kegg_ids))
+    print('pm',products_mask)
     # print(reaction_df[reactants_mask],reaction_df[products_mask])
     # Apply the masks to filter the dataframe
     filtered_df = reaction_df[reactants_mask & products_mask]
+    print('filtered_df', filtered_df)
 
     # Get the Rname values for the filtered rows
     rnames = filtered_df['Rname'].tolist()
     ecs = [reaction_df['EC'][reaction_df['Rname']== rname].to_list()[0] for rname in rnames]
-    links = [f"www.kegg.jp/entry/{rname}" for rname in rnames]
-
-    return {"rname": rnames, "ec": ecs, "link": links}
 
 
-def compare_elements(elem1, elem2):
-    # 두 원소 중 하나라도 값이 있는 경우 해당 값을 반환
-    if elem1 is not None:
-        return elem1
-    return elem2
-
+    if len(ecs)==0:
+        if (len(reactants_kegg_ids)==1)&(len(products_kegg_ids)==1):
+            if (reactants_kegg_ids[0] != None)&(products_kegg_ids[0] != None):
+                url = f"http://rest.genome.jp/ezyme/{reactants_kegg_ids[0]}/{products_kegg_ids[0]}/version=1"
+                response = requests.get(url)
+                if response.status_code != 200:
+                    print(f"Error: HTTP {response.status_code}")
+                    ecs = []
+                else:
+                    lines = response.text.strip().split('\n')
+                    lines = [line for line in lines if not line.startswith("#")]
+                    if not lines:
+                        print("No data found")
+                        ecs = []
+                    highest_score, highest_ec = max((float(line.split()[0]), line.split()[1]) for line in lines)
+                    ecs =  [highest_ec]
+                    
+    return {"rname": rnames, "ec": ecs}
