@@ -338,15 +338,16 @@
 							{/each}
 						</div>
 						{#if p.kegg_path}
-							<div class="flex-col w-12 mx-2 shrink-0">
+							<div class="flex-col w-20 mx-2 shrink-0">
 								<img src={arrow_image_green} alt="green" />
 							</div>
 							<Card
 								color="green"
 								href="https://www.{p.kegg_path}"
+								class="mb-5 mx-3 w-44"
 								target="_blank"
 								padding="sm"
-								size="lg"><Heading tag="h3">{p.kegg}</Heading></Card
+								size="lg"><Heading tag="h4">{p.kegg}</Heading></Card
 							>{/if}
 					</div>
 				{/each}

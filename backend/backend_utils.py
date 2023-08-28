@@ -125,23 +125,21 @@ def _kegg_reaction_search(reactants: list, products: list) -> list:
         compound = _neutralize_atoms(compounds)
         kegg_id, _ = _kegg_search(compound)
         reactants_kegg_ids.append(kegg_id)
-    print('reactants', reactants_kegg_ids)
+
 
     for compounds in products:
         compound = _neutralize_atoms(compounds)
         kegg_id, _ = _kegg_search(compound)
         products_kegg_ids.append(kegg_id)
-    print('products', products_kegg_ids)
+
 
     # Create a boolean mask for filtering rows
     reactants_mask = reaction_df['Reactants'].apply(lambda x: all(item in x for item in reactants_kegg_ids))
-    print('rm',reactants_mask)
     products_mask = reaction_df['Products'].apply(lambda x: all(item in x for item in products_kegg_ids))
-    print('pm',products_mask)
+
     # print(reaction_df[reactants_mask],reaction_df[products_mask])
     # Apply the masks to filter the dataframe
     filtered_df = reaction_df[reactants_mask & products_mask]
-    print('filtered_df', filtered_df)
 
     # Get the Rname values for the filtered rows
     rnames = filtered_df['Rname'].tolist()

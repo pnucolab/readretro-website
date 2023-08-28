@@ -10,6 +10,7 @@ from backend_utils import _mnx_search, _mol2image, _kegg_reaction_search
 import time
 import torch
 import pandas as pd
+import traceback
 
 NUMBER_OF_GPUS = torch.cuda.device_count()
 
@@ -104,6 +105,7 @@ def run_inference(product: str, building_blocks: str, iterations: int, exp_topk:
     except Exception as e:
         print("Python Error:")
         print(e)
+        traceback.print_exc()
         with db_context() as s:
             task = s.query(Task).filter(Task.task_id == run_inference.request.id).first()
             task.end_at = datetime.now()
