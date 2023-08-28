@@ -33,7 +33,6 @@
 	let filters = [];
 	let selected;
 
-
 	const uniqueFilters = [];
 	const seenValues = new Set();
 
@@ -61,44 +60,43 @@
 						if (!found_duplicate) mols.push(data.pathway[i].molecules[j]);
 					}
 				}
-				filters = mols.map((m) => {
-					if (Array.isArray(m)) {
-						return m.map((k) => {
-							const mnxInfo = k.mnx_info[0] ? k.mnx_info[0] : 'N/A';
+				filters = mols
+					.map((m) => {
+						if (Array.isArray(m)) {
+							return m.map((k) => {
+								const mnxInfo = k.mnx_info[0] ? k.mnx_info[0] : 'N/A';
+								return {
+									name: mnxInfo + ': ' + k.smiles,
+									value: k.smiles
+								};
+							});
+						} else {
+							const mnxInfo = m.mnx_info[0] ? m.mnx_info[0] : 'N/A';
 							return {
-								name: mnxInfo + ': ' + k.smiles,
-								value: k.smiles
+								name: mnxInfo + ': ' + m.smiles,
+								value: m.smiles
 							};
-						});
-					} else {
-						const mnxInfo = m.mnx_info[0] ? m.mnx_info[0] : 'N/A';
-						return {
-							name: mnxInfo + ': ' + m.smiles,
-							value: m.smiles
-						};
-					}
-				}).flat();
+						}
+					})
+					.flat();
 
 				const uniqueFilters = [];
-      const seenValues = new Set();
+				const seenValues = new Set();
 
-      filters.forEach(filter => {
-        if (!seenValues.has(filter.value)) {
-          seenValues.add(filter.value);
-          uniqueFilters.push(filter);
-        }
-      });
+				filters.forEach((filter) => {
+					if (!seenValues.has(filter.value)) {
+						seenValues.add(filter.value);
+						uniqueFilters.push(filter);
+					}
+				});
 
-      filters = uniqueFilters;
-
+				filters = uniqueFilters;
 			} else if (data.status > 0) {
 				setTimeout(() => get_result(ticket), 1000);
 			}
 		}
 		result = data;
-		
 	}
-	
 
 	async function rdb(mol1, mol2) {
 		const rdb = await load(
@@ -245,11 +243,11 @@
 										{#each m as k}
 											<div class="flex-col">
 												<Card
-												color={selected && k.smiles === selected
-													? 'yellow'
-													: k.mnx_info[0]
-													? 'blue'
-													: 'red'}
+													color={selected && k.smiles === selected
+														? 'yellow'
+														: k.mnx_info[0]
+														? 'blue'
+														: 'red'}
 													class="mb-5 mx-3 w-44"
 													size="xs"
 													img={'data:image/png;base64,' + k.image}
@@ -305,28 +303,38 @@
 										</Card>
 									</div>
 									{#if !last(p.molecules, i)}
-									<div class="flex-col w-12 mx-2 shrink-0">
-										<div>									
-										{#if p.kegg_reactions}
-											  {#if parseInt(p.scores[i]) === 1}
-											  	<a href="www.kegg.jp/entry/{p.kegg_reactions[i].rname}">{p.kegg_reactions[i].rname}</a>
-												<img src={arrow_image} alt={m + ' to ' + p[i + 1]} />
-												{#if p.kegg_reactions[i].ec.length > 0}<P>EC: {p.kegg_reactions[i].ec}</P>{/if}
-											  {:else}
-											  	<P href="www.kegg.jp/entry/{p.kegg_reactions[i].rname}">{p.kegg_reactions[i].rname}</P>
-												<img src={arrow_image_red} alt={m + ' to ' + p[i + 1]} />
-												{#if p.kegg_reactions[i].ec.length > 0}<P>EC: {p.kegg_reactions[i].ec}</P>{/if}
+										<div class="flex-col w-20 mx-2 shrink-0">
+											{#if p.kegg_reactions}
+												{#if parseInt(p.scores[i]) === 1}
+													<a href="www.kegg.jp/entry/{p.kegg_reactions[i].rname}"
+														>{p.kegg_reactions[i].rname}</a
+													>
+													<img class="relative" src={arrow_image} alt={m + ' to ' + p[i + 1]} />
+													{#if p.kegg_reactions[i].ec.length > 0}<div class="w-20 absolute ">
+															<P class="flex w-full justify-center text-center" weight="medium"
+																>EC: {p.kegg_reactions[i].ec}</P
+															>
+														</div>{/if}
+												{:else}
+													<P href="www.kegg.jp/entry/{p.kegg_reactions[i].rname}"
+														>{p.kegg_reactions[i].rname}</P
+													>
+													<img class="relative" src={arrow_image_red} alt={m + ' to ' + p[i + 1]} />
+													{#if p.kegg_reactions[i].ec.length > 0}<div class="absolute">
+															<P
+																class="flex w-full justify-center text-center break-all"
+																weight="medium">EC: {p.kegg_reactions[i].ec}</P
+															>
+														</div>{/if}
 												{/if}
-										{:else}
-											{#if parseInt(p.scores[i]) === 1}
+											{:else if parseInt(p.scores[i]) === 1}
 												<img src={arrow_image} alt={m + ' to ' + p[i + 1]} />
-											  {:else}
+											{:else}
 												<img src={arrow_image_red} alt={m + ' to ' + p[i + 1]} />
-											  {/if}
-										{/if}										
-										</div></div>
+											{/if}
+										</div>
 									{/if}
-									{/if}
+								{/if}
 							{/each}
 						</div>
 						{#if p.kegg_path}
