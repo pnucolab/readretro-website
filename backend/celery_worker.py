@@ -6,35 +6,119 @@ from db.models import Task
 from db.database import db_context
 import json
 from datetime import datetime
-from backend_utils import _mnx_search, _mol2image, _kegg_reaction_search
+from backend_utils import _mol2image, _kegg_reaction_search,_kegg_reaction_search, _kegg_search
 import time
 import torch
 import pandas as pd
 import traceback
 
-NUMBER_OF_GPUS = torch.cuda.device_count()
 
-def r2r(raw_reaction):
-    keggpath = None
-    kegg = None
-    if "keggpath" in raw_reaction:
-        raw_reaction, keggpath = raw_reaction.split(">keggpath=")
-        kegg_n = keggpath.split("rn")[1].split("+")[0]
-        df = pd.read_csv('READRetro/data/map_title.csv')
-        extract = df[df['ID'] == int(kegg_n)]
-        kegg = extract["Name"].values[0]
-    reactions = [r.split('>') for r in raw_reaction.split('|')]
-    reactions = [r for r in reactions if len(r) > 2]
-    kegg_reactions = [_kegg_reaction_search(r[0].split('.'), r[-1].split('.')) for r in reactions]
-    molecules = [r[0] for r in reactions] + [reactions[-1][-1]]
-    mol = []
-    for m in molecules:
-        if '.' in m:
-            mol.append([{"smiles": k, "image": _mol2image(k), "mnx_info": _mnx_search(k)} for k in m.split('.')])
+NUMBER_OF_GPUS = torch.cuda.device_count()
+class Node:
+    def __init__(self, smiles, weight, prev = None):
+        self.smiles = smiles
+        self.prev = prev
+        self.next = []
+
+        if "keggpath" in self.smiles:
+            kegg_n = self.smiles.split("rn")[1].split("+")[0]
+            kegg = self.smiles.split("keggpath=")[1]
+            df = pd.read_csv('READRetro/data/map_title.csv')
+            extract = df[df['ID'] == int(kegg_n)]
+            self.kegg_reaction = extract["Name"].values[0]
+            self.smiles = kegg
         else:
-            mol.append({"smiles": m, "image": _mol2image(m), "mnx_info": _mnx_search(m)}) 
-    scores = [r[1] for r in reactions]
-    return {"molecules": mol, "scores": scores, "kegg_reactions": kegg_reactions, "kegg_path": keggpath, "kegg": kegg}
+            self.kegg_reaction = None
+
+        if self.prev is not None:
+            self.ec, self.reaction = None, None
+            self.weight = weight
+            self.image = _mol2image(self.smiles)
+            self.kegg = _kegg_search(self.smiles)
+        else:
+            self.ec = None
+            self.kegg_reaction = None
+            self.weight = None
+            self.image = _mol2image(self.smiles)
+            self.kegg = _kegg_search(self.smiles)
+    
+    def get_end_nodes(self):
+        if len(self.next) == 0:
+            return [self]
+        else:
+            out = []
+            for n in self.next:
+                out += n.get_end_nodes()
+            return out
+    
+    def __repr__(self):
+        return self.smiles
+    
+    def __str__(self):
+        return self.smiles
+    
+    
+    
+def pathways_to_json(pathways):
+    out_list = []
+    for pathway in sorted(set(pathways)):
+        reactions = pathway.rstrip().split("|")
+        root = None
+        prev = []
+        for reaction in reactions:
+            source, weight, targets = reaction.split('>')
+            targets = targets.split(".") if not "keggpath" in targets else [targets]
+
+            if len(prev) == 0: # add a root node
+                root = Node(source, weight)
+                prev.append(root)
+            
+            for target in targets:
+                found = False
+                for p in prev[::-1]:
+                    if p.smiles == source:
+                        found = True
+                        break
+                if found is False:
+                    raise Exception("Target not found in previous nodes")
+                new_node = Node(target, weight, p)
+                p.next.append(new_node)
+                prev.append(new_node)
+        
+        out_nodes = []
+        end_nodes = root.get_end_nodes()
+        for n in end_nodes:
+            out_nodes.append([n])
+            prev = n
+            while True:
+                prev = prev.prev
+                if prev is None:
+                    break
+                out_nodes[-1].append(prev)
+        
+        max_path_len = len(max(out_nodes, key=len))
+        for i in range(len(out_nodes)):
+            out_nodes[i] = out_nodes[i][::-1] + [None] * (max_path_len - len(out_nodes[i]))
+
+        out_nodes = [list(e) for e in zip(*out_nodes)]
+
+        for i in range(len(out_nodes)):
+            for j in range(1, len(out_nodes[i]))[::-1]:
+                if out_nodes[i][j-1] == out_nodes[i][j]:
+                    out_nodes[i][j] = None
+        
+        for i in range(len(out_nodes)):
+            for j in range(len(out_nodes[i]))[::-1]:
+                if out_nodes[i][j] is not None:
+                    out_nodes[i] = out_nodes[i][:j+1]
+                    break
+
+        out_list.append([])
+        for nodes in out_nodes:
+            out_list[-1].append([None if n is None else {"smiles":n.smiles, "ec": n.ec, "kegg": n.kegg, "weight": n.weight, "image": n.image, "kegg_reaction":n.kegg_reaction} for n in nodes])
+                
+    return out_list
+
 
 @celery_task.task
 def run_inference(product: str, building_blocks: str, iterations: int, exp_topk: int, route_topk: int, beam_size: int, retrieval: bool,  path_retrieval: bool, retrieval_db: str, model_type: str):
@@ -86,19 +170,15 @@ def run_inference(product: str, building_blocks: str, iterations: int, exp_topk:
             return []
         lines = res.stdout.decode("utf-8").strip().split('\n')[:-1] # remove the last line (execution time)
         if lines[0] == "None":
-            raw_reactions = []
+            pathways = []
         else:
-            raw_reactions = [r.split()[-1] for r in lines]
-            raw_reactions = sorted(set(raw_reactions))
-        print("raw_reactions",raw_reactions)
-        result = [r2r(r) for r in raw_reactions]
-
-
+            pathways = [l.split()[-1] for l in lines]   # remove the first column (pathway index)
+        
         subprocess.run(f"rm -f /tmp/{task_id}*", capture_output=True, shell=True)
 
         with db_context() as s:
             task = s.query(Task).filter(Task.task_id == run_inference.request.id).first()
-            task.result = json.dumps(result)
+            task.result = json.dumps(pathways_to_json(pathways))
             task.end_at = datetime.now()
             task.status = 0
             s.commit()
@@ -112,4 +192,4 @@ def run_inference(product: str, building_blocks: str, iterations: int, exp_topk:
             task.status = -2
             s.commit()
         return []
-    return result
+    return pathways_to_json(pathways)

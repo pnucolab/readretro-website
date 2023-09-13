@@ -11,6 +11,7 @@
 	import arrow_image from '$lib/images/right-arrow.svg';
 	import arrow_image_red from '$lib/images/right-arrow-red.svg';
 	import arrow_image_green from '$lib/images/right-arrow-green.svg';
+	import white from '$lib/images/white.png';
 	import { onMount } from 'svelte';
 	import { Select } from 'flowbite-svelte';
 
@@ -46,44 +47,29 @@
 		if (data.success) {
 			if (data.status == 0) {
 				pathways = [...data.pathway];
-				console.log(pathways);
 				let mols = [];
-				for (let i = 0; i < data.pathway.length; i++) {
-					for (let j = 0; j < data.pathway[i].molecules.length; j++) {
-						let found_duplicate = false;
-						for (let k = 0; k < mols.length; k++) {
-							if (mols[k].smiles == data.pathway[i].molecules[j].smiles) {
-								found_duplicate = true;
-								break;
+				for (let i = 0; i < pathways.length; i++) {
+					for (let j = 0; j < pathways[i].length; j++) {
+						for (let k = 0; k < pathways[i][j].length; k++) {
+							if (pathways[i][j][k] && !pathways[i][j][k].smiles.includes('kegg')) {
+								mols.push(pathways[i][j][k]);
 							}
 						}
-						if (!found_duplicate) mols.push(data.pathway[i].molecules[j]);
 					}
 				}
-				filters = mols
-					.map((m) => {
-						if (Array.isArray(m)) {
-							return m.map((k) => {
-								const mnxInfo = k.mnx_info[0] ? k.mnx_info[0] : 'N/A';
-								return {
-									name: mnxInfo + ': ' + k.smiles,
-									value: k.smiles
-								};
-							});
-						} else {
-							const mnxInfo = m.mnx_info[0] ? m.mnx_info[0] : 'N/A';
-							return {
-								name: mnxInfo + ': ' + m.smiles,
-								value: m.smiles
-							};
-						}
-					})
-					.flat();
+				filters = mols.map((m) => {
+					const mnxInfo = m.kegg ? m.kegg : 'N/A';
+					return {
+						name: mnxInfo + ': ' + m.smiles,
+						value: m.smiles
+					};
+				});
 
 				const uniqueFilters = [];
 				const seenValues = new Set();
 
 				filters.forEach((filter) => {
+					console.log(filter.value);
 					if (!seenValues.has(filter.value)) {
 						seenValues.add(filter.value);
 						uniqueFilters.push(filter);
@@ -96,19 +82,6 @@
 			}
 		}
 		result = data;
-	}
-
-	async function rdb(mol1, mol2) {
-		const rdb = await load(
-			'rdbsearch?mol1=' + encodeURIComponent(mol1) + '&mol2=' + encodeURIComponent(mol2)
-		);
-		console.log(rdb.existence);
-		return rdb.existence;
-	}
-
-	async function get_mnx_info(mol) {
-		const mnx = await load('mnxsearch?query=' + encodeURIComponent(mol));
-		return mnx;
 	}
 
 	async function download_result() {
@@ -128,8 +101,8 @@
 
 	$: {
 		if (selected) {
-			pathways = result.pathway.filter((p) => p.molecules.includes(selected));
-			pathways = pathways.concat(result.pathway.filter((p) => !p.molecules.includes(selected)));
+			pathways = result.pathway.filter((p) => p && p.smiles.includes(selected));
+			pathways = pathways.concat(result.pathway.filter((p) => p && !p.smiles.includes(selected)));
 		} else {
 			pathways = result.pathway;
 		}
@@ -227,128 +200,104 @@
 				>
 			</div>
 		</div>
-
 		<div class="border-t border-l border-r">
 			{#if pathways.length === 0}
 				<div class="flex items-center justify-center border-b py-5">No pathways found.</div>
 			{:else}
 				{#each pathways as p, n}
-					<div class="flex justify-left items-center border-b pt-5 overflow-x-scroll ">
-						<div
-							class=" flex justify-left items-center  {reverse ? 'flex-row' : 'flex-row-reverse'}"
-						>
-							{#each p.molecules as m, i}
-								{#if m.length > 1}
-									<div class="flex-col">
-										{#each m as k}
-											<div class="flex-col">
+					<div class="flex justify-left border-b pt-5 overflow-x-scroll ">
+						<div class=" flex justify-left  {reverse ? 'flex-row' : 'flex-row-reverse'}">
+							{#each p as m, i}
+								<div class="flex flex-col">
+									{#each m as k, j}
+										<div class="flex items-center  {reverse ? 'flex-row' : 'flex-row-reverse'}">
+											{#if k}
+												{#if i != 0}
+													<div class="flex flex-row w-12 mx-2 shrink-0 ">
+														<div class="flex flex-col">
+															{#if k.smiles.includes('kegg')}<img
+																	src={arrow_image_green}
+																	alt={m + ' to ' + k}
+																/>
+															{:else if k.kegg}
+																{#if parseInt(k.weight) === 1}
+																	<a href="http://www.kegg.jp/entry/{k.kegg}">{k.kegg}</a>
+																	<img src={arrow_image} alt={m + ' to ' + k} />
+																	{#if k.ec}<P>EC: {k.ec}</P>{/if}
+																{:else}
+																	<P href="http://www.kegg.jp/entry/{k.kegg}">{k.kegg}</P>
+																	<img src={arrow_image_red} alt={m + ' to ' + k} />
+																	{#if k.ec}<P>EC: {k.ec}</P>{/if}
+																{/if}
+															{:else if parseInt(k.weight) === 1}
+																<img src={arrow_image} alt={m + ' to ' + k} />
+															{:else}
+																<img src={arrow_image_red} alt={m + ' to ' + k} />
+															{/if}
+														</div>
+													</div>
+												{/if}
+												{#if k.kegg_reaction}
+													<Card
+														color="green"
+														href="https://www.{k.smiles}"
+														class="mb-5 mx-3 w-44 h-80 flex justify-center"
+														target="_blank"
+														padding="sm"
+														size="lg"
+														><Heading
+															class="flex items-center mb-2 text-2xl font-bold tracking-tight text-gray-900 dark:text-white"
+															tag="h5">{k.kegg_reaction}</Heading
+														>
+													</Card>
+												{:else}
+													<Card
+														color={selected && k.smiles === selected
+															? 'yellow'
+															: k.weight
+															? 'blue'
+															: 'red'}
+														class="mb-5 mx-3 w-44 h-80"
+														size="xs"
+														img={'data:image/png;base64,' + k.image}
+														id="b{n}-{i}"
+													>
+														<P class="break-all text-center mb-2">
+															{#if k.kegg}
+																<span class="font-bold text-xs">
+																	<a href="https://www.kegg.jp/entry/{k.kegg}" target="_blank"
+																		>{k.kegg}</a
+																	>
+																</span>
+															{:else}
+																<span class="font-bold text-xs"> N/A </span>
+															{/if}
+														</P>
+														<P class="flex flex-row justify-center text-center break-all">
+															<span class="text-xs">{k.smiles}</span>
+														</P>
+													</Card>{/if}
+											{:else}
 												<Card
-													color={selected && k.smiles === selected
-														? 'yellow'
-														: k.mnx_info[0]
-														? 'blue'
-														: 'red'}
-													class="mb-5 mx-3 w-44"
+													color={'gray'}
+													class="mb-5 mx-3 w-44 h-80 invisible"
 													size="xs"
-													img={'data:image/png;base64,' + k.image}
+													img={white}
 													id="b{n}-{i}"
 												>
 													<P class="break-all text-center mb-2">
-														{#if k.mnx_info[0]}
-															<span class="font-bold text-xs">
-																{k.mnx_info[1]}<br />(<a
-																	href="https://metanetx.org/chem_info/{k.mnx_info[0]}"
-																	target="_blank">{k.mnx_info[0]})</a
-																>
-															</span>
-														{:else}
-															<span class="font-bold text-xs"> N/A </span>
-														{/if}
+														<span class="font-bold text-xs"> N/A </span>
 													</P>
 													<P class="flex flex-row justify-center text-center break-all">
-														<span class="text-xs">{k.smiles}</span>
+														<span class="text-xs">N/A</span>
 													</P>
 												</Card>
-											</div>
-										{/each}
-									</div>
-								{:else}
-									<div class="flex-col">
-										<Card
-											color={selected && m.smiles === selected
-												? 'yellow'
-												: m.mnx_info[0]
-												? 'blue'
-												: 'red'}
-											class="mb-5 mx-3 w-44"
-											size="xs"
-											img={'data:image/png;base64,' + m.image}
-											id="b{n}-{i}"
-										>
-											<P class="break-all text-center mb-2">
-												{#if m.mnx_info[0]}
-													<span class="font-bold text-xs">
-														{m.mnx_info[1]}<br />(<a
-															href="https://metanetx.org/chem_info/{m.mnx_info[0]}"
-															target="_blank">{m.mnx_info[0]})</a
-														>
-													</span>
-												{:else}
-													<span class="font-bold text-xs"> N/A </span>
-												{/if}
-											</P>
-											<P class="flex flex-row justify-center text-center break-all">
-												<span class="text-xs">{m.smiles}</span>
-											</P>
-										</Card>
-									</div>
-									{#if !last(p.molecules, i)}
-										<div class="flex-col w-20 mx-2 shrink-0">
-											{#if p.kegg_reactions}
-												{#if parseInt(p.scores[i]) === 1}
-													<a href="www.kegg.jp/entry/{p.kegg_reactions[i].rname}"
-														>{p.kegg_reactions[i].rname}</a
-													>
-													<img class="relative" src={arrow_image} alt={m + ' to ' + p[i + 1]} />
-													{#if p.kegg_reactions[i].ec.length > 0}<div class="w-20 absolute ">
-															<P class="flex w-full justify-center text-center" weight="medium"
-																>EC: {p.kegg_reactions[i].ec}</P
-															>
-														</div>{/if}
-												{:else}
-													<P href="www.kegg.jp/entry/{p.kegg_reactions[i].rname}"
-														>{p.kegg_reactions[i].rname}</P
-													>
-													<img class="relative" src={arrow_image_red} alt={m + ' to ' + p[i + 1]} />
-													{#if p.kegg_reactions[i].ec.length > 0}<div class="absolute">
-															<P
-																class="flex w-full justify-center text-center break-all"
-																weight="medium">EC: {p.kegg_reactions[i].ec}</P
-															>
-														</div>{/if}
-												{/if}
-											{:else if parseInt(p.scores[i]) === 1}
-												<img src={arrow_image} alt={m + ' to ' + p[i + 1]} />
-											{:else}
-												<img src={arrow_image_red} alt={m + ' to ' + p[i + 1]} />
 											{/if}
 										</div>
-									{/if}
-								{/if}
+									{/each}
+								</div>
 							{/each}
 						</div>
-						{#if p.kegg_path}
-							<div class="flex-col w-20 mx-2 shrink-0">
-								<img src={arrow_image_green} alt="green" />
-							</div>
-							<Card
-								color="green"
-								href="https://www.{p.kegg_path}"
-								class="mb-5 mx-3 w-44"
-								target="_blank"
-								padding="sm"
-								size="lg"><Heading tag="h4">{p.kegg}</Heading></Card
-							>{/if}
 					</div>
 				{/each}
 			{/if}

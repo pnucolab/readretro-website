@@ -5,6 +5,8 @@ FILENAME_STARTING_MOLECULES = 'READRetro/data/building_block.csv'
 starting_mols_full = list(pd.read_csv(FILENAME_STARTING_MOLECULES)['mol'])
 
 def _mol2image(mol, width=0, height=0):
+    if 'kegg.jp' in mol:
+            return None 
     from rdkit.Chem import MolFromSmiles, Draw
     from io import BytesIO
     from base64 import b64encode
@@ -21,7 +23,7 @@ def _mol2image(mol, width=0, height=0):
         img = img.resize((width, height))
     img_bytes = BytesIO()
     img.save(img_bytes, format="PNG")
-    return [b64encode(img_bytes.getvalue()).decode("utf-8")]
+    return b64encode(img_bytes.getvalue()).decode("utf-8")
 
 bb_df = pd.read_csv("buildingblock.csv")
 all_building_blocks = []
@@ -99,10 +101,10 @@ kegg_df = pd.read_csv(neutral_kegg_db)
 def _kegg_search(smi: str) -> tuple:
     extract = kegg_df[kegg_df['SMILES'] == smi]
     if not len(extract):
-        return None, None
+        return None
     else:
         id = extract["ID"].values[0]
-        return id, f"www.kegg.jp/entry/{id}"
+        return id
     
 def _kegg_reaction_search(reactants: list, products: list) -> list:
     """
@@ -122,15 +124,21 @@ def _kegg_reaction_search(reactants: list, products: list) -> list:
 
     
     for compounds in reactants:
-        compound = _neutralize_atoms(compounds)
-        kegg_id, _ = _kegg_search(compound)
-        reactants_kegg_ids.append(kegg_id)
+        if (compounds == None) or ('kegg.jp' in compounds):
+            pass
+        else:
+            compound = _neutralize_atoms(compounds)
+            kegg_id = _kegg_search(compound)
+            reactants_kegg_ids.append(kegg_id)
 
 
     for compounds in products:
-        compound = _neutralize_atoms(compounds)
-        kegg_id, _ = _kegg_search(compound)
-        products_kegg_ids.append(kegg_id)
+        if (compounds == None) or ('kegg.jp' in compounds):
+            pass
+        else:
+            compound = _neutralize_atoms(compounds)
+            kegg_id = _kegg_search(compound)
+            products_kegg_ids.append(kegg_id)
 
 
     # Create a boolean mask for filtering rows
@@ -146,11 +154,8 @@ def _kegg_reaction_search(reactants: list, products: list) -> list:
     ecs = [reaction_df['EC'][reaction_df['Rname']== rname].to_list()[0] for rname in rnames]
 
     if len(ecs)==0:
-        print('f')
         if (len(reactants_kegg_ids)==1)&(len(products_kegg_ids)==1):
-            print('ff')
             if (reactants_kegg_ids[0] != None)&(products_kegg_ids[0] != None):
-                print('fff')
                 url = f"http://rest.genome.jp/ezyme/{reactants_kegg_ids[0]}/{products_kegg_ids[0]}/version=1"
                 response = requests.get(url)
                 if response.status_code != 200:
@@ -162,8 +167,7 @@ def _kegg_reaction_search(reactants: list, products: list) -> list:
                     if not lines:
                         print("No data found")
                         ecs = []
-                    highest_score, highest_ec = max((float(line.split()[0]), line.split()[1]) for line in lines)
-                    print('ffffff')
+                    highest_score, highest_ec = max((float(line.split()[0]), line.split()[1]) for line in lines if line.split()[0] != 'NA')
                     ecs =  [highest_ec]
                     
-    return {"rname": rnames, "ec": ecs}
+    return [rnames, ecs]
