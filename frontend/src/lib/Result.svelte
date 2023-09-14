@@ -33,7 +33,6 @@
 	let reverse = true;
 	let filters = [];
 	let selected;
-
 	const uniqueFilters = [];
 	const seenValues = new Set();
 
@@ -47,6 +46,7 @@
 		if (data.success) {
 			if (data.status == 0) {
 				pathways = [...data.pathway];
+				console.log(pathways)
 				let mols = [];
 				for (let i = 0; i < pathways.length; i++) {
 					for (let j = 0; j < pathways[i].length; j++) {
@@ -69,7 +69,6 @@
 				const seenValues = new Set();
 
 				filters.forEach((filter) => {
-					console.log(filter.value);
 					if (!seenValues.has(filter.value)) {
 						seenValues.add(filter.value);
 						uniqueFilters.push(filter);
@@ -81,6 +80,7 @@
 				setTimeout(() => get_result(ticket), 1000);
 			}
 		}
+
 		result = data;
 	}
 
@@ -100,13 +100,21 @@
 	});
 
 	$: {
+	console.log(selected)
 		if (selected) {
-			pathways = result.pathway.filter((p) => p && p.smiles.includes(selected));
-			pathways = pathways.concat(result.pathway.filter((p) => p && !p.smiles.includes(selected)));
-		} else {
+  pathways = result.pathway.filter((p) => {
+	
+    return p.some((k) => k.some((j) =>j && j.smiles && j.smiles === selected))})
+	
+pathways = pathways.concat(result.pathway.filter((p) => {
+	
+    return !p.some((k) => k.some((j) => j && j.smiles && j.smiles === selected))}))
+	
+}else {
 			pathways = result.pathway;
 		}
 	}
+		
 </script>
 
 <Top />
@@ -213,26 +221,36 @@
 										<div class="flex items-center  {reverse ? 'flex-row' : 'flex-row-reverse'}">
 											{#if k}
 												{#if i != 0}
-													<div class="flex flex-row w-12 mx-2 shrink-0 ">
+													<div class="flex flex-row w-24 mx-2 shrink-0">
 														<div class="flex flex-col">
 															{#if k.smiles.includes('kegg')}<img
 																	src={arrow_image_green}
+																	class="px-2" 
 																	alt={m + ' to ' + k}
 																/>
-															{:else if k.kegg}
+															{:else if k.reaction}
 																{#if parseInt(k.weight) === 1}
-																	<a href="http://www.kegg.jp/entry/{k.kegg}">{k.kegg}</a>
-																	<img src={arrow_image} alt={m + ' to ' + k} />
-																	{#if k.ec}<P>EC: {k.ec}</P>{/if}
+																	{#if k.reaction[0]}<a
+																	class='text-center'
+																			href="http://www.kegg.jp/entry/{k.reaction[0]}"
+																			target="_blank">{k.reaction[0]}</a
+																		>{/if}
+																	<img src={arrow_image} class="px-2" alt={m + ' to ' + k} />
+																	{#if k.reaction[1]}<P class='text-center'>EC: {k.reaction[1]}</P>{/if}
 																{:else}
-																	<P href="http://www.kegg.jp/entry/{k.kegg}">{k.kegg}</P>
-																	<img src={arrow_image_red} alt={m + ' to ' + k} />
-																	{#if k.ec}<P>EC: {k.ec}</P>{/if}
+																
+																	{#if k.reaction[0]}<a
+																	class='text-center'
+																			href="http://www.kegg.jp/entry/{k.reaction[0]}"
+																			target="_blank">{k.reaction[0]}</a
+																		>{/if}
+																	<img src={arrow_image_red} class="px-2" alt={m + ' to ' + k} />
+																	{#if k.reaction[1]}<P class='text-center'>EC: {k.reaction[1]}</P>{/if}
 																{/if}
 															{:else if parseInt(k.weight) === 1}
-																<img src={arrow_image} alt={m + ' to ' + k} />
+																<img src={arrow_image} class="px-2" alt={m + ' to ' + k} />
 															{:else}
-																<img src={arrow_image_red} alt={m + ' to ' + k} />
+																<img src={arrow_image_red} class="px-2" alt={m + ' to ' + k} />
 															{/if}
 														</div>
 													</div>
@@ -254,9 +272,9 @@
 													<Card
 														color={selected && k.smiles === selected
 															? 'yellow'
-															: k.weight
+															: (k.kegg
 															? 'blue'
-															: 'red'}
+															: 'red')}
 														class="mb-5 mx-3 w-44 h-80"
 														size="xs"
 														img={'data:image/png;base64,' + k.image}

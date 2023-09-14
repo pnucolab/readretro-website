@@ -169,5 +169,9 @@ def _kegg_reaction_search(reactants: list, products: list) -> list:
                         ecs = []
                     highest_score, highest_ec = max((float(line.split()[0]), line.split()[1]) for line in lines if line.split()[0] != 'NA')
                     ecs =  [highest_ec]
-                    
-    return [rnames, ecs]
+    if (rnames == []):
+        rnames = None
+    if (ecs == []):
+        ecs = None
+               
+    return rnames, ecs
