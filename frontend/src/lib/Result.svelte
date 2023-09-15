@@ -221,7 +221,7 @@
 											{#if k}
 												{#if i != 0}
 													<div class="flex flex-row w-24 mx-2 shrink-0">
-														<div class="flex flex-col">
+														<div class="flex flex-col w-24">
 															{#if k.smiles.includes('kegg')}<img
 																	src={arrow_image_green}
 																	class="px-2"
@@ -229,22 +229,25 @@
 																/>
 															{:else if k.reaction}
 																{#if parseInt(k.weight) === 1}
-																	{#if k.reaction[0]}<a
-																			class="text-center"
-																			href="http://www.kegg.jp/entry/{k.reaction[0]}"
-																			target="_blank">{k.reaction[0]}</a
-																		>{/if}
+																	{#if k.reaction[0]}
+																		{#each k.reaction[0] as m}<a
+																				class="text-center break-all"
+																				href="http://www.kegg.jp/entry/{m}"
+																				target="_blank">{m}</a
+																			>{/each}{/if}
 																	<img src={arrow_image} class="px-2" alt={m + ' to ' + k} />
-																	{#if k.reaction[1]}<P class="text-center">EC: {k.reaction[1]}</P
+																	{#if k.reaction[1]}<P class="text-center break-all"
+																			>EC: {k.reaction[1]}</P
 																		>{/if}
 																{:else}
-																	{#if k.reaction[0]}<a
-																			class="text-center"
-																			href="http://www.kegg.jp/entry/{k.reaction[0]}"
-																			target="_blank">{k.reaction[0]}</a
-																		>{/if}
+																	{#if k.reaction[0]}{#each k.reaction[0] as m}<a
+																				class="text-center break-all"
+																				href="http://www.kegg.jp/entry/{m}"
+																				target="_blank">{m}</a
+																			>{/each}{/if}
 																	<img src={arrow_image_red} class="px-2" alt={m + ' to ' + k} />
-																	{#if k.reaction[1]}<P class="text-center">EC: {k.reaction[1]}</P
+																	{#if k.reaction[1]}<P class="text-center break-all"
+																			>EC: {k.reaction[1]}</P
 																		>{/if}
 																{/if}
 															{:else if parseInt(k.weight) === 1}
@@ -264,7 +267,7 @@
 														padding="sm"
 														size="lg"
 														><Heading
-															class="flex items-center mb-2 text-2xl font-bold tracking-tight text-gray-900 dark:text-white"
+															class="flex items-center  text-2xl font-bold tracking-tight text-gray-900 dark:text-white"
 															tag="h5">{k.kegg_reaction}</Heading
 														>
 													</Card>
@@ -299,6 +302,7 @@
 												<Card
 													color={'gray'}
 													class="mb-5 mx-3 w-44 h-80 invisible"
+													padding="none"
 													size="xs"
 													img={white}
 													id="b{n}-{i}"
