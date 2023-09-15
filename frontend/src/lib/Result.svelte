@@ -46,7 +46,7 @@
 		if (data.success) {
 			if (data.status == 0) {
 				pathways = [...data.pathway];
-				console.log(pathways)
+				console.log(pathways);
 				let mols = [];
 				for (let i = 0; i < pathways.length; i++) {
 					for (let j = 0; j < pathways[i].length; j++) {
@@ -100,21 +100,20 @@
 	});
 
 	$: {
-	console.log(selected)
 		if (selected) {
-  pathways = result.pathway.filter((p) => {
-	
-    return p.some((k) => k.some((j) =>j && j.smiles && j.smiles === selected))})
-	
-pathways = pathways.concat(result.pathway.filter((p) => {
-	
-    return !p.some((k) => k.some((j) => j && j.smiles && j.smiles === selected))}))
-	
-}else {
+			pathways = result.pathway.filter((p) => {
+				return p.some((k) => k.some((j) => j && j.smiles && j.smiles === selected));
+			});
+
+			pathways = pathways.concat(
+				result.pathway.filter((p) => {
+					return !p.some((k) => k.some((j) => j && j.smiles && j.smiles === selected));
+				})
+			);
+		} else {
 			pathways = result.pathway;
 		}
 	}
-		
 </script>
 
 <Top />
@@ -225,27 +224,28 @@ pathways = pathways.concat(result.pathway.filter((p) => {
 														<div class="flex flex-col">
 															{#if k.smiles.includes('kegg')}<img
 																	src={arrow_image_green}
-																	class="px-2" 
+																	class="px-2"
 																	alt={m + ' to ' + k}
 																/>
 															{:else if k.reaction}
 																{#if parseInt(k.weight) === 1}
 																	{#if k.reaction[0]}<a
-																	class='text-center'
+																			class="text-center"
 																			href="http://www.kegg.jp/entry/{k.reaction[0]}"
 																			target="_blank">{k.reaction[0]}</a
 																		>{/if}
 																	<img src={arrow_image} class="px-2" alt={m + ' to ' + k} />
-																	{#if k.reaction[1]}<P class='text-center'>EC: {k.reaction[1]}</P>{/if}
+																	{#if k.reaction[1]}<P class="text-center">EC: {k.reaction[1]}</P
+																		>{/if}
 																{:else}
-																
 																	{#if k.reaction[0]}<a
-																	class='text-center'
+																			class="text-center"
 																			href="http://www.kegg.jp/entry/{k.reaction[0]}"
 																			target="_blank">{k.reaction[0]}</a
 																		>{/if}
 																	<img src={arrow_image_red} class="px-2" alt={m + ' to ' + k} />
-																	{#if k.reaction[1]}<P class='text-center'>EC: {k.reaction[1]}</P>{/if}
+																	{#if k.reaction[1]}<P class="text-center">EC: {k.reaction[1]}</P
+																		>{/if}
 																{/if}
 															{:else if parseInt(k.weight) === 1}
 																<img src={arrow_image} class="px-2" alt={m + ' to ' + k} />
@@ -272,9 +272,9 @@ pathways = pathways.concat(result.pathway.filter((p) => {
 													<Card
 														color={selected && k.smiles === selected
 															? 'yellow'
-															: (k.kegg
+															: k.kegg
 															? 'blue'
-															: 'red')}
+															: 'red'}
 														class="mb-5 mx-3 w-44 h-80"
 														size="xs"
 														img={'data:image/png;base64,' + k.image}
