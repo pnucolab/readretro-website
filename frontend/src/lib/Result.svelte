@@ -236,9 +236,11 @@
 																				target="_blank">{m}</a
 																			>{/each}{/if}
 																	<img src={arrow_image} class="px-2" alt={m + ' to ' + k} />
-																	{#if k.reaction[1]}<P class="text-center break-all"
-																			>EC: {k.reaction[1]}</P
-																		>{/if}
+																	{#if k.reaction[1]}{#each k.reaction[1] as m}<a class="text-center break-all"
+																	href="http://www.brenda-enzymes.org/enzyme.php?ecno={m}"
+																	target="_blank"
+																			>EC: {m}</a
+																		>{/each}{/if}
 																{:else}
 																	{#if k.reaction[0]}{#each k.reaction[0] as m}<a
 																				class="text-center break-all"
@@ -246,9 +248,11 @@
 																				target="_blank">{m}</a
 																			>{/each}{/if}
 																	<img src={arrow_image_red} class="px-2" alt={m + ' to ' + k} />
-																	{#if k.reaction[1]}<P class="text-center break-all"
-																			>EC: {k.reaction[1]}</P
-																		>{/if}
+																	{#if k.reaction[1]}{#each k.reaction[1] as m}<a class="text-center break-all"
+																	href="http://www.brenda-enzymes.org/enzyme.php?ecno={m}"
+																	target="_blank"
+																			>EC: {m}</a
+																		>{/each}{/if}
 																{/if}
 															{:else if parseInt(k.weight) === 1}
 																<img src={arrow_image} class="px-2" alt={m + ' to ' + k} />
