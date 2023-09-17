@@ -141,8 +141,8 @@ def _kegg_reaction_search(reactants: list, products: list) -> list:
             products_kegg_ids.append(kegg_id)
 
     # Create a boolean mask for filtering rows
-    reactants_mask = reaction_df['Reactants'].apply(lambda x: reactants_kegg_ids == [item for item in x])
-    products_mask = reaction_df['Products'].apply(lambda x: products_kegg_ids == [item for item in x])
+    reactants_mask = reaction_df['Reactants'].apply(lambda x: all(item in x for item in reactants_kegg_ids))
+    products_mask = reaction_df['Products'].apply(lambda x: all(item in x for item in products_kegg_ids))
 
     # print(reaction_df[reactants_mask],reaction_df[products_mask])
     # Apply the masks to filter the dataframe
