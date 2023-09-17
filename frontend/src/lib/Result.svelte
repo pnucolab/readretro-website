@@ -284,7 +284,7 @@
 													<Card
 														color={selected && k.smiles === selected
 															? 'yellow'
-															: k.keggs
+															: k.kegg
 															? 'blue'
 															: 'red'}
 														class="mb-5 mx-3 w-44 h-fit"

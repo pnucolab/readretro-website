@@ -140,10 +140,9 @@ def _kegg_reaction_search(reactants: list, products: list) -> list:
             kegg_id = _kegg_search(compound)
             products_kegg_ids.append(kegg_id)
 
-
     # Create a boolean mask for filtering rows
-    reactants_mask = reaction_df['Reactants'].apply(lambda x: all(item in x for item in reactants_kegg_ids))
-    products_mask = reaction_df['Products'].apply(lambda x: all(item in x for item in products_kegg_ids))
+    reactants_mask = reaction_df['Reactants'].apply(lambda x: reactants_kegg_ids == [item for item in x])
+    products_mask = reaction_df['Products'].apply(lambda x: products_kegg_ids == [item for item in x])
 
     # print(reaction_df[reactants_mask],reaction_df[products_mask])
     # Apply the masks to filter the dataframe
@@ -164,11 +163,12 @@ def _kegg_reaction_search(reactants: list, products: list) -> list:
                 else:
                     lines = response.text.strip().split('\n')
                     lines = [line for line in lines if not line.startswith("#")]
-                    if not lines:
+                    if (lines == ['\tNA']) or (len(lines) == 0):
                         print("No data found")
                         ecs = []
-                    highest_score, highest_ec = max((float(line.split()[0]), line.split()[1]) for line in lines if line.split()[0] != 'NA')
-                    ecs =  [highest_ec]
+                    else:
+                        highest_score, highest_ec = max((float(line.split()[0]), line.split()[1]) for line in lines if line.split()[0] != 'NA')
+                        ecs =  [highest_ec]
     if (rnames == []):
         rnames = None
     if (ecs == []):

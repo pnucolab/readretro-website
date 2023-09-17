@@ -118,6 +118,12 @@ def pathways_to_json(pathways):
         out_list.append([])
         for nodes in out_nodes:
             out_list[-1].append([None if n is None else {"smiles":n.smiles, "reaction": n.get_ec_and_reaction(), "kegg": n.kegg, "weight": n.weight, "image": n.image, "kegg_reaction":n.kegg_reaction} for n in nodes])
+
+        for p in out_list:
+            max_length = max(len(sub_array) for sub_array in p)
+            for sub_array in p:
+                while len(sub_array) < max_length:
+                    sub_array.append(None)
                 
     return out_list
 
