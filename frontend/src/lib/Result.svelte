@@ -32,6 +32,7 @@
 	let pathways = [];
 	let reverse = true;
 	let filters = [];
+	let reaction = [];
 	let selected;
 	const uniqueFilters = [];
 	const seenValues = new Set();
@@ -48,11 +49,14 @@
 				pathways = [...data.pathway];
 				console.log(pathways);
 				let mols = [];
+				
 				for (let i = 0; i < pathways.length; i++) {
+					reaction[i] = []
 					for (let j = 0; j < pathways[i].length; j++) {
 						for (let k = 0; k < pathways[i][j].length; k++) {
 							if (pathways[i][j][k] && !pathways[i][j][k].smiles.includes('kegg')) {
 								mols.push(pathways[i][j][k]);
+								reaction[i].push(pathways[i][j][k].reaction)
 							}
 						}
 					}
@@ -82,6 +86,7 @@
 		}
 
 		result = data;
+		console.log('r',reaction)
 	}
 
 	async function download_result() {
@@ -212,66 +217,66 @@
 				<div class="flex items-center justify-center border-b py-5">No pathways found.</div>
 			{:else}
 				{#each pathways as p, n}
-					<div class="flex justify-left border-b pt-5 overflow-x-scroll ">
-						<div class=" flex justify-left  {reverse ? 'flex-row' : 'flex-row-reverse'}">
+					<div class="flex justify-left border-b pt-5 overflow-x-scroll p-5">
+						<div class=" flex justify-left  {reverse ? 'flex-row' : 'flex-row-reverse'} ">
 							{#each p as m, i}
 								<div class="flex flex-col">
 									{#each m as k, j}
-										<div class="flex items-center  {reverse ? 'flex-row' : 'flex-row-reverse'}">
+										<div class="flex items-center {reverse ? 'flex-row' : 'flex-row-reverse'} flex-1">
 											{#if k}
-												{#if i != 0}
-													<div class="flex flex-row w-24 mx-2 shrink-0">
-														<div class="flex flex-col w-24">
-															{#if k.smiles.includes('kegg')}<img
-																	src={arrow_image_green}
-																	class="px-2"
-																	alt={m + ' to ' + k}
-																/>
-															{:else if k.reaction}
-																{#if parseInt(k.weight) === 1}
-																	{#if k.reaction[0]}
-																		{#each k.reaction[0] as m}<a
-																				class="text-center break-all"
-																				href="http://www.kegg.jp/entry/{m}"
-																				target="_blank">{m}</a
-																			>{/each}{/if}
-																	<img src={arrow_image} class="px-2" alt={m + ' to ' + k} />
-																	{#if k.reaction[1]}{#each k.reaction[1] as m}<a class="text-center break-all"
-																	href="http://www.brenda-enzymes.org/enzyme.php?ecno={m}"
-																	target="_blank"
-																			>EC: {m}</a
-																		>{/each}{/if}
-																{:else}
-																	{#if k.reaction[0]}{#each k.reaction[0] as m}<a
-																				class="text-center break-all"
-																				href="http://www.kegg.jp/entry/{m}"
-																				target="_blank">{m}</a
-																			>{/each}{/if}
-																	<img src={arrow_image_red} class="px-2" alt={m + ' to ' + k} />
-																	{#if k.reaction[1]}{#each k.reaction[1] as m}<a class="text-center break-all"
-																	href="http://www.brenda-enzymes.org/enzyme.php?ecno={m}"
-																	target="_blank"
-																			>EC: {m}</a
-																		>{/each}{/if}
-																{/if}
-															{:else if parseInt(k.weight) === 1}
-																<img src={arrow_image} class="px-2" alt={m + ' to ' + k} />
-															{:else}
-																<img src={arrow_image_red} class="px-2" alt={m + ' to ' + k} />
-															{/if}
-														</div>
-													</div>
-												{/if}
+											{#if i != 0 }
+											<div class="flex flex-row w-24 mx-2 shrink-0 h-fit self-center">
+												<div class="flex flex-col h-fit">
+													{#if k.smiles.includes('kegg')}<img
+ 																	src={arrow_image_green}
+ 																	class="px-2" 
+ 																	alt={m + ' to ' + k}
+ 																/>
+ 													{:else if k.reaction}
+														{#if parseInt(k.weight) === 1}
+															{#if reaction[n][i][0]}
+																{#each reaction[n][i][0] as m}<a
+																		class="text-center "
+																		href="http://www.kegg.jp/entry/{m}"
+																		target="_blank">{m}</a
+																	>{/each}{/if}
+															<img src={arrow_image} class="px-2" alt={m + ' to ' + k} />
+															{#if reaction[n][i][1]}{#each reaction[n][i][1] as m}<a class="text-center "
+															href="http://www.brenda-enzymes.org/enzyme.php?ecno={m}"
+															target="_blank"
+																	>EC: {m}</a
+																>{/each}{/if}
+														{:else}
+															{#if reaction[n][i][0]}{#each reaction[n][i][0] as m}<a
+																		class="text-center "
+																		href="http://www.kegg.jp/entry/{m}"
+																		target="_blank">{m}</a
+																	>{/each}{/if}
+															<img src={arrow_image_red} class="px-2" alt={m + ' to ' + k} />
+															{#if reaction[n][i][1]}{#each reaction[n][i][1] as m}<a class="text-center "
+															href="http://www.brenda-enzymes.org/enzyme.php?ecno={m}"
+															target="_blank"
+																	>EC: {m}</a
+																>{/each}{/if}
+														{/if}
+													{:else if parseInt(k.weight) === 1}
+														<img src={arrow_image} class="px-2" alt={m + ' to ' + k} />
+													{:else}
+														<img src={arrow_image_red} class="px-2" alt={m + ' to ' + k} />
+													{/if}
+												</div>
+											</div>
+											{/if}
 												{#if k.kegg_reaction}
 													<Card
 														color="green"
 														href="https://www.{k.smiles}"
-														class="mb-5 mx-3 w-44 h-80 flex justify-center"
+														class="mb-5 mx-3 w-44 h-fit"
 														target="_blank"
 														padding="sm"
 														size="lg"
 														><Heading
-															class="flex items-center  text-2xl font-bold tracking-tight text-gray-900 dark:text-white"
+															class="flex items-center  justify-items-center text-2xl font-bold tracking-tight text-gray-900 dark:text-white break-words"
 															tag="h5">{k.kegg_reaction}</Heading
 														>
 													</Card>
@@ -279,10 +284,10 @@
 													<Card
 														color={selected && k.smiles === selected
 															? 'yellow'
-															: k.kegg
+															: k.keggs
 															? 'blue'
 															: 'red'}
-														class="mb-5 mx-3 w-44 h-80"
+														class="mb-5 mx-3 w-44 h-fit"
 														size="xs"
 														img={'data:image/png;base64,' + k.image}
 														id="b{n}-{i}"
@@ -301,11 +306,12 @@
 														<P class="flex flex-row justify-center text-center break-all">
 															<span class="text-xs">{k.smiles}</span>
 														</P>
-													</Card>{/if}
+													</Card>
+													{/if}
 											{:else}
 												<Card
 													color={'gray'}
-													class="mb-5 mx-3 w-44 h-80 invisible"
+													class="mb-5 mx-3 w-44 h-80 invisible "
 													padding="none"
 													size="xs"
 													img={white}
