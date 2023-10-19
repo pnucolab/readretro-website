@@ -173,5 +173,12 @@ def _kegg_reaction_search(reactants: list, products: list) -> list:
         rnames = None
     if (ecs == []):
         ecs = None
-               
+    else:
+        n_ecs = list()
+        for i in ecs:
+            while len(i.split(".")) < 4:
+                i += ".-"
+        n_ecs.append(i)
+        ecs = n_ecs
+
     return rnames, ecs
