@@ -150,7 +150,7 @@ def _kegg_reaction_search(reactants: list, products: list) -> list:
 
     # Get the Rname values for the filtered rows
     rnames = filtered_df['Rname'].tolist()
-    ecs = [reaction_df['EC'][reaction_df['Rname']== rname].to_list()[0] for rname in rnames]
+    ecs = [filtered_df['EC'][filtered_df['Rname'] == rname].values[0] for rname in rnames]
 
     if len(ecs)==0:
         if (len(reactants_kegg_ids)==1)&(len(products_kegg_ids)==1):
@@ -178,7 +178,7 @@ def _kegg_reaction_search(reactants: list, products: list) -> list:
         for i in ecs:
             while len(i.split(".")) < 4:
                 i += ".-"
-        n_ecs.append(i)
+            n_ecs.append(i)
         ecs = n_ecs
 
     return rnames, ecs

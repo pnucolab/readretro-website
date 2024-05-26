@@ -34,6 +34,8 @@
 	let filters = [];
 	let reaction = [];
 	let selected;
+	let r;
+	let r2;
 	const uniqueFilters = [];
 	const seenValues = new Set();
 
@@ -49,18 +51,67 @@
 				pathways = [...data.pathway];
 				console.log(pathways);
 				let mols = [];
-				
+
 				for (let i = 0; i < pathways.length; i++) {
-					reaction[i] = []
+					reaction[i] = [];
 					for (let j = 0; j < pathways[i].length; j++) {
 						for (let k = 0; k < pathways[i][j].length; k++) {
 							if (pathways[i][j][k] && !pathways[i][j][k].smiles.includes('kegg')) {
+								pathways[i][j][k].smiles = pathways[i][j][k].smiles.replace('*', 'CoA');
 								mols.push(pathways[i][j][k]);
-								reaction[i].push(pathways[i][j][k].reaction)
+								reaction[i].push(pathways[i][j][k].reaction);
 							}
 						}
 					}
 				}
+				r = pathways.map((p) => {
+					return p.map((k) => {
+						return k.map((j) => {
+							if (j && !j.smiles.includes('kegg')) {
+								return j.reaction;
+							}
+							return [null, null];
+						});
+					});
+				});
+
+				console.log(r, 'r');
+
+				function getLastNonNullValue(array) {
+					let filteredArray = array.filter((item) => item !== null);
+					return filteredArray.length > 0 ? filteredArray[filteredArray.length - 1] : [null, null];
+				}
+
+				function fillMissingValues(arr) {
+					for (let i = 1; i < arr.length; i++) {
+						for (let j = 0; j < arr[i].length; j++) {
+							if (arr[i][j] === [null, null]) {
+								arr[i][j] =
+									arr[i + 1][j] !== [null, null] ? getLastNonNullValue(arr[i]) : [null, null];
+							}
+						}
+					}
+					return arr;
+				}
+
+				r2 = fillMissingValues(r);
+				function getDifferentIndicesExtended(array1, array2) {
+					let differentIndices = [];
+
+					let maxLength = Math.max(array1.length, array2.length);
+
+					for (let i = 0; i < maxLength; i++) {
+						if (array1[i] !== array2[i]) {
+							differentIndices.push(i);
+						}
+					}
+
+					return differentIndices;
+				}
+				console.log('r2', r2);
+				let differentIndicesExtended = getDifferentIndicesExtended(r, r2);
+
+				console.log(differentIndicesExtended);
 				filters = mols.map((m) => {
 					const mnxInfo = m.kegg ? m.kegg : 'N/A';
 					return {
@@ -86,16 +137,67 @@
 		}
 
 		result = data;
-		console.log('r',reaction)
 	}
 
 	async function download_result() {
 		let final_result = '';
 		final_result += '#title: ' + result.title + '\n';
 		final_result += '#task ID: ' + result.task_id + '\n';
-		for (let i = 0; i < result.pathway.length; i++) {
-			final_result += result.pathway[i].molecules.map((e) => e.smiles).join('>>') + '\n';
+		if (result.pathway) {
+			for (let i = 0; i < result.pathway.length; i++) {
+				for (let j = 0; j < result.pathway[i].length; j++) {
+					console.log(result.pathway[i][j], 'gg');
+					if (result.pathway[i][j].length) {
+						continue;
+					}
+					result.pathway[i][j].map((e) => {
+						if (e !== null && e.smiles !== null) {
+							final_result += e.smiles + '.';
+						}
+					});
+					final_result += '>>';
+				}
+				final_result += '\n';
+			}
 		}
+		download(final_result, 'result.txt', 'text/plain');
+	}
+
+	async function download_result2() {
+		let final_result = '';
+		final_result += '#title: ' + result.title + '\n';
+		final_result += '#task ID: ' + result.task_id + '\n';
+
+		if (result.pathway) {
+			for (let i = 0; i < result.pathway.length; i++) {
+				final_result += i + ': ';
+				for (let j = 0; j < result.pathway[i].length; j++) {
+					let currentArray = result.pathway[i][j];
+					if (currentArray === null || currentArray.length === 0) {
+						continue;
+					}
+
+					for (let k = 0; k < currentArray.length; k++) {
+						let e = currentArray[k];
+						if (e !== null && e.smiles !== null) {
+							if (k < currentArray.length - 1 && currentArray[k - 1] === null) {
+								final_result += '--.';
+							}
+							final_result += e.smiles;
+							if (k < currentArray.length - 1 && currentArray[k + 1] !== null) {
+								final_result += '.';
+							}
+						}
+					}
+
+					if (j < result.pathway[i].length - 1) {
+						final_result += ' >> ';
+					}
+				}
+				final_result += '\n';
+			}
+		}
+
 		download(final_result, 'result.txt', 'text/plain');
 	}
 
@@ -177,7 +279,7 @@
 
 	{#if result.status == 0}
 		<div class="mt-8 text-center">
-			<Button size="xl" on:click={() => download_result()}>Download result</Button>
+			<Button size="xl" on:click={() => download_result2()}>Download result</Button>
 		</div>
 		<Heading class="mt-10 mb-5" tag="h4">Pathways</Heading>
 
@@ -217,56 +319,64 @@
 				<div class="flex items-center justify-center border-b py-5">No pathways found.</div>
 			{:else}
 				{#each pathways as p, n}
+					<P>n:{n}</P>
 					<div class="flex justify-left border-b pt-5 overflow-x-scroll p-5">
 						<div class=" flex justify-left  {reverse ? 'flex-row' : 'flex-row-reverse'} ">
 							{#each p as m, i}
+								<P>p: {m}, {i}</P>
 								<div class="flex flex-col">
 									{#each m as k, j}
-										<div class="flex items-center {reverse ? 'flex-row' : 'flex-row-reverse'} flex-1">
+										<P>m: {k}, {j}</P>
+										<div
+											class="flex items-center {reverse ? 'flex-row' : 'flex-row-reverse'} flex-1"
+										>
 											{#if k}
-											{#if i != 0 }
-											<div class="flex flex-row w-24 mx-2 shrink-0 h-fit self-center">
-												<div class="flex flex-col h-fit">
-													{#if k.smiles.includes('kegg')}<img
- 																	src={arrow_image_green}
- 																	class="px-2" 
- 																	alt={m + ' to ' + k}
- 																/>
- 													{:else if k.reaction}
-														{#if parseInt(k.weight) === 1}
-															{#if reaction[n][i][0]}
-																{#each reaction[n][i][0] as m}<a
-																		class="text-center "
-																		href="http://www.kegg.jp/entry/{m}"
-																		target="_blank">{m}</a
-																	>{/each}{/if}
-															<img src={arrow_image} class="px-2" alt={m + ' to ' + k} />
-															{#if reaction[n][i][1]}{#each reaction[n][i][1] as m}<a class="text-center "
-															href="http://www.brenda-enzymes.org/enzyme.php?ecno={m}"
-															target="_blank"
-																	>EC: {m}</a
-																>{/each}{/if}
-														{:else}
-															{#if reaction[n][i][0]}{#each reaction[n][i][0] as m}<a
-																		class="text-center "
-																		href="http://www.kegg.jp/entry/{m}"
-																		target="_blank">{m}</a
-																	>{/each}{/if}
-															<img src={arrow_image_red} class="px-2" alt={m + ' to ' + k} />
-															{#if reaction[n][i][1]}{#each reaction[n][i][1] as m}<a class="text-center "
-															href="http://www.brenda-enzymes.org/enzyme.php?ecno={m}"
-															target="_blank"
-																	>EC: {m}</a
-																>{/each}{/if}
-														{/if}
-													{:else if parseInt(k.weight) === 1}
-														<img src={arrow_image} class="px-2" alt={m + ' to ' + k} />
-													{:else}
-														<img src={arrow_image_red} class="px-2" alt={m + ' to ' + k} />
-													{/if}
-												</div>
-											</div>
-											{/if}
+												{#if i != 0}
+													<div class="flex flex-row w-24 mx-2 shrink-0 h-fit self-center">
+														<div class="flex flex-col h-fit">
+															{#if k.smiles.includes('kegg')}<img
+																	src={arrow_image_green}
+																	class="px-2"
+																	alt={m + ' to ' + k}
+																/>
+															{:else if k.reaction}
+																{#if parseInt(k.weight) === 1}
+																	{#if r[n][i - 1][j][0]}
+																		{#each r[n][i - 1][j][0] as m}<a
+																				class="text-center "
+																				href="http://www.kegg.jp/entry/{m}"
+																				target="_blank">{m}</a
+																			>{/each}{/if}
+																	<img src={arrow_image} class="px-2" alt={m + ' to ' + k} />
+																	{#if r[n][i - 1][j][1]}
+																		{#each r[n][i - 1][j][1] as m}<a
+																				class="text-center "
+																				href="http://www.brenda-enzymes.org/enzyme.php?ecno={m}"
+																				target="_blank">EC: {m}</a
+																			>{/each}{/if}
+																{:else}
+																	{#if r[n][i - 1][j][0]}
+																		{#each r[n][i - 1][j][0] as m}<a
+																				class="text-center "
+																				href="http://www.kegg.jp/entry/{m}"
+																				target="_blank">{m}</a
+																			>{/each}{/if}
+																	<img src={arrow_image_red} class="px-2" alt={m + ' to ' + k} />
+																	{#if r[n][i - 1][j][1]}
+																		{#each r[n][i - 1][j][1] as m}<a
+																				class="text-center "
+																				href="http://www.brenda-enzymes.org/enzyme.php?ecno={m}"
+																				target="_blank">EC: {m}</a
+																			>{/each}{/if}
+																{/if}
+															{:else if parseInt(k.weight) === 1}
+																<img src={arrow_image} class="px-2" alt={m + ' to ' + k} />
+															{:else}
+																<img src={arrow_image_red} class="px-2" alt={m + ' to ' + k} />
+															{/if}
+														</div>
+													</div>
+												{/if}
 												{#if k.kegg_reaction}
 													<Card
 														color="green"
@@ -276,7 +386,7 @@
 														padding="sm"
 														size="lg"
 														><Heading
-															class="flex items-center  justify-items-center text-2xl font-bold tracking-tight text-gray-900 dark:text-white break-words"
+															class="flex items-center  justify-items-center text-2xl font-bold tracking-tight text-gray-900 dark:text-white break-all"
 															tag="h5">{k.kegg_reaction}</Heading
 														>
 													</Card>
@@ -307,7 +417,7 @@
 															<span class="text-xs">{k.smiles}</span>
 														</P>
 													</Card>
-													{/if}
+												{/if}
 											{:else}
 												<Card
 													color={'gray'}

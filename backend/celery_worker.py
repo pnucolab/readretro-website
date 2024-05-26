@@ -42,6 +42,7 @@ class Node:
     def get_ec_and_reaction(self):
         if len(self.next) == 0:
             return None, None
+        print([self.smiles], [n.smiles for n in self.next])
         return _kegg_reaction_search([self.smiles], [n.smiles for n in self.next])
     
     def get_end_nodes(self):
@@ -117,7 +118,7 @@ def pathways_to_json(pathways):
 
         out_list.append([])
         for nodes in out_nodes:
-            out_list[-1].append([None if n is None else {"smiles":n.smiles, "reaction": n.get_ec_and_reaction(), "kegg": n.kegg, "weight": n.weight, "image": n.image, "kegg_reaction":n.kegg_reaction} for n in nodes])
+            out_list[-1].append([None if n is None else {"smiles":n.smiles, "reaction": n.get_ec_and_reaction(), "kegg": n.kegg, "weight": n.weight, "image": n.image, "kegg_reaction":n.kegg_reaction, "next":[j.smiles for j in n.next]} for n in nodes])
 
         for p in out_list:
             max_length = max(len(sub_array) for sub_array in p)

@@ -1,8 +1,10 @@
 // @ts-ignore
-
-let site_root = 'https://readretro.net/api/v1/';
+//https://readretro.net/api/v1/
+//let site_root = 'https://readretro.net/api/v1/';
 
 export async function load(uri, method = 'GET', file = null) {
+	const site_root = document.location.origin + '/api/v1/';
+	let url = new URL(site_root + uri);
 	let resp;
 	if (method == 'GET') {
 		resp = await fetch(site_root + uri);
