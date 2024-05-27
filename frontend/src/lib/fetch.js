@@ -4,6 +4,7 @@
 
 export async function load(uri, method = 'GET', file = null) {
 	const site_root = document.location.origin + '/api/v1/';
+	console.log(document.location.origin);
 	let url = new URL(site_root + uri);
 	let resp;
 	if (method == 'GET') {

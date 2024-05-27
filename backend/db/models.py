@@ -21,3 +21,5 @@ class Task(Base):
     end_at = Column(DateTime, nullable=True)
     status = Column(Integer, nullable=False, default=2)
     result = Column(Text, nullable=True)
+    raw_result = Column(Text, nullable=True)
+    

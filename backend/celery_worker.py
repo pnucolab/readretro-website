@@ -6,7 +6,7 @@ from db.models import Task
 from db.database import db_context
 import json
 from datetime import datetime
-from backend_utils import _mol2image, _kegg_reaction_search, _kegg_search
+from backend_utils import _mol2image, _kegg_reaction_search, _kegg_search, _parse_name_from_file
 import time
 import torch
 import pandas as pd
@@ -33,16 +33,17 @@ class Node:
             self.weight = weight
             self.image = _mol2image(self.smiles)
             self.kegg = _kegg_search(self.smiles)
+            self.common_name = _parse_name_from_file(self.kegg)
         else:
             self.kegg_reaction = None
             self.weight = None
             self.image = _mol2image(self.smiles)
             self.kegg = _kegg_search(self.smiles)
+            self.common_name = _parse_name_from_file(self.kegg)
         
     def get_ec_and_reaction(self):
         if len(self.next) == 0:
             return None, None
-        print([self.smiles], [n.smiles for n in self.next])
         return _kegg_reaction_search([self.smiles], [n.smiles for n in self.next])
     
     def get_end_nodes(self):
@@ -118,7 +119,7 @@ def pathways_to_json(pathways):
 
         out_list.append([])
         for nodes in out_nodes:
-            out_list[-1].append([None if n is None else {"smiles":n.smiles, "reaction": n.get_ec_and_reaction(), "kegg": n.kegg, "weight": n.weight, "image": n.image, "kegg_reaction":n.kegg_reaction, "next":[j.smiles for j in n.next]} for n in nodes])
+            out_list[-1].append([None if n is None else {"smiles":n.smiles, "reaction": n.get_ec_and_reaction(), "kegg": n.kegg, "weight": n.weight, "image": n.image, "kegg_reaction":n.kegg_reaction, "common_name": n.common_name} for n in nodes])
 
         for p in out_list:
             max_length = max(len(sub_array) for sub_array in p)
@@ -146,7 +147,6 @@ def run_inference(product: str, building_blocks: str, iterations: int, exp_topk:
                 break
         time.sleep(1)
     try:
-        
         if model_type == "retriever_only":
             retrieval = True
         cmd = f"cd READRetro && CUDA_VISIBLE_DEVICES={gpu_id} python run.py \"{product}\"" \
@@ -192,6 +192,7 @@ def run_inference(product: str, building_blocks: str, iterations: int, exp_topk:
         with db_context() as s:
             task = s.query(Task).filter(Task.task_id == run_inference.request.id).first()
             task.result = json.dumps(pathways_to_json(pathways))
+            task.raw_result = json.dumps(pathways)
             task.end_at = datetime.now()
             task.status = 0
             s.commit()

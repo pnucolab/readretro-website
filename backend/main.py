@@ -70,7 +70,7 @@ async def result(ticket: str):
         with db_context() as s:
             task = s.query(Task).filter(Task.task_id == ticket).first()
             if task.status == 0:
-                return {"success": True, "task_id": task.task_id, "title": task.title, "created_at": task.created_at, "product": task.product, "pathway": json.loads(task.result), "end_at": task.end_at, "status": task.status}
+                return {"success": True, "task_id": task.task_id, "title": task.title, "created_at": task.created_at, "product": task.product, "pathway": json.loads(task.result), "end_at": task.end_at, "status": task.status, "raw_result": json.loads(task.raw_result)}
             else:
                 return {"success": True, "task_id": task.task_id, "title": task.title, "created_at": task.created_at, "product": task.product, "status": task.status}
     except Exception as e:
@@ -95,13 +95,11 @@ async def building_blocks():
     except Exception as e:
         return {"success": False, "error": repr(e)}
 
-
 @app.get("/mol2image")
 async def mol_to_image(mol: str,
                        width: int = Query(default=0, title="Image width in pixels"),
                        height: int = Query(default=0, title="Image height in pixels")):
     try:
-        print(mol)
         return {"success": True, "image": _mol2image(mol, width, height)}
     except Exception as e:
         return {"success": False, "error": repr(e)}

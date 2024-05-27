@@ -106,6 +106,33 @@ def _kegg_search(smi: str) -> tuple:
         id = extract["ID"].values[0]
         return id
     
+def _read_file_content(file_path):
+    try:
+        with open(file_path, 'r', encoding='utf-8') as file:
+            return file.read()
+    except IOError as e:
+        print(f"Error reading file: {e}")
+        return None
+file_path = 'READRetro/data/compound' 
+file_content = _read_file_content(file_path)
+
+def _parse_name_from_file(kegg_id):
+    if (kegg_id == None) or ('kegg.jp' in kegg_id):
+        return None
+    else:
+        lines = file_content.split('\n')
+        is_entry_found = False
+
+        for line in lines:
+            if line.startswith('ENTRY') and kegg_id in line:
+                is_entry_found = True
+
+            if is_entry_found and line.startswith('NAME'):
+                name_start_idx = line.index('NAME') + len('NAME')
+                name_field = line[name_start_idx:].strip()
+                names = name_field.split(';')
+                return names[0].strip()
+
 def _kegg_reaction_search(reactants: list, products: list) -> list:
     """
     Retrieve the Rname values from reaction_df based on given reactants and products.
