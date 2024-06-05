@@ -67,7 +67,12 @@
 			response = await load(url, 'POST');
 		}
 
-		if (iterations > 200 || expansions > 30 || pathway > 30 || beam_size > 30) {
+		if (
+			parseInt(iterations) > 200 ||
+			parseInt(expansions) > 30 ||
+			parseInt(pathway) > 30 ||
+			parseInt(beam_size) > 30
+		) {
 			alert(
 				'Please enter a value less than 200 for iterations and 30 for expansions, pathway, and beam size.'
 			);
