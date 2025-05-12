@@ -106,6 +106,33 @@ def _kegg_search(smi: str) -> tuple:
         id = extract["ID"].values[0]
         return id
     
+def _read_file_content(file_path):
+    try:
+        with open(file_path, 'r', encoding='utf-8') as file:
+            return file.read()
+    except IOError as e:
+        print(f"Error reading file: {e}")
+        return None
+file_path = 'READRetro/data/compound' 
+file_content = _read_file_content(file_path)
+
+def _parse_name_from_file(kegg_id):
+    if (kegg_id == None) or ('kegg.jp' in kegg_id):
+        return None
+    else:
+        lines = file_content.split('\n')
+        is_entry_found = False
+
+        for line in lines:
+            if line.startswith('ENTRY') and kegg_id in line:
+                is_entry_found = True
+
+            if is_entry_found and line.startswith('NAME'):
+                name_start_idx = line.index('NAME') + len('NAME')
+                name_field = line[name_start_idx:].strip()
+                names = name_field.split(';')
+                return names[0].strip()
+
 def _kegg_reaction_search(reactants: list, products: list) -> list:
     """
     Retrieve the Rname values from reaction_df based on given reactants and products.
@@ -150,7 +177,7 @@ def _kegg_reaction_search(reactants: list, products: list) -> list:
 
     # Get the Rname values for the filtered rows
     rnames = filtered_df['Rname'].tolist()
-    ecs = [reaction_df['EC'][reaction_df['Rname']== rname].to_list()[0] for rname in rnames]
+    ecs = [filtered_df['EC'][filtered_df['Rname'] == rname].values[0] for rname in rnames]
 
     if len(ecs)==0:
         if (len(reactants_kegg_ids)==1)&(len(products_kegg_ids)==1):
@@ -178,7 +205,7 @@ def _kegg_reaction_search(reactants: list, products: list) -> list:
         for i in ecs:
             while len(i.split(".")) < 4:
                 i += ".-"
-        n_ecs.append(i)
+            n_ecs.append(i)
         ecs = n_ecs
 
     return rnames, ecs

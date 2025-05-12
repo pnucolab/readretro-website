@@ -34,6 +34,8 @@
 	let filters = [];
 	let reaction = [];
 	let selected;
+	let r;
+	let r2;
 	const uniqueFilters = [];
 	const seenValues = new Set();
 
@@ -49,22 +51,34 @@
 				pathways = [...data.pathway];
 				console.log(pathways);
 				let mols = [];
-				
+
 				for (let i = 0; i < pathways.length; i++) {
-					reaction[i] = []
+					reaction[i] = [];
 					for (let j = 0; j < pathways[i].length; j++) {
 						for (let k = 0; k < pathways[i][j].length; k++) {
 							if (pathways[i][j][k] && !pathways[i][j][k].smiles.includes('kegg')) {
+								pathways[i][j][k].smiles = pathways[i][j][k].smiles.replace('*', 'CoA');
 								mols.push(pathways[i][j][k]);
-								reaction[i].push(pathways[i][j][k].reaction)
+								reaction[i].push(pathways[i][j][k].reaction);
 							}
 						}
 					}
 				}
+				r = pathways.map((p) => {
+					return p.map((k) => {
+						return k.map((j) => {
+							if (j && !j.smiles.includes('kegg')) {
+								return j.reaction;
+							}
+							return [null, null];
+						});
+					});
+				});
+
 				filters = mols.map((m) => {
 					const mnxInfo = m.kegg ? m.kegg : 'N/A';
 					return {
-						name: mnxInfo + ': ' + m.smiles,
+						name: mnxInfo + ': ' + (m.common_name ? m.common_name : m.smiles),
 						value: m.smiles
 					};
 				});
@@ -86,15 +100,14 @@
 		}
 
 		result = data;
-		console.log('r',reaction)
 	}
 
 	async function download_result() {
 		let final_result = '';
 		final_result += '#title: ' + result.title + '\n';
 		final_result += '#task ID: ' + result.task_id + '\n';
-		for (let i = 0; i < result.pathway.length; i++) {
-			final_result += result.pathway[i].molecules.map((e) => e.smiles).join('>>') + '\n';
+		for (let item of result.raw_result) {
+			final_result += item + '\n';
 		}
 		download(final_result, 'result.txt', 'text/plain');
 	}
@@ -222,51 +235,56 @@
 							{#each p as m, i}
 								<div class="flex flex-col">
 									{#each m as k, j}
-										<div class="flex items-center {reverse ? 'flex-row' : 'flex-row-reverse'} flex-1">
+										<div
+											class="flex items-center {reverse ? 'flex-row' : 'flex-row-reverse'} flex-1"
+										>
 											{#if k}
-											{#if i != 0 }
-											<div class="flex flex-row w-24 mx-2 shrink-0 h-fit self-center">
-												<div class="flex flex-col h-fit">
-													{#if k.smiles.includes('kegg')}<img
- 																	src={arrow_image_green}
- 																	class="px-2" 
- 																	alt={m + ' to ' + k}
- 																/>
- 													{:else if k.reaction}
-														{#if parseInt(k.weight) === 1}
-															{#if reaction[n][i][0]}
-																{#each reaction[n][i][0] as m}<a
-																		class="text-center "
-																		href="http://www.kegg.jp/entry/{m}"
-																		target="_blank">{m}</a
-																	>{/each}{/if}
-															<img src={arrow_image} class="px-2" alt={m + ' to ' + k} />
-															{#if reaction[n][i][1]}{#each reaction[n][i][1] as m}<a class="text-center "
-															href="http://www.brenda-enzymes.org/enzyme.php?ecno={m}"
-															target="_blank"
-																	>EC: {m}</a
-																>{/each}{/if}
-														{:else}
-															{#if reaction[n][i][0]}{#each reaction[n][i][0] as m}<a
-																		class="text-center "
-																		href="http://www.kegg.jp/entry/{m}"
-																		target="_blank">{m}</a
-																	>{/each}{/if}
-															<img src={arrow_image_red} class="px-2" alt={m + ' to ' + k} />
-															{#if reaction[n][i][1]}{#each reaction[n][i][1] as m}<a class="text-center "
-															href="http://www.brenda-enzymes.org/enzyme.php?ecno={m}"
-															target="_blank"
-																	>EC: {m}</a
-																>{/each}{/if}
-														{/if}
-													{:else if parseInt(k.weight) === 1}
-														<img src={arrow_image} class="px-2" alt={m + ' to ' + k} />
-													{:else}
-														<img src={arrow_image_red} class="px-2" alt={m + ' to ' + k} />
-													{/if}
-												</div>
-											</div>
-											{/if}
+												{#if i != 0}
+													<div class="flex flex-row w-24 mx-2 shrink-0 h-fit self-center">
+														<div class="flex flex-col h-fit">
+															{#if k.smiles.includes('kegg')}<img
+																	src={arrow_image_green}
+																	class="px-2"
+																	alt={m + ' to ' + k}
+																/>
+															{:else if k.reaction}
+																{#if parseInt(k.weight) === 1}
+																	{#if r && r[n] && r[n][i - 1] && r[n][i - 1][j] && r[n][i - 1][j][0]}
+																		{#each r[n][i - 1][j][0] as m}<a
+																				class="text-center "
+																				href="http://www.kegg.jp/entry/{m}"
+																				target="_blank">{m}</a
+																			>{/each}{/if}
+																	<img src={arrow_image} class="px-2" alt={m + ' to ' + k} />
+																	{#if r && r[n] && r[n][i - 1] && r[n][i - 1][j] && r[n][i - 1][j][1]}
+																		{#each r[n][i - 1][j][1] as m}<a
+																				class="text-center "
+																				href="http://www.brenda-enzymes.org/enzyme.php?ecno={m}"
+																				target="_blank">EC: {m}</a
+																			>{/each}{/if}
+																{:else}
+																	{#if r && r[n] && r[n][i - 1] && r[n][i - 1][j] && r[n][i - 1][j][0]}
+																		{#each r[n][i - 1][j][0] as m}<a
+																				class="text-center "
+																				href="http://www.kegg.jp/entry/{m}"
+																				target="_blank">{m}</a
+																			>{/each}{/if}
+																	<img src={arrow_image_red} class="px-2" alt={m + ' to ' + k} />
+																	{#if r && r[n] && r[n][i - 1] && r[n][i - 1][j] && r[n][i - 1][j][1]}
+																		{#each r[n][i - 1][j][1] as m}<a
+																				class="text-center "
+																				href="http://www.brenda-enzymes.org/enzyme.php?ecno={m}"
+																				target="_blank">EC: {m}</a
+																			>{/each}{/if}
+																{/if}
+															{:else if parseInt(k.weight) === 1}
+																<img src={arrow_image} class="px-2" alt={m + ' to ' + k} />
+															{:else}
+																<img src={arrow_image_red} class="px-2" alt={m + ' to ' + k} />
+															{/if}
+														</div>
+													</div>
+												{/if}
 												{#if k.kegg_reaction}
 													<Card
 														color="green"
@@ -276,7 +294,7 @@
 														padding="sm"
 														size="lg"
 														><Heading
-															class="flex items-center  justify-items-center text-2xl font-bold tracking-tight text-gray-900 dark:text-white break-words"
+															class="flex items-center  justify-items-center text-2xl font-bold tracking-tight text-gray-900 dark:text-white break-all"
 															tag="h5">{k.kegg_reaction}</Heading
 														>
 													</Card>
@@ -307,7 +325,7 @@
 															<span class="text-xs">{k.smiles}</span>
 														</P>
 													</Card>
-													{/if}
+												{/if}
 											{:else}
 												<Card
 													color={'gray'}

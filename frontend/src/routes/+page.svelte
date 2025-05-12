@@ -35,6 +35,7 @@
 			model_type = 'ensemble';
 		}
 	}
+
 	async function run() {
 		let url =
 			'run?title=' +
@@ -65,8 +66,20 @@
 		} else {
 			response = await load(url, 'POST');
 		}
-		ticket = response.ticket;
-		location.href = `/result/${ticket}`;
+
+		if (
+			parseInt(iterations) > 200 ||
+			parseInt(expansions) > 30 ||
+			parseInt(pathway) > 30 ||
+			parseInt(beam_size) > 30
+		) {
+			alert(
+				'Please enter a value less than 200 for iterations and 30 for expansions, pathway, and beam size.'
+			);
+		} else {
+			ticket = response.ticket;
+			location.href = `/result/${ticket}`;
+		}
 	}
 </script>
 
