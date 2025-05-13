@@ -1,8 +1,7 @@
 User Guide for the READRetro website
-==============================
+============================================================
 
 This guide provides comprehensive instructions for using all features and options available on the READRetro web interface (`https://readretro.net <https://readretro.net>`_). The official code repository for the web interface is `https://github.com/pnucolab/readretro-website <https://github.com/pnucolab/readretro-website>`_.
-
 
 Viewing and Interpreting Results
 ----------------------------------------------------------------
@@ -50,4 +49,4 @@ Once a prediction job is complete, the "Result Page" will display the findings. 
 
     * **Unique Result Link:** Each prediction generates a unique web link. The link follows the format ``https://readretro.net/result/`` followed by your specific **[job id]** (e.g., ``https://readretro.net/result/d0bc0da8ebb245bb87e8aa161fbbd2d6``). You can bookmark or share this link to access the specific result page again later.
 
-    * **Download Result Button:** A "Download result" button allows you to download the predicted pathway information as a  ``.txt `` file for offline storage, sharing, or further analysis.
+    * **Download Result Button:** A "Download result" button allows you to download the predicted pathway information as a  **.txt ** file for offline storage, sharing, or further analysis.
