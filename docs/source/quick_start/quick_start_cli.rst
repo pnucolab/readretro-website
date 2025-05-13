@@ -4,126 +4,111 @@ Quick Start to use the CLI
 This section provides instructions for using the command-line interface based on the official code repository:
 `https://github.com/SeulLee05/READRetro <https://github.com/SeulLee05/READRetro>`_
 
+Prerequisites
+---------------------------------------
+
+* **Software:**
+    * Python 3.8
+    * Conda (strongly recommended for managing dependencies and environments)
+* **Hardware:**
+    * A CUDA-enabled GPU is highly recommended for significantly faster processing, especially for deep learning model inference. CPU-only execution is possible but will be much slower.
+
 Installation
-----------------------------------------------------
-Run the following commands to install the dependencies using Conda:
+---------------------------------------
 
-.. code-block:: bash
+Follow these steps to set up your environment and install READRetro.
 
-   conda create -n readretro python=3.8
-   conda activate readretro
-   conda install pytorch==1.12.0 cudatoolkit=11.3 -c pytorch
-   pip install easydict pandas tqdm numpy==1.22 OpenNMT-py==2.3.0 networkx==2.5
-   conda install -c conda-forge rdkit=2019.09
+**1. Set Up Conda Environment (Recommended)**
 
-Alternatively, you can install the ``readretro`` package through pip:
+   Create a new Conda environment specifically for READRetro to avoid conflicts with other Python packages:
 
-.. code-block:: bash
+   .. code-block:: bash
 
-   conda create -n readretro python=3.8 -y
-   conda activate readretro
-   pip install readretro==1.2.0
+      conda create -n readretro python=3.8 -y
+      conda activate readretro
 
+**2. Install Dependencies and READRetro Package**
 
-Data Setup
-----------------------------------------------------
-Download the necessary data folder ``READRetro_data`` from `Zenodo <https://zenodo.org/records/11485641>`_ to ensure proper execution of the code and demonstrations in this repository.
+   * **Option A: Install via Pip (includes core dependencies):**
+       This is the simplest way to get started.
 
-The directory structure of ``READRetro_data`` is as follows:
+       .. code-block:: bash
 
-::
+          pip install readretro==1.2.0
 
-    READRetro_data
-    ├── data.sh
-    ├── data
-    │   ├── model_train_data
-    │   └── multistep_data
-    ├── model
-    │   ├── bionavi
-    │   ├── g2s
-    │   │   └── saved_models
-    │   ├── megan
-    │   └── retroformer
-    │       └── saved_models
-    ├── result
-    └── scripts
+       *Note: This pip installation attempts to install core dependencies. You might still need to manually ensure PyTorch with CUDA support is correctly installed if you plan to use a GPU.*
+       To install PyTorch with specific CUDA version (e.g., 11.3):
 
+       .. code-block:: bash
 
-Place ``READRetro_data`` into the READRetro directory (i.e., ``READRetro/READRetro_data``) and run ``sh data.sh`` in ``READRetro_data`` to set up the data.
+          conda install pytorch==1.12.0 cudatoolkit=11.3 -c pytorch
+          # Then install other dependencies if not covered by readretro pip package
+          pip install easydict pandas tqdm numpy==1.22 OpenNMT-py==2.3.0 networkx==2.5
+          conda install -c conda-forge rdkit=2019.09 # Ensure RDKit is compatible
 
-Ensure the data is correctly located in ``READRetro``. Verify the following:
+   * **Option B: Install from Source (for development or specific modifications):**
+       Clone the repository and install dependencies.
 
-* ``READRetro/retroformer/saved_models`` should match ``READRetro_data/model/retroformer/saved_models``.
-* ``READRetro/g2s/saved_models`` should match ``READRetro_data/model/g2s/saved_models``.
-* ``READRetro/data`` should match ``READRetro_data/data/multistep_data``.
-* ``READRetro/result`` should match ``READRetro_data/result``.
-* ``READRetro/scripts`` should match ``READRetro_data/scripts``.
+       .. code-block:: bash
 
-The directories ``READRetro_data/model/bionavi``, ``READRetro_data/model/megan``, and ``READRetro_data/data/model_train_data`` are required for reproducing the values in the manuscript.
+          git clone https://github.com/SeulLee05/READRetro.git
+          cd READRetro
+          # Install dependencies as listed in Option A (PyTorch, RDKit, others)
+          # or use a provided requirements.txt if available in the repository
+          # pip install -r requirements.txt
 
+Data Setup (`READRetro_data`)
+------------------------------------------------------------------------------
+
+The READRetro models and evaluation scripts require specific data files, including pre-trained model weights, datasets for evaluation, and scripts.
+
+1.  **Download Data:**
+    Download the `READRetro_data` folder from Zenodo: `https://zenodo.org/records/11485641 <https://zenodo.org/records/11485641>`_.
+
+2.  **Directory Structure:**
+    The expected directory structure within `READRetro_data` is:
+
+    ::
+
+        READRetro_data/
+        ├── data.sh
+        ├── data/
+        │   ├── model_train_data/
+        │   └── multistep_data/
+        ├── model/
+        │   ├── bionavi/
+        │   ├── g2s/
+        │   │   └── saved_models/
+        │   ├── megan/
+        │   └── retroformer/
+        │       └── saved_models/
+        ├── result/
+        └── scripts/
+
+3.  **Place and Prepare Data:**
+    * Move the downloaded `READRetro_data` folder into your main `READRetro` project directory (e.g., if you cloned the GitHub repo, it should be `READRetro/READRetro_data`).
+    * Navigate into the `READRetro_data` directory and run the setup script:
+
+        .. code-block:: bash
+
+           cd READRetro_data
+           sh data.sh
+           cd ..  # Go back to the main READRetro directory
+
+4.  **Verify Data Paths:**
+    Ensure that the symbolic links or copied data are correctly pointing to the locations expected by the scripts. For example:
+    * `READRetro/retroformer/saved_models` should correspond to `READRetro_data/model/retroformer/saved_models`.
+    * `READRetro/g2s/saved_models` should correspond to `READRetro_data/model/g2s/saved_models`.
+    * `READRetro/data` should correspond to `READRetro_data/data/multistep_data`.
+    * Other paths like `result/` and `scripts/` should also align.
+
+    The directories `READRetro_data/model/bionavi/`, `READRetro_data/model/megan/`, and `READRetro_data/data/model_train_data/` are typically needed for reproducing results from the original manuscript.
 
 Model Preparation
-----------------------------------------------------
-We provide the trained models through Zenodo.
-You can use your own models trained using the official codes (https://github.com/coleygroup/Graph2SMILES and https://github.com/yuewan2/Retroformer).
-More detailed instructions can be found in ``demo.ipynb``.
+-----------------------------------------------------------------------------------------------
 
-Single-step Planning and Evaluation
---------------------------------------------------------------------------------------------------------
-
-Run the following commands to evaluate the single-step performance of the models (replace ``${gpu_id}`` with your GPU ID):
-
-.. code-block:: bash
-
-   # Ensemble
-   CUDA_VISIBLE_DEVICES=${gpu_id} python eval_single.py
-   # Retroformer
-   CUDA_VISIBLE_DEVICES=${gpu_id} python eval_single.py -m retroformer
-   # Graph2SMILES
-   CUDA_VISIBLE_DEVICES=${gpu_id} python eval_single.py -m g2s -s 200
-
-
-Multi-step Planning
---------------------------------------------------------------------------------------------------------
-Run the following command to plan paths of multiple products using multiprocessing:
-
-.. code-block:: bash
-
-   # Example: Use GPU 0
-   CUDA_VISIBLE_DEVICES=0 python run_mp.py
-
-You can modify other hyperparameters described in ``run_mp.py``. Lower ``num_threads`` if you run out of GPU capacity.
-
-Run the following command to plan the retrosynthesis path of your own molecule:
-
-.. code-block:: bash
-
-   # Example: Use GPU 0 and plan for 'O=C1C=C2C=CC(O)CC2O1'
-   CUDA_VISIBLE_DEVICES=0 python run.py 'O=C1C=C2C=CC(O)CC2O1'
-
-*Using the command from pip:*
-
-.. code-block:: bash
-
-   # Example: Use default checkpoints for 'O=C1C=C2C=CC(O)CC2O1'
-   run_readretro -rc retroformer/saved_models/biochem.pt -gc g2s/saved_models/biochem.pt 'O=C1C=C2C=CC(O)CC2O1'
-   # You can replace the checkpoints with your own trained checkpoints.
-   # Set the corresponding vocab file as an option if you replace checkpoints.
-
-You can modify other hyperparameters described in ``run.py``.
-
-Multi-step Evaluation
---------------------------------------------------------------------------------------------------------
-
-Run the following command to evaluate the planned paths of the test molecules:
-
-.. code-block:: bash
-
-   # Example: Evaluate results saved in result/debug.txt
-   python eval.py result/debug.txt
-
-Demo
---------------------------------------------------------------------------------------------------------
-
-You can reproduce the figures and tables presented in the paper or train your own models by utilizing the provided ``demo.ipynb``.
-
+* **Using Pre-trained Models:** The `READRetro_data` bundle from Zenodo includes pre-trained model checkpoints for Retroformer and Graph2SMILES, which are placed in the correct directories by the `data.sh` script. These are generally located under `READRetro/retroformer/saved_models/` and `READRetro/g2s/saved_models/`.
+* **Training Your Own Models:** If you wish to train your own models, refer to the official repositories for:
+    * Graph2SMILES: `https://github.com/coleygroup/Graph2SMILES <https://github.com/coleygroup/Graph2SMILES>`_
+    * Retroformer: `https://github.com/yuewan2/Retroformer <https://github.com/yuewan2/Retroformer>`_
+    The `demo.ipynb` often included in the READRetro repository provides more detailed instructions on training and using custom models. Ensure your custom model checkpoints and vocabulary files are placed where the READRetro scripts expect them.

@@ -4,60 +4,48 @@ Quick Start to use the READRetro website
 This section provides instructions for using the web interface located at `https://readretro.net <https://readretro.net>`_.
 The official code repository for the web interface is `https://github.com/pnucolab/readretro-website <https://github.com/pnucolab/readretro-website>`_.
 
-Using the Web Interface
------------------------
+Overview of the Website Interface
+------------------------------------------------------------------------
 
-1.  **Navigate to the Website:**
-    Open your web browser and go to `https://readretro.net <https://readretro.net>`_. You will see the main interface for READRetro.
+The READRetro website is designed for intuitive interaction. The main page is divided into several key areas:
 
-2.  **Input Target Molecule (Arguments Tab):**
-    The "Arguments" tab is typically selected by default.
-    * **Experiment Information:**
-        * **(Optional)** Enter a "Title" for your experiment.
-        * **Target molecule in SMILES:** This is a required field. Input the SMILES (Simplified Molecular Input Line Entry System) string of the natural product you want to analyze. You can often find SMILES strings for compounds in databases like PubChem.
-    * **Options:** You can adjust several parameters to customize the prediction:
-        * **Number of iterations:** Sets the maximum number of expansion steps the algorithm will perform (Default: 100).
-        * **Number of pathway generation:** Specifies how many top-ranked pathways to display (Default: 10).
-        * **Number of expansions:** The number of candidate precursors considered at each expansion step (similar to beam size for single-step retrosynthesis) (Default: 10).
-        * **Beam size:** Beam size for the underlying single-step retrosynthesis models (Default: 10).
-        * **Reaction Retriever:** Toggle ON/OFF to use or ignore the database of known reactions (Default: ON).
-        * **Pathway Retriever:** Toggle ON/OFF to use or ignore the KEGG pathway retrieval for known intermediates (Default: ON).
-        * **Model type:** Choose the generative model to use (Default: Ensemble of Retroformer + Graph2SMILES). Other options might include individual models.
+* **Input Area:** Primarily managed through tabs: "Arguments", "Building Blocks", and "Retrieval DB".
+* **Submission Control:** A "Submit" button to initiate predictions.
+* **Results Display Area:** Where predicted pathways and related information are shown after a job completes.
 
-3.  **(Optional) Customize Building Blocks (Building Blocks Tab):**
-    * Click on the "Building Blocks" tab.
-    * Here, you can view the default set of 40 common metabolic precursors that READRetro uses as termination points for the retrosynthetic pathways.
-    * You can modify this list, for example, by adding specific intermediates known to be relevant to your target plant or pathway.
+Submitting a Prediction Job
+------------------------------------------------------------------
 
-4.  **(Optional) Customize Retrieval Database (Retrieval DB Tab):**
-    * Click on the "Retrieval DB" tab.
-    * This section allows advanced users to modify the reaction database used by the Reaction Retriever. You can add more prior knowledge reactions or remove specific reactions if you want to explore alternative pathways.
+Predictions are configured and submitted primarily through the "Arguments" tab, with optional customizations in other tabs.
 
-5.  **Submit for Prediction:**
-    * Once you have entered the SMILES string and adjusted any desired options, click the **"Submit"** button (or an equivalent button like "Run READRetro") to start the pathway prediction process. Each task is assigned a unique Job ID for efficient management.
+**1. "Arguments" Tab (Main Configuration)**
 
-6.  **View and Interpret Results (Result Page):**
-    * After processing, the predicted biosynthetic pathways are displayed on the Result Page. The design integrates interactive cards and arrows for an intuitive visual representation.
-    * **Pathway Visualization (Arrows):**
-        Arrows are color-coded to convey information about the prediction source:
-        * **Red arrows:** Indicate generated steps (novel predictions by the READRetro model). This is the default color for a predicted step not found in retrieval databases.
-        * **Blue arrows:** Indicate that the single-step retrosynthesis reaction exists in the retrieval database.
-        * **Green arrows:** Specifically mark data retrieved by the Pathway Retriever (sequences of reactions from KEGG).
-    * **Information on Arrows:**
-        Above and below each arrow, additional information is displayed:
-        * **EC numbers:** Enzyme Commission numbers classifying the enzymes based on the reactions they catalyze. These are clickable and link directly to the relevant entries in the BRENDA Enzyme Database.
-        * **KEGG pathway information:** Identifies biological pathways related to the compounds. These are clickable and link directly to the relevant KEGG pathway maps.
-    * **Compound Representation (Cards):**
-        Each compound in the pathway is represented by a card containing detailed information:
-        * **Default color:** Typically red.
-        * **Blue color:** Indicates the molecule is confirmed in the KEGG database.
-        * **Yellow color:** Applied when a user highlights a specific compound using the interface's interactive features.
-        * **Details on card:** SMILES notation, KEGG entry (clickable, redirecting to the KEGG COMPOUND Database page), and structural diagrams.
-    * **Interactive Features:**
-        The Result Page includes features to enhance user interactivity:
-        * **Highlighting compounds:** Allows users to focus on specific molecules within the predicted pathways.
-        * **Changing pathway direction:** Users can toggle the display of pathways (e.g., retrosynthetic or biosynthetic direction).
-    * **Saving Results:**
-        The interface provides two main ways to save or re-access your findings:
-        * **Unique Result Link:** Each prediction generates a unique web link. The link follows the format ``https://readretro.net/result/`` followed by your specific **[job id]**  (e.g., ``https://readretro.net/result/d0bc0da8ebb245bb87e8aa161fbbd2d6``). You can bookmark or share this link to access the specific result page again later.
-        * **Download Result Button:** A "Download result" button allows you to download the predicted pathway information as a ``.txt`` file for offline storage and analysis.
+   * **Experiment Information:**
+       * **Title (Optional):** You can assign a custom title to your prediction job for easier identification.
+       * **Target molecule in SMILES (Required):** Input the SMILES string of your target natural product. SMILES strings can be obtained from chemical databases like `PubChem <https://pubchem.ncbi.nlm.nih.gov/>`_.
+
+   * **Options:** Fine-tune the prediction process:
+       * **Number of iterations:** Maximum number of expansion steps in the pathway search (Default: 100). Increasing this may find longer pathways but takes more time.
+       * **Number of pathway generation:** The number of top-ranked pathways to be displayed (Default: 10).
+       * **Number of expansions:** The number of candidate precursors considered at each retrosynthetic step (Default: 10). Higher values increase search breadth.
+       * **Beam size:** The beam size used by the underlying single-step deep learning models (Retroformer, Graph2SMILES) (Default: 10).
+       * **Reaction Retriever (Switch):**
+           * **ON (Default):** Allows the model to use its internal database of known biochemical reactions. This helps in recognizing established metabolic steps (improves memorability).
+           * **OFF:** The model will rely solely on the generative deep learning models to predict steps, potentially finding more novel or alternative reactions.
+       * **Pathway Retriever (Switch):**
+           * **ON (Default):** Enables retrieval of entire known pathways or pathway segments from databases like KEGG if an intermediate matches. This can quickly complete parts of the retrosynthesis.
+           * **OFF:** Disables retrieval of full pathway segments.
+       * **Model type (Dropdown):**
+           * **Ensemble (Retroformer + Graph2SMILES) (Default):** Uses a combination of both deep learning models, generally providing the best performance.
+           * **Retroformer:** Uses only the Retroformer model.
+           * **Graph2SMILES:** Uses only the Graph2SMILES model.
+
+**2. "Building Blocks" Tab (Optional Customization)**
+
+   * **Viewing Defaults:** By default, READRetro uses a predefined set of 40 common metabolic precursors as the target end-points for retrosynthesis. You can view this list here.
+   * **Customization:** You can add or remove building blocks from this list. This is useful if you want the pathways to terminate at specific, known precursors relevant to your biological system or if you want to explore pathways to non-standard starting materials.
+
+**3. "Retrieval DB" Tab (Optional Customization for Advanced Users)**
+
+   * **Viewing Database:** This tab allows inspection of the reactions included in the Reaction Retriever's database.
+   * **Modification:** Advanced users can modify this database by adding new reactions or removing existing ones. This can be used to incorporate very specific domain knowledge or to force the exploration of pathways that avoid certain known reactions.
