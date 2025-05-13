@@ -1,22 +1,18 @@
-Welcome to Lumache's documentation!
+READRetro 
 ===================================
+**READRetro (Retrieval-Augmented Dual-view Retrosynthesis)** is a practical bio-retrosynthesis tool designed to predict the biosynthetic pathways of plant natural products. Predicting these pathways is challenging but crucial for understanding plant ecology and biochemistry. READRetro integrates deep learning models and database retrieval methods to propose plausible biosynthetic routes from target molecules to metabolic building blocks.
 
-**Lumache** (/lu'make/) is a Python library for cooks and food lovers
-that creates recipes mixing random ingredients.
-It pulls data from the `Open Food Facts database <https://world.openfoodfacts.org/>`_
-and offers a *simple* and *intuitive* API.
-
-Check out the :doc:`usage` section for further information, including
+Check out the :doc:`user_guide` section for further information, including
 how to :ref:`installation` the project.
 
-.. note::
-
-   This project is under active development.
+.. figure:: READRetro.jpg
+   :alt: Overview of READRetro Model Architecture
+   :align: center
 
 Contents
 --------
 
 .. toctree::
-
-   usage
-   api
+   :caption: Contents
+   quick_start
+   user_guide
