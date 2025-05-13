@@ -7,7 +7,7 @@ All commands should generally be run from the root of your `READRetro` project d
 Single-step Planning and Evaluation 
 ------------------------------------------------------------------------------------------------------------
 
-   This script(`eval_single.py`) evaluates the performance of the single-step retrosynthesis models.
+   This script (`eval_single.py`) evaluates the performance of the single-step retrosynthesis models.
 
    * **Ensemble Model (Default):**
 
@@ -81,7 +81,7 @@ Multi-step Planning
 Multi-step Evaluation 
 ------------------------------------------------------------------------------------------------------------
 
-   This script(`eval.py`) evaluates the accuracy of the planned multi-step pathways against a ground truth dataset.
+   This script (`eval.py`) evaluates the accuracy of the planned multi-step pathways against a ground truth dataset.
 
    .. code-block:: bash
 
