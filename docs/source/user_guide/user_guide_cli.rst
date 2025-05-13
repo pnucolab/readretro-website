@@ -4,7 +4,7 @@ User Guide for the CLI
 This guide provides comprehensive instructions for installing, configuring, and using the READRetro Command-Line Interface (CLI).
 All commands should generally be run from the root of your `READRetro` project directory. Set `CUDA_VISIBLE_DEVICES` to specify which GPU(s) to use.
 
-**1. Single-step Planning and Evaluation (`eval_single.py`)**
+Single-step Planning and Evaluation (`eval_single.py`)
 ------------------------------------------------------------------------------------------------------------
 
    This script evaluates the performance of the single-step retrosynthesis models.
@@ -30,7 +30,7 @@ All commands should generally be run from the root of your `READRetro` project d
 
    Replace `0` with your desired GPU ID. The script will output Top-K accuracy metrics.
 
-**2. Multi-step Planning**
+Multi-step Planning
 ------------------------------------------------------------------------------------------------------------
 
    * **Planning for Multiple Products (`run_mp.py`):**
@@ -78,7 +78,7 @@ All commands should generally be run from the root of your `READRetro` project d
        * You must also ensure the corresponding vocabulary files (e.g., `vocab.txt` or `vocab.pt`) are correctly located relative to the checkpoints or specify their paths if the script requires it, especially when using custom-trained models. Default paths are usually configured for the provided Zenodo models.
        * Additional options (e.g., for iteration count, beam size) might be available. Use `run_readretro --help` if available, or refer to the underlying `run.py` script for configurable parameters.
 
-**3. Multi-step Evaluation (`eval.py`)**
+Multi-step Evaluation (`eval.py`)
 ------------------------------------------------------------------------------------------------------------
 
    This script evaluates the accuracy of the planned multi-step pathways against a ground truth dataset.
