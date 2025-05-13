@@ -1,7 +1,8 @@
 Quick Start to use the CLI
 ==============================
 
-This section provides instructions for using the command-line interface based on the official code repository.
+This section provides instructions for using the command-line interface based on the official code repository:
+`https://github.com/SeulLee05/READRetro <https://github.com/SeulLee05/READRetro>`_
 
 Installation
 ----------------------------------------------------
