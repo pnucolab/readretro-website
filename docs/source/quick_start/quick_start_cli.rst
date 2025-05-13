@@ -4,15 +4,6 @@ Quick Start to use the CLI
 This section provides instructions for using the command-line interface based on the official code repository:
 `https://github.com/SeulLee05/READRetro <https://github.com/SeulLee05/READRetro>`_
 
-Prerequisites
----------------------------------------
-
-* **Software:**
-    * Python 3.8
-    * Conda (strongly recommended for managing dependencies and environments)
-* **Hardware:**
-    * A CUDA-enabled GPU is highly recommended for significantly faster processing, especially for deep learning model inference. CPU-only execution is possible but will be much slower.
-
 Installation
 ---------------------------------------
 

@@ -1,5 +1,5 @@
 User Guide for the CLI
-==============================
+============================================================
 
 This guide provides comprehensive instructions for installing, configuring, and using the READRetro Command-Line Interface (CLI).
 All commands should generally be run from the root of your `READRetro` project directory. Set `CUDA_VISIBLE_DEVICES` to specify which GPU(s) to use.
