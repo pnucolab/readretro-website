@@ -10,8 +10,13 @@ how to :ref:`installation` the project.
    :align: center
 
 
+.. raw:: html
+
+   <br><br>
+
 .. toctree::
    :caption: Contents
 
-   quick_start
+   quick_start_web
+   quick_start_cli
    user_guide

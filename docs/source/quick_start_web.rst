@@ -1,5 +1,5 @@
-Quick Start
-==========
+Quick Start to use the READRetro website
+==============================
 
 .. _installation:
 
