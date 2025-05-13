@@ -5,7 +5,7 @@ READRetro
 Check out the :doc:`user_guide` section for further information, including
 how to :ref:`installation` the project.
 
-.. figure:: READRetro.jpg
+.. figure:: _docs/READRetro.jpg
    :alt: Overview of READRetro Model Architecture
    :align: center
 
@@ -14,5 +14,6 @@ Contents
 
 .. toctree::
    :caption: Contents
+   
    quick_start
    user_guide
