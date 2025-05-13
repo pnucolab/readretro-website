@@ -17,6 +17,5 @@ how to :ref:`installation` the project.
 .. toctree::
    :caption: Contents
 
-   quick_start_web
-   quick_start_cli
+   quick_start
    user_guide

@@ -3,7 +3,7 @@ Quick Start to use the CLI
 
 This section provides instructions for using the command-line interface based on the official code repository.
 
-**Installation**
+Installation
 ----------------------------------------------------
 Run the following commands to install the dependencies using Conda:
 
@@ -24,7 +24,7 @@ Alternatively, you can install the ``readretro`` package through pip:
    pip install readretro==1.2.0
 
 
-**Data Setup**
+Data Setup
 ----------------------------------------------------
 Download the necessary data folder ``READRetro_data`` from `Zenodo <https://zenodo.org/records/11485641>`_ to ensure proper execution of the code and demonstrations in this repository.
 
@@ -61,13 +61,13 @@ Ensure the data is correctly located in ``READRetro``. Verify the following:
 The directories ``READRetro_data/model/bionavi``, ``READRetro_data/model/megan``, and ``READRetro_data/data/model_train_data`` are required for reproducing the values in the manuscript.
 
 
-**Model Preparation**
+Model Preparation
 ----------------------------------------------------
 We provide the trained models through Zenodo.
 You can use your own models trained using the official codes (https://github.com/coleygroup/Graph2SMILES and https://github.com/yuewan2/Retroformer).
 More detailed instructions can be found in ``demo.ipynb``.
 
-**Single-step Planning and Evaluation**
+Single-step Planning and Evaluation
 --------------------------------------------------------------------------------------------------------
 
 Run the following commands to evaluate the single-step performance of the models (replace ``${gpu_id}`` with your GPU ID):
@@ -82,7 +82,7 @@ Run the following commands to evaluate the single-step performance of the models
    CUDA_VISIBLE_DEVICES=${gpu_id} python eval_single.py -m g2s -s 200
 
 
-**Multi-step Planning**
+Multi-step Planning
 --------------------------------------------------------------------------------------------------------
 Run the following command to plan paths of multiple products using multiprocessing:
 
@@ -111,7 +111,7 @@ Run the following command to plan the retrosynthesis path of your own molecule:
 
 You can modify other hyperparameters described in ``run.py``.
 
-**Multi-step Evaluation:**
+Multi-step Evaluation
 --------------------------------------------------------------------------------------------------------
 
 Run the following command to evaluate the planned paths of the test molecules:
@@ -121,7 +121,7 @@ Run the following command to evaluate the planned paths of the test molecules:
    # Example: Evaluate results saved in result/debug.txt
    python eval.py result/debug.txt
 
-**Demo**
+Demo
 --------------------------------------------------------------------------------------------------------
 
 You can reproduce the figures and tables presented in the paper or train your own models by utilizing the provided ``demo.ipynb``.
