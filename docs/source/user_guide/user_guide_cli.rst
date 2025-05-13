@@ -9,19 +9,19 @@ Single-step Planning and Evaluation
 
    This script (`eval_single.py`) evaluates the performance of the single-step retrosynthesis models.
 
-   * **Ensemble Model (Default):**
+   * **Ensemble Model (Default)**
 
        .. code-block:: bash
 
           CUDA_VISIBLE_DEVICES=0 python eval_single.py
 
-   * **Retroformer Only:**
+   * **Retroformer Only**
 
        .. code-block:: bash
 
           CUDA_VISIBLE_DEVICES=0 python eval_single.py -m retroformer
 
-   * **Graph2SMILES Only:**
+   * **Graph2SMILES Only**
        The `-s` argument specifies the beam size for Graph2SMILES.
 
        .. code-block:: bash
@@ -33,19 +33,22 @@ Single-step Planning and Evaluation
 Multi-step Planning
 ------------------------------------------------------------------------------------------------------------
 
-   * **Planning for Multiple Products (`run_mp.py`):**
+   * **Planning for Multiple Products (`run_mp.py`)**
        This script is used for running multi-step predictions on a list of molecules, often utilizing multiprocessing for efficiency.
 
        .. code-block:: bash
 
           CUDA_VISIBLE_DEVICES=0 python run_mp.py
 
-       You may need to edit `run_mp.py` to:
-       * Specify the input file containing SMILES strings.
-       * Adjust `num_threads` based on your GPU capacity and number of CPU cores. Lower it if you encounter out-of-memory errors.
-       * Modify other hyperparameters like iteration limits, beam sizes, etc.
+       You may need to edit `run_mp.py` to
 
-   * **Planning for a Single Product (`run.py`):**
+            * Specify the input file containing SMILES strings.
+            
+            * Adjust `num_threads` based on your GPU capacity and number of CPU cores. Lower it if you encounter out-of-memory errors.
+       
+            * Modify other hyperparameters like iteration limits, beam sizes, etc.
+
+   * **Planning for a Single Product (`run.py`)**
        Use this script for predicting pathways for a single target molecule.
 
        .. code-block:: bash
@@ -60,14 +63,14 @@ Multi-step Planning
 
        Modify hyperparameters directly within `run.py` or via command-line arguments if supported by the script version.
 
-   * **Using the Pip Command (`run_readretro`):**
+   * **Using the Pip Command (`run_readretro`)**
        If you installed READRetro via pip, you can use the `run_readretro` command.
 
        .. code-block:: bash
 
           run_readretro -rc path/to/retroformer_model.pt -gc path/to/g2s_model.pt 'YOUR_TARGET_SMILES_STRING'
 
-       Example using typical checkpoint paths after data setup:
+       Example using typical checkpoint paths after data setup
 
        .. code-block:: bash
 
@@ -98,7 +101,10 @@ Multi-step Evaluation
 Using `demo.ipynb`
 ------------------
 
-The `demo.ipynb` Jupyter notebook, typically found in the root of the GitHub repository, provides a comprehensive guide to:
-* Reproducing figures and tables from the original READRetro publication.
-* Step-by-step examples of running predictions.
-* Instructions for training your own single-step models (Retroformer, Graph2SMILES) and integrating them into the multi-step planning framework.
+The `demo.ipynb` Jupyter notebook, typically found in the root of the GitHub repository, provides a comprehensive guide to
+
+     * Reproducing figures and tables from the original READRetro publication.
+     
+     * Step-by-step examples of running predictions.
+     
+     * Instructions for training your own single-step models (Retroformer, Graph2SMILES) and integrating them into the multi-step planning framework.
