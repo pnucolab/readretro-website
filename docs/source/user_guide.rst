@@ -1,4 +1,4 @@
-Quick Start 
+User Guide
 ==============================
 
 .. toctree::
