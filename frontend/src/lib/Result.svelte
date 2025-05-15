@@ -31,6 +31,7 @@
 	let loaded = false;
 	let pathways = [];
 	let reverse = true;
+	let weight;
 	let filters = [];
 	let reaction = [];
 	let selected;
@@ -64,6 +65,110 @@
 						}
 					}
 				}
+
+				/*function sumWeightsWithNullCarryover(matrix) {
+					const numRows = matrix.length;
+					const numCols = matrix[0].length;
+					const colSums = new Array(numCols).fill(0);
+					const pastSums = new Array(numCols).fill(0); // 누적용 (carry over)
+
+					// 각 row에 대해
+					for (let row = 0; row < numRows; row++) {
+						let currentRow = matrix[row];
+						let rowValues = [];
+
+						for (let col = 0; col < numCols; col++) {
+							const node = currentRow[col];
+							let w = 0;
+
+							if (node && node.weight != null) {
+								const num = parseFloat(node.weight);
+								w = isNaN(num) ? 0 : num;
+
+								// null이었다가 값이 처음 나타난 경우 → carry over
+								if (pastSums[col] === 0 && row > 0) {
+									let carry = 0;
+									for (let prevRow = 0; prevRow < row; prevRow++) {
+										for (let otherCol = 0; otherCol < numCols; otherCol++) {
+											if (otherCol !== col) {
+												const n = matrix[prevRow][otherCol];
+												if (n && n.weight != null) {
+													const v = parseFloat(n.weight);
+													carry += isNaN(v) ? 0 : v;
+												}
+											}
+										}
+									}
+									colSums[col] += carry;
+									pastSums[col] += carry;
+								}
+
+								colSums[col] += w;
+								pastSums[col] += w;
+							}
+						}
+					}
+					console.log('colSums:', colSums);
+					return colSums;
+				}
+				function negativeLogClippedScores(scores) {
+					return scores.map((score) => {
+						const clipped = Math.min(Math.max(score, 1e-3), 1.0);
+						return 0.0 - Math.log(clipped);
+					});
+				}*/
+
+				function sumWeightsWithNullCarryover(matrix) {
+					const numRows = matrix.length;
+					const numCols = matrix[0].length;
+					const colSums = new Array(numCols).fill(0);
+					const pastSums = new Array(numCols).fill(0);
+					function negativeLogClippedScore(scores) {
+						const clipped = Math.min(Math.max(scores, 1e-3), 1.0);
+						return 0.0 - Math.log(clipped);
+					}
+
+					for (let row = 0; row < numRows; row++) {
+						let currentRow = matrix[row];
+
+						for (let col = 0; col < numCols; col++) {
+							const node = currentRow[col];
+							if (node && node.weight != null && !node.kegg_reaction) {
+								const num = parseFloat(node.weight);
+								const rawWeight = isNaN(num) ? 0 : num;
+								const negLog = negativeLogClippedScore(rawWeight);
+
+								if (pastSums[col] <= 1e-8 && row > 0) {
+									let carry = 0;
+									for (let prevRow = 0; prevRow < row; prevRow++) {
+										for (let otherCol = 0; otherCol < numCols; otherCol++) {
+											if (otherCol !== col) {
+												const n = matrix[prevRow][otherCol];
+												if (n && n.weight != null) {
+													const v = parseFloat(n.weight);
+													const w = isNaN(v) ? 0 : v;
+													carry += negativeLogClippedScore(w);
+												}
+											}
+										}
+									}
+									colSums[col] += carry;
+									pastSums[col] += carry;
+								}
+
+								colSums[col] += negLog;
+								pastSums[col] += negLog;
+							}
+						}
+					}
+
+					return colSums;
+				}
+
+				const summedWeightsList = pathways.map((pathway) => {
+					return sumWeightsWithNullCarryover(pathway);
+				});
+				weight = summedWeightsList;
 				r = pathways.map((p) => {
 					return p.map((k) => {
 						return k.map((j) => {
@@ -103,6 +208,7 @@
 	}
 
 	async function download_result() {
+		console.log(result);
 		let final_result = '';
 		final_result += '#title: ' + result.title + '\n';
 		final_result += '#task ID: ' + result.task_id + '\n';
@@ -238,6 +344,18 @@
 										<div
 											class="flex items-center {reverse ? 'flex-row' : 'flex-row-reverse'} flex-1"
 										>
+											{#if i === 0}
+												<p
+													style="
+											font-weight: bold;
+											font-size: 0.9rem;
+											color: #4A90E2;
+											margin: 4px 20px 4px 12px;  
+										  "
+												>
+													{parseFloat(weight[n][j]).toFixed(4)}
+												</p>
+											{/if}
 											{#if k}
 												{#if i != 0}
 													<div class="flex flex-row w-24 mx-2 shrink-0 h-fit self-center">
@@ -250,41 +368,87 @@
 															{:else if k.reaction}
 																{#if parseInt(k.weight) === 1}
 																	{#if r && r[n] && r[n][i - 1] && r[n][i - 1][j] && r[n][i - 1][j][0]}
-																		{#each r[n][i - 1][j][0] as m}<a
+																		{#each r[n][i - 1][j][0] as m}
+																			<a
 																				class="text-center "
 																				href="http://www.kegg.jp/entry/{m}"
 																				target="_blank">{m}</a
 																			>{/each}{/if}
-																	<img src={arrow_image} class="px-2" alt={m + ' to ' + k} />
+																	<div class="relative inline-block">
+																		<img
+																			src={arrow_image}
+																			alt={`${m} to ${k}`}
+																			class="w-32 h-auto"
+																		/>
+																		<span
+																			class="absolute inset-0 flex items-center justify-center text-white font-bold"
+																		>
+																			{k.weight}
+																		</span>
+																	</div>
+
 																	{#if r && r[n] && r[n][i - 1] && r[n][i - 1][j] && r[n][i - 1][j][1]}
-																		{#each r[n][i - 1][j][1] as m}<a
+																		{#each r[n][i - 1][j][1] as m}
+																			<a
 																				class="text-center "
 																				href="http://www.brenda-enzymes.org/enzyme.php?ecno={m}"
 																				target="_blank">EC: {m}</a
 																			>{/each}{/if}
 																{:else}
 																	{#if r && r[n] && r[n][i - 1] && r[n][i - 1][j] && r[n][i - 1][j][0]}
-																		{#each r[n][i - 1][j][0] as m}<a
+																		{#each r[n][i - 1][j][0] as m}
+																			<a
 																				class="text-center "
 																				href="http://www.kegg.jp/entry/{m}"
 																				target="_blank">{m}</a
 																			>{/each}{/if}
-																	<img src={arrow_image_red} class="px-2" alt={m + ' to ' + k} />
+																	<div class="relative inline-block">
+																		<img
+																			src={arrow_image_red}
+																			alt={`${m} to ${k}`}
+																			class="w-32 h-auto"
+																		/>
+																		<span
+																			class="absolute inset-0 flex items-center justify-center text-white font-bold"
+																		>
+																			{k.weight}
+																		</span>
+																	</div>
 																	{#if r && r[n] && r[n][i - 1] && r[n][i - 1][j] && r[n][i - 1][j][1]}
-																		{#each r[n][i - 1][j][1] as m}<a
+																		{#each r[n][i - 1][j][1] as m}
+																			<a
 																				class="text-center "
 																				href="http://www.brenda-enzymes.org/enzyme.php?ecno={m}"
 																				target="_blank">EC: {m}</a
 																			>{/each}{/if}
 																{/if}
 															{:else if parseInt(k.weight) === 1}
-																<img src={arrow_image} class="px-2" alt={m + ' to ' + k} />
+																<div class="relative inline-block">
+																	<img src={arrow_image} alt={`${m} to ${k}`} class="w-32 h-auto" />
+																	<span
+																		class="absolute inset-0 flex items-center justify-center text-white font-bold"
+																	>
+																		{k.weight}
+																	</span>
+																</div>
 															{:else}
-																<img src={arrow_image_red} class="px-2" alt={m + ' to ' + k} />
+																<div class="relative inline-block">
+																	<img
+																		src={arrow_image_red}
+																		alt={`${m} to ${k}`}
+																		class="w-32 h-auto"
+																	/>
+																	<span
+																		class="absolute inset-0 flex items-center justify-center text-white font-bold"
+																	>
+																		{k.weight}
+																	</span>
+																</div>
 															{/if}
 														</div>
 													</div>
 												{/if}
+
 												{#if k.kegg_reaction}
 													<Card
 														color="green"
