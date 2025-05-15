@@ -3,7 +3,7 @@
 //let site_root = 'https://readretro.net/api/v1/';
 
 export async function load(uri, method = 'GET', file = null) {
-	const site_root = document.location.origin + '/api/v1/';
+	const site_root = 'http://localhost:8000/';
 	console.log(document.location.origin);
 	let url = new URL(site_root + uri);
 	let resp;
