@@ -18,13 +18,13 @@ Submitting a Prediction Job
 
 Predictions are configured and submitted primarily through the "Arguments" tab, with optional customizations in other tabs.
 
-**1. "Arguments" Tab (Main Configuration)**
+**1. Arguments Tab (Main Configuration)**
 
-   * **Experiment Information:**
+   * **Experiment Information**
        * **Title (Optional):** You can assign a custom title to your prediction job for easier identification.
        * **Target molecule in SMILES (Required):** Input the SMILES string of your target natural product. SMILES strings can be obtained from chemical databases like `PubChem <https://pubchem.ncbi.nlm.nih.gov/>`_.
 
-   * **Options:** Fine-tune the prediction process:
+   * **Options** (Fine-tune the prediction process)
        * **Number of iterations:** Maximum number of expansion steps in the pathway search (Default: 100). Increasing this may find longer pathways but takes more time.
        * **Number of pathway generation:** The number of top-ranked pathways to be displayed (Default: 10).
        * **Number of expansions:** The number of candidate precursors considered at each retrosynthetic step (Default: 10). Higher values increase search breadth.
@@ -40,12 +40,22 @@ Predictions are configured and submitted primarily through the "Arguments" tab, 
            * **Retroformer:** Uses only the Retroformer model.
            * **Graph2SMILES:** Uses only the Graph2SMILES model.
 
-**2. "Building Blocks" Tab (Optional Customization)**
+**2. Building Blocks Tab (Optional Customization)**
 
-   * **Viewing Defaults:** By default, READRetro uses a predefined set of 40 common metabolic precursors as the target end-points for retrosynthesis. You can view this list here.
-   * **Customization:** You can add or remove building blocks from this list. This is useful if you want the pathways to terminate at specific, known precursors relevant to your biological system or if you want to explore pathways to non-standard starting materials.
+   * **Viewing Defaults** 
 
-**3. "Retrieval DB" Tab (Optional Customization for Advanced Users)**
+        By default, READRetro uses a predefined set of 40 common metabolic precursors as the target end-points for retrosynthesis. You can view this list here.
+   
+   * **Customization** 
 
-   * **Viewing Database:** This tab allows inspection of the reactions included in the Reaction Retriever's database.
-   * **Modification:** Advanced users can modify this database by adding new reactions or removing existing ones. This can be used to incorporate very specific domain knowledge or to force the exploration of pathways that avoid certain known reactions.
+        You can add or remove building blocks from this list. This is useful if you want the pathways to terminate at specific, known precursors relevant to your biological system or if you want to explore pathways to non-standard starting materials.
+
+**3. Retrieval DB Tab (Optional Customization for Advanced Users)**
+
+   * **Viewing Database** 
+
+        This tab allows inspection of the reactions included in the Reaction Retriever's database.
+
+   * **Modification** 
+
+        Advanced users can modify this database by adding new reactions or removing existing ones. This can be used to incorporate very specific domain knowledge or to force the exploration of pathways that avoid certain known reactions.
