@@ -76,9 +76,11 @@ The READRetro models and evaluation scripts require specific data files, includi
         ├── result/
         └── scripts/
 
-3.  **Place and Prepare Data:**
-    * Move the downloaded `READRetro_data` folder into your main `READRetro` project directory (e.g., if you cloned the GitHub repo, it should be `READRetro/READRetro_data`).
-    * Navigate into the `READRetro_data` directory and run the setup script:
+3.  **Place and Prepare Data**
+
+       * Move the downloaded `READRetro_data` folder into your main `READRetro` project directory (e.g., if you cloned the GitHub repo, it should be `READRetro/READRetro_data`).
+       
+       * Navigate into the `READRetro_data` directory and run the setup script:
 
         .. code-block:: bash
 
@@ -86,20 +88,32 @@ The READRetro models and evaluation scripts require specific data files, includi
            sh data.sh
            cd ..  # Go back to the main READRetro directory
 
-4.  **Verify Data Paths:**
-    Ensure that the symbolic links or copied data are correctly pointing to the locations expected by the scripts. For example:
-    * `READRetro/retroformer/saved_models` should correspond to `READRetro_data/model/retroformer/saved_models`.
-    * `READRetro/g2s/saved_models` should correspond to `READRetro_data/model/g2s/saved_models`.
-    * `READRetro/data` should correspond to `READRetro_data/data/multistep_data`.
-    * Other paths like `result/` and `scripts/` should also align.
+4.  **Verify Data Paths**
+
+    Ensure that the symbolic links or copied data are correctly pointing to the locations expected by the scripts.
+    
+       * `READRetro/retroformer/saved_models` should correspond to `READRetro_data/model/retroformer/saved_models`.
+       
+       * `READRetro/g2s/saved_models` should correspond to `READRetro_data/model/g2s/saved_models`.
+       
+       * `READRetro/data` should correspond to `READRetro_data/data/multistep_data`.
+       
+       * Other paths like `result/` and `scripts/` should also align.
 
     The directories `READRetro_data/model/bionavi/`, `READRetro_data/model/megan/`, and `READRetro_data/data/model_train_data/` are typically needed for reproducing results from the original manuscript.
 
 Model Preparation
 -----------------------------------------------------------------------------------------------
 
-* **Using Pre-trained Models:** The `READRetro_data` bundle from Zenodo includes pre-trained model checkpoints for Retroformer and Graph2SMILES, which are placed in the correct directories by the `data.sh` script. These are generally located under `READRetro/retroformer/saved_models/` and `READRetro/g2s/saved_models/`.
-* **Training Your Own Models:** If you wish to train your own models, refer to the official repositories for:
+* **Using Pre-trained Models** 
+
+  The `READRetro_data` bundle from Zenodo includes pre-trained model checkpoints for Retroformer and Graph2SMILES, which are placed in the correct directories by the `data.sh` script. These are generally located under `READRetro/retroformer/saved_models/` and `READRetro/g2s/saved_models/`.
+
+* **Training Your Own Models** 
+
+    If you wish to train your own models, refer to the official repositories for
+
     * Graph2SMILES: `https://github.com/coleygroup/Graph2SMILES <https://github.com/coleygroup/Graph2SMILES>`_
     * Retroformer: `https://github.com/yuewan2/Retroformer <https://github.com/yuewan2/Retroformer>`_
+    
     The `demo.ipynb` often included in the READRetro repository provides more detailed instructions on training and using custom models. Ensure your custom model checkpoints and vocabulary files are placed where the READRetro scripts expect them.
