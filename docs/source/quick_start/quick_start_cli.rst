@@ -111,9 +111,8 @@ Model Preparation
 
 * **Training Your Own Models** 
 
-    If you wish to train your own models, refer to the official repositories for
-
-    * Graph2SMILES: `https://github.com/coleygroup/Graph2SMILES <https://github.com/coleygroup/Graph2SMILES>`_
-    * Retroformer: `https://github.com/yuewan2/Retroformer <https://github.com/yuewan2/Retroformer>`_
+   If you wish to train your own models, refer to the official repositories for
+     * Graph2SMILES: `https://github.com/coleygroup/Graph2SMILES <https://github.com/coleygroup/Graph2SMILES>`_
+     * Retroformer: `https://github.com/yuewan2/Retroformer <https://github.com/yuewan2/Retroformer>`_
     
-    The `demo.ipynb` often included in the READRetro repository provides more detailed instructions on training and using custom models. Ensure your custom model checkpoints and vocabulary files are placed where the READRetro scripts expect them.
+   The `demo.ipynb` often included in the READRetro repository provides more detailed instructions on training and using custom models. Ensure your custom model checkpoints and vocabulary files are placed where the READRetro scripts expect them.
