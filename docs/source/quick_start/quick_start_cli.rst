@@ -109,9 +109,10 @@ Model Preparation
 
   The `READRetro_data` bundle from Zenodo includes pre-trained model checkpoints for Retroformer and Graph2SMILES, which are placed in the correct directories by the `data.sh` script. These are generally located under `READRetro/retroformer/saved_models/` and `READRetro/g2s/saved_models/`.
 
-* **Training Your Own Models** 
+* **Training Your Own Models**
 
-   If you wish to train your own models, refer to the official repositories for
+  If you wish to train your own models, refer to the official repositories for
+
      * Graph2SMILES: `https://github.com/coleygroup/Graph2SMILES <https://github.com/coleygroup/Graph2SMILES>`_
      * Retroformer: `https://github.com/yuewan2/Retroformer <https://github.com/yuewan2/Retroformer>`_
     
