@@ -13,6 +13,8 @@ import pandas as pd
 import traceback
 
 NUMBER_OF_GPUS = torch.cuda.device_count()
+MAX_JOBS = 4
+
 class Node:
     def __init__(self, smiles, weight, prev = None):
         self.smiles = smiles
@@ -135,16 +137,20 @@ def run_inference(product: str, building_blocks: str, iterations: int, exp_topk:
     task_id = run_inference.request.id
     gpu_id = -1
     while True:
-        gpu_occupied = [False for _ in range(NUMBER_OF_GPUS)]
+        gpu_occupied = [0 for _ in range(NUMBER_OF_GPUS)]
         with db_context() as s:
             task = s.query(Task).filter(Task.task_id == task_id).first()
             for task_running in s.query(Task).filter(Task.status == 1).all():
-                gpu_occupied[task_running.gpu_id] = True
-            if not all(gpu_occupied):
-                task.gpu_id = gpu_id = gpu_occupied.index(False)
-                task.status = 1
-                s.commit()
+                gpu_occupied[task_running.gpu_id] += 1
+            for idx, n_jobs in enumerate(gpu_occupied):
+                if n_jobs < MAX_JOBS:
+                    task.gpu_id = gpu_id = idx
+                    task.status = 1
+                    s.commit()
+                    break
+            if gpu_id != -1:
                 break
+        print("Waiting for a slot...")
         time.sleep(1)
     try:
         if model_type == "retriever_only":

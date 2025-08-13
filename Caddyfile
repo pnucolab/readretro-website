@@ -1,0 +1,33 @@
+:8080 {
+	# HTTP server on port 8080
+	
+	# Serve robots.txt
+	handle /robots.txt {
+		file_server {
+			root /static
+		}
+	}
+	
+	# API routes - remove /api/v1 prefix and forward to backend
+	handle /api/v1/* {
+		uri strip_prefix /api/v1
+		reverse_proxy backend:8000 {
+			header_up Host {host}
+			header_up X-Forwarded-Port {server_port}
+		}
+	}
+	
+	# Static files
+	handle /static/* {
+		file_server {
+			root /static
+		}
+	}
+	
+	# Default route - forward to frontend
+	handle {
+		reverse_proxy frontend:3000 {
+			header_up Host {host}
+		}
+	}
+}
