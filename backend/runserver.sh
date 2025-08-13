@@ -1,2 +1,2 @@
-celery -A celery_app worker --loglevel=INFO &
+celery -A celery_app worker --loglevel=INFO -c 8 & 
 uvicorn main:app --host=0.0.0.0 --port=8000 --root-path /api/v1 --proxy-headers --forwarded-allow-ips '*'
