@@ -1,10 +1,20 @@
-# Global options to disable automatic HTTPS
+# Global options
 {
-	auto_https off
+	# Enable automatic HTTPS
+	email admin@readretro.net
 }
 
-:8080 {
-	# HTTP server on port 8080 - HTTPS disabled
+# HTTP to HTTPS redirect
+http://readretro.net {
+	redir https://readretro.net{uri} permanent
+}
+
+# HTTPS server
+readretro.net {
+	# Enable TLS
+	tls {
+		protocols tls1.2 tls1.3
+	}
 	
 	# Serve robots.txt
 	handle /robots.txt {
