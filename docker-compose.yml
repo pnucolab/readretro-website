@@ -1,3 +1,5 @@
+version: '3.3'
+
 services:
   frontend:
     build:
@@ -16,13 +18,6 @@ services:
       POSTGRES_PASSWORD: "${POSTGRES_PASSWORD}"
       POSTGRES_HOST: "database"
       REDIS_HOST: "redis"
-    deploy:
-      resources:
-        reservations:
-          devices:
-            - driver: nvidia
-              count: 2
-              capabilities: [gpu]
     restart: always
   redis:
     image: redis:alpine
